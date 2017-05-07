@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--This layout contains com.github.johnkil.print.PrintView, -->
+<!--besides setting gradle, still need to put font.ttf into-->
+<!--assets/fonts/-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:contentPaddingRight="5dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:visibility="gone"
+                android:id="@+id/node_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false" />
+
+            <com.github.johnkil.print.PrintView
+            android:id="@+id/arrow_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:iconText="@string/ic_keyboard_arrow_right"
+            app:iconColor="#12558C"
+            app:iconFont="fonts/material-icon-font.ttf"
+            app:iconSize="20dp" />
+
+            <ImageView
+                android:id="@+id/tree_item_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                tools:src="@drawable/ic_gpx_64" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/tree_item_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:textColor="@android:color/black"
+                tools:text="tree item" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

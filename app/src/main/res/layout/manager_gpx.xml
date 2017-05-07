@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="40dp"
+    android:background="@color/gpxManager">
+
+    <Button
+        android:id="@+id/btn_pick_gpx_files"
+        style="@style/button_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/mapbutton_background"
+        android:drawableLeft="@drawable/ic_gpx_64"
+        android:padding="10dp"
+        android:text="匯入航跡檔" />
+
+    <View
+        android:id="@+id/separate"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@+id/btn_pick_gpx_files"
+        android:layout_margin="5dp"
+        android:background="#cc898989" />
+
+    <LinearLayout
+        android:id="@+id/gpx_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_below="@+id/separate"
+        android:layout_above="@+id/leave_gpx_manager"></LinearLayout>
+
+    <Button
+        android:id="@+id/leave_gpx_manager"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:text="確定" />
+</RelativeLayout>

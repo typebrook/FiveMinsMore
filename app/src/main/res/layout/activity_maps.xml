@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/sub_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0" />
+
+        <RelativeLayout
+            android:id="@+id/main_map"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                map:mapType="hybrid"
+                map:uiZoomControls="true"
+                tools:context="io.typebrook.fiveminsmore.MapsActivity" />
+
+            <Button
+                android:id="@+id/btn_switch"
+                style="@style/button_map"
+                android:layout_marginLeft="9.8dp"
+                android:layout_marginTop="10.4dp"
+                android:text="隱藏" />
+
+            <Button
+                android:id="@+id/btn_pick_tiles"
+                style="@style/button_map"
+                android:layout_alignLeft="@+id/btn_switch"
+                android:layout_below="@+id/btn_switch"
+                android:drawableTop="@drawable/ic_layers_black_24dp"
+                android:paddingTop="8.5dp" />
+
+            <Button
+                android:id="@+id/btn_tracking"
+                style="@style/button_map"
+                android:layout_alignLeft="@+id/btn_switch"
+                android:layout_below="@+id/btn_pick_tiles"
+                android:drawableTop="@drawable/btn_tracking"
+                android:paddingTop="3dp" />
+
+
+            <Button
+                android:id="@+id/btn_gpx_files_list"
+                style="@style/button_map"
+                android:layout_alignLeft="@+id/btn_switch"
+                android:layout_below="@+id/btn_tracking"
+                android:drawableTop="@drawable/ic_geo_data"
+                android:paddingTop="8.5dp" />
+
+            <Button
+                android:id="@+id/btn_help"
+                style="@style/button_map"
+                android:layout_alignLeft="@+id/btn_switch"
+                android:layout_below="@+id/btn_gpx_files_list"
+                android:drawableTop="@drawable/ic_help_black_24dp"
+                android:paddingTop="8.5dp" />
+
+            <TextView
+                android:id="@+id/zoom_number"
+                style="@style/button_map"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="92dp"
+                android:layout_marginRight="9.8dp"
+                android:textSize="20sp"
+                tools:text="10" />
+
+            <ImageView
+                android:id="@+id/cross"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ic_cross_24dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:padding="5dp"
+        android:background="#80FFFFFF"
+        android:gravity="center"
+        tools:text="lat, lon" />
+</RelativeLayout>

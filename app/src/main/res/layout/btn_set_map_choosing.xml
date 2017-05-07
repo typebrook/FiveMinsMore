@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btn_set_map_choosing"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/btn_map_top"
+        android:layout_width="42.5dp"
+        android:layout_height="42.5dp"
+        android:background="@drawable/btn_map_1" />
+
+    <ImageButton
+        android:id="@+id/btn_map_bottom"
+        android:layout_width="42.5dp"
+        android:layout_height="42.5dp"
+        android:background="@drawable/btn_map_2" />
+</LinearLayout>

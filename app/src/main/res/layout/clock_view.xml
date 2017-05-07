@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--<rm.com.clocks.ClockImageView xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:app="http://schemas.android.com/apk/res-auto"--><!--android:id="@+id/clocks"--><!--android:layout_width="0dp"--><!--android:layout_height="0dp"--><!--app:clockColor="#BBFFFFFF"--><!--app:frameWidth="regular"--><!--app:hours="16"--><!--app:indeterminateSpeed="2"--><!--app:minutes="20"--><!--app:pointerWidth="thin"--><!--app:timeSetDuration="400" />-->
+
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clock"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_centerHorizontal="true"
+    android:visibility="invisible" />

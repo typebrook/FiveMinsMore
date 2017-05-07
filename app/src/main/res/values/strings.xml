@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">FiveMinsMore</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="title_activity_file_pick">File Pick</string>
+    <!--When ConnectionFailed-->
+    <string name="google_play_service_missing">裝置沒有安裝Google Play服務</string>
+    <!-- Settings Menu Item [CHAR LIMIT=NONE] -->
+    <string name="settings_menu_item">Settings</string>
+    <!-- Settings Menu Item [CHAR LIMIT=NONE] -->
+    <string name="double_maps_menu_item">雙地圖模式</string>
+    <string name="read_menu_item">閱讀模式</string>
+    <string name="options">其它選項</string>
+    <string name="setting_gps">設定GPS</string>
+    <string name="setting_cross">顯示/隱藏中心點</string>
+    <string name="about">關於</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="gpx_manager_default_text">尚未匯入任何航跡及航點</string>
+
+    <!--icon for tree view-->
+    <string name="ic_keyboard_arrow_right">&#xe0c7;</string>
+    <string name="ic_email">&#xe087;</string>
+    <string name="ic_folder">&#xe09d;</string>
+    <string name="ic_keyboard_arrow_down">&#xe0c5;</string>
+    <string name="ic_drive_image">&#xe07b;</string>
+    <string name="ic_drive_file">&#xe077;</string>
+    <string name="ic_add">&#xe006;</string>
+    <string name="ic_close">&#xe048;</string>
+</resources>
