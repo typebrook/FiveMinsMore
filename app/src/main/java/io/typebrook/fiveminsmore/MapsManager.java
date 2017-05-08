@@ -14,6 +14,7 @@ import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
 import io.typebrook.fiveminsmore.model.TileList;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -48,13 +49,13 @@ import static io.typebrook.fiveminsmore.model.TileList.SINICA_URL_FORMAT;
  * Created by pham on 2017/4/10.
  */
 
-public class MapManager implements
+public class MapsManager implements
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnCameraMoveListener {
-    private static final String TAG = "MapManager";
+    private static final String TAG = "MapsManager";
 
     protected static final int MAP_CODE_MAIN = 0;
     protected static final int MAP_CODE_SUB = 1;
@@ -98,7 +99,7 @@ public class MapManager implements
     // Temporary marker
     Marker mMarker;
 
-    MapManager(Context context, GoogleMap map) {
+    MapsManager(Context context, GoogleMap map) {
         mContext = context;
         mMaps.add(MAP_CODE_MAIN, map);
         mMapTiles.add(MAP_CODE_MAIN, null);
@@ -210,29 +211,33 @@ public class MapManager implements
 
     @Override
     public void onMapClick(LatLng latLng) {
-        if (mMarker != null)
+        if (mMarker != null) {
             mMarker.remove();
+            mMarker = null;
+        } else {
+            String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
+            String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
+            mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("點選位置")
+                            .snippet("北緯" + lat + "度，東經" + lon + "度")
+                            .draggable(true)
+//                        .anchor(0.5f, 0.5f)
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
+            );
+
+            mMarker.showInfoWindow();
+            mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
     }
 
     // 長按就加人waypoint，使用CustomMarker
     @Override
     public void onMapLongClick(LatLng latLng) {
-        if (mMarker != null)
+        if (mMarker != null) {
             mMarker.remove();
-
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-        mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("點選位置")
-                        .snippet("北緯" + lat + "度，東經" + lon + "度")
-                        .draggable(true)
-//                        .anchor(0.5f, 0.5f)
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
-        );
-
-        mMarker.showInfoWindow();
-        mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMarker = null;
+        }
     }
 
     @Override

@@ -89,7 +89,7 @@ public class MapsforgeTileSource {
         ExternalRenderTheme renderTheme;
 
         try {
-            renderTheme = new ExternalRenderTheme(Constant.TEST_THEME_PATH);
+            renderTheme = new ExternalRenderTheme(Constant.DEFAULT_THEME_PATH);
             Log.d(TAG, "find themeFuture file");
             if (renderTheme.getRelativePathPrefix() != null)
                 Log.d(TAG, renderTheme.getRelativePathPrefix());

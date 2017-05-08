@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">FiveMinsMore</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">再5分鐘</string>
 
     <string name="title_activity_file_pick">File Pick</string>
     <!--When ConnectionFailed-->

@@ -78,7 +78,7 @@ public class GpxManager {
         ((ViewGroup) mContext.findViewById(R.id.container)).removeView(managerView);
     }
 
-    public Gpx add(File file, MapManager manager) {
+    public Gpx add(File file, MapsManager manager) {
         try {
             Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
 

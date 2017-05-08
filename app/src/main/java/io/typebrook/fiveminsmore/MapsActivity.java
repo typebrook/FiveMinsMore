@@ -62,10 +62,10 @@ import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
-import static io.typebrook.fiveminsmore.MapManager.MAP_CODE_MAIN;
-import static io.typebrook.fiveminsmore.MapManager.MAP_CODE_SUB;
-import static io.typebrook.fiveminsmore.MapManager.TRKPTS_STYLE;
-import static io.typebrook.fiveminsmore.MapManager.TRK_STYLE;
+import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
+import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
+import static io.typebrook.fiveminsmore.MapsManager.TRKPTS_STYLE;
+import static io.typebrook.fiveminsmore.MapsManager.TRK_STYLE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 
@@ -82,7 +82,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     // 地圖元件
     private GoogleMap mMap;
-    private MapManager mMapManager;
+    private MapsManager mMapsManager;
 
     // Google API用戶端物件
     protected GoogleApiClient mGoogleApiClient;
@@ -184,7 +184,7 @@ public class MapsActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap map) {
 
         mMap = map;
-        mMapManager = new MapManager(this, map);
+        mMapsManager = new MapsManager(this, map);
         mGpxManager = new GpxManager(this);
 
         if (checkLocationPermission())
@@ -193,7 +193,7 @@ public class MapsActivity extends AppCompatActivity implements
             askPermission();
 
         // Set the boundaries of Taiwan
-        mMapManager.setTaiwanBoundaries();
+        mMapsManager.setTaiwanBoundaries();
     }
 
     @Override
@@ -217,7 +217,7 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_pick_tiles:
-                mMapManager.setTileOverlay();
+                mMapsManager.setTileOverlay();
                 break;
 
             case R.id.btn_tracking:
@@ -265,9 +265,9 @@ public class MapsActivity extends AppCompatActivity implements
                 mTopMapBtn.setSelected(!mTopMapBtn.isSelected());
 
                 if (mBottomMapBtn.isSelected()) {
-                    mMapManager.setCurrentMap(MAP_CODE_MAIN);
+                    mMapsManager.setCurrentMap(MAP_CODE_MAIN);
                 } else {
-                    mMapManager.setCurrentMap(MAP_CODE_SUB);
+                    mMapsManager.setCurrentMap(MAP_CODE_SUB);
                 }
                 break;
 
@@ -294,7 +294,7 @@ public class MapsActivity extends AppCompatActivity implements
 
                     for (NormalFile fileData : list) {
                         File file = new File(fileData.getPath());
-                        mGpxManager.add(file, mMapManager);
+                        mGpxManager.add(file, mMapsManager);
                     }
                     mGpxManager.renewDialog();
                 }
@@ -307,9 +307,9 @@ public class MapsActivity extends AppCompatActivity implements
                     MapsForgeTilesProvider p = new MapsForgeTilesProvider(getApplication(),
                             new File(list.get(0).getPath()));
 
-                    mMapManager.getMapTiles().set(MapManager.currentMapCode,
+                    mMapsManager.getMapTiles().set(MapsManager.currentMapCode,
                             mMap.addTileOverlay(new TileOverlayOptions().tileProvider(p)));
-                    mMapManager.getMapTiles().get(MapManager.currentMapCode).setZIndex(-10);
+                    mMapsManager.getMapTiles().get(MapsManager.currentMapCode).setZIndex(-10);
                     mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                 }
                 break;
@@ -322,6 +322,7 @@ public class MapsActivity extends AppCompatActivity implements
                         kmlLayer = new KmlLayer(mMap, kmlStream, this);
                         kmlLayer.addLayerToMap();
                     } catch (Exception e) {
+                        Log.d(TAG, e.toString());
                     }
                 }
                 break;
@@ -577,7 +578,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
 
         // 更新Cluster
-        mMapManager.getCurrentClusterManager().cluster();
+        mMapsManager.getCurrentClusterManager().cluster();
 
         // 將航跡的Polyline更新
         if (!mCurrentTrackPoints.isEmpty())
@@ -603,7 +604,7 @@ public class MapsActivity extends AppCompatActivity implements
         mSubMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
-                mMapManager.enableSubMap(map);
+                mMapsManager.enableSubMap(map);
             }
         });
 
@@ -643,7 +644,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     private void removeSubMap() {
-        mMapManager.disableSubMap();
+        mMapsManager.disableSubMap();
 
         mBottomMapBtn.setVisibility(View.INVISIBLE);
         mTopMapBtn.setVisibility(View.INVISIBLE);

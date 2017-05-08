@@ -1,6 +1,5 @@
 package io.typebrook.fiveminsmore.model;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import io.typebrook.fiveminsmore.MapManager;
+import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
@@ -27,13 +26,13 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
     private static final String TAG = "GpxHolder";
     private PrintView arrowView;
     private CheckBox nodeSelector;
-    private MapManager manager;
+    private MapsManager manager;
 
     public GpxHolder(Context context) {
         super(context);
     }
 
-    public GpxHolder(Context context, MapManager manager) {
+    public GpxHolder(Context context, MapsManager manager) {
         super(context);
         this.manager = manager;
     }
