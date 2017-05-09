@@ -1,4 +1,4 @@
-package io.typebrook.fiveminsmore.model;
+package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,21 +8,25 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import io.typebrook.fiveminsmore.MapsManager;
-import io.typebrook.fiveminsmore.R;
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.maps.android.clustering.ClusterManager;
 import com.unnamed.b.atv.model.TreeNode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.MapsManager;
+import io.typebrook.fiveminsmore.R;
+import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.model.MapUtils;
 
 /**
  * Created by pham on 2017/4/30.
  */
 
-public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeItem> {
+public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem> {
     private static final String TAG = "GpxHolder";
     private PrintView arrowView;
     private CheckBox nodeSelector;
@@ -38,7 +42,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
     }
 
     @Override
-    public View createNodeView(final TreeNode node, final IconTreeItem value) {
+    public View createNodeView(final TreeNode node, final GpxTreeItem value) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.holder_gpx_tree, null, false);
 
@@ -67,21 +71,40 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
                         break;
                     case ITEM_TYPE_TRACK:
                         if (isChecked) {
-                            value.polyline = GpxUtils.drawTrack(value.track, manager.getCurrentMap());
-                        } else if (value.polyline != null) {
-                            value.polyline.remove();
+                            if (value.polylines.size() <= manager.getCurrentMapCode()) {
+                                value.polylines.add(manager.getCurrentMapCode(),
+                                        GpxUtils.drawTrack(value.track, manager.getCurrentMap()));
+                            } else {
+                                value.polylines.get(manager.getCurrentMapCode()).setVisible(true);
+                            }
+                            MapUtils.zoomToPolyline(manager.getCurrentMap(),
+                                    value.polylines.get(manager.getCurrentMapCode()));
+                        } else {
+                            value.polylines.get(manager.getCurrentMapCode()).setVisible(false);
                         }
+
                         break;
 
                     case ITEM_TYPE_WAYPOINT:
-                        ClusterManager<CustomMarker> clusterManager = manager.getCurrentClusterManager();
                         if (isChecked) {
-                            value.marker = GpxUtils.drawWaypt(value.wpt, clusterManager);
-                            clusterManager.cluster();
-                        } else if (value.marker != null) {
-                            clusterManager.removeItem(value.marker);
-                            clusterManager.cluster();
+                            if (value.markers.size() <= manager.getCurrentMapCode()) {
+
+                                value.markers.add(manager.getCurrentMapCode(),
+                                        GpxUtils.drawWaypt(value.wpt, manager));
+                            } else {
+                                value.markers.set(manager.getCurrentMapCode(),
+                                        GpxUtils.drawWaypt(value.wpt, manager));
+                                manager.getCurrentClusterManager().cluster();
+                            }
+                            MapUtils.zoomToMarker(manager.getCurrentMap(),
+                                    value.markers.get(manager.getCurrentMapCode()));
+                        } else {
+                            manager.getCurrentClusterManager().removeItem(
+                                    value.markers.get(manager.getCurrentMapCode()));
+                            manager.getCurrentClusterManager().cluster();
+                            value.markers.set(manager.getCurrentMapCode(), null);
                         }
+
                         break;
                 }
             }
@@ -104,26 +127,25 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
         nodeSelector.setChecked(mNode.isSelected());
     }
 
-    public static class IconTreeItem {
+    public static class GpxTreeItem {
         public int type;
         public int icon;
         public String text;
 
         // attribute for WayPoint
         public WayPoint wpt;
-        public CustomMarker marker;
+        public List<CustomMarker> markers = new ArrayList<>();
 
         // attribute for Track
         public Track track;
-        public Polyline polyline;
+        public List<Polyline> polylines = new ArrayList<>();
 
-        public IconTreeItem(Builder builder) {
+        public GpxTreeItem(Builder builder) {
             type = builder.type;
             icon = builder.icon;
             text = builder.text;
             wpt = builder.wpt;
             track = builder.track;
-            polyline = builder.polyline;
         }
 
         public static class Builder {
@@ -132,7 +154,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
             private String text;
             private WayPoint wpt;
             private Track track;
-            private Polyline polyline;
 
             public Builder setType(int type) {
                 this.type = type;
@@ -159,15 +180,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
                 return this;
             }
 
-            public Builder setPolyline(Polyline polyline) {
-                this.polyline = polyline;
-                return this;
-            }
-
-            public IconTreeItem build() {
-                return new IconTreeItem(this);
+            public GpxTreeItem build() {
+                return new GpxTreeItem(this);
             }
         }
+
     }
 
     public static final int ITEM_TYPE_GPX = 1;
@@ -176,4 +193,5 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.IconTreeIte
     public static final int ITEM_ICON_GPX = R.drawable.ic_folder_black_24dp;
     public static final int ITEM_ICON_WAYPOINT = R.drawable.ic_place_black_24dp;
     public static final int ITEM_ICON_TRACK = R.drawable.ic_timeline_black_24dp;
+
 }

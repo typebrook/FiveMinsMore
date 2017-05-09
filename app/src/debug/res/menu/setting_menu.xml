@@ -51,12 +51,19 @@
         android:icon="@drawable/item_sub_map"
         android:orderInCategory="0"
         android:title="@string/double_maps_menu_item"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_draw"
+        android:icon="@drawable/ic_border_color_white_24dp"
+        android:orderInCategory="1"
+        android:title="@string/draw_menu_item"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_read"
         android:icon="@drawable/ic_linear_scale_white_24dp"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:title="@string/read_menu_item"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

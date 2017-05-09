@@ -20,8 +20,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.typebrook.fiveminsmore.model.ClockDrawable;
-import io.typebrook.fiveminsmore.model.GpxUtils;
+import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.model.TimeLineModel;
+
 import com.github.vipulasri.timelineview.TimelineView;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
@@ -52,6 +53,7 @@ public class ReadFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_GPXLIST = "mGpxFileList";
 
+    private static List<WayPoint> wptList = new ArrayList<>();
     private List<TimeLineModel> mDataList = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
@@ -70,11 +72,9 @@ public class ReadFragment extends Fragment {
      *
      * @return A new instance of fragment ReadFragment.
      */
-    public static ReadFragment newInstance(ArrayList<NormalFile> gpxs) {
+    public static ReadFragment newInstance(List<WayPoint> wpts) {
         ReadFragment fragment = new ReadFragment();
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(ARG_GPXLIST, gpxs);
-        fragment.setArguments(args);
+        wptList = wpts;
         return fragment;
     }
 
@@ -82,24 +82,8 @@ public class ReadFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        // Load the gpx file
-        if (getArguments() != null) {
-            List<NormalFile> gpxFileList = getArguments().getParcelableArrayList(ARG_GPXLIST);
-
-            for (NormalFile fileData : gpxFileList) {
-                File file = new File(fileData.getPath());
-
-                try {
-                    Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
-
-                    for (WayPoint wpt : gpx.getWayPoints()) {
-                        mDataList.add(new TimeLineModel(wpt.getName(), wpt.getTime().getMillis()));
-                    }
-                } catch (Exception e) {
-                    // TODO
-                }
-            }
+        for (WayPoint wpt : wptList) {
+            mDataList.add(new TimeLineModel(wpt.getName(), wpt.getTime().getMillis()));
         }
 
         superContainer = (RelativeLayout) getActivity().findViewById(R.id.container);
@@ -137,7 +121,7 @@ public class ReadFragment extends Fragment {
         return rootView;
     }
 
-    public interface ClickListener{
+    public interface ClickListener {
         void onClick(View view, int position);
     }
 
@@ -204,15 +188,15 @@ public class ReadFragment extends Fragment {
         }
     }
 
-    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
+    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private ClickListener clicklistener;
         private GestureDetector gestureDetector;
 
-        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener){
+        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener) {
 
-            this.clicklistener=clicklistener;
-            gestureDetector=new GestureDetector(context,new GestureDetector.SimpleOnGestureListener(){
+            this.clicklistener = clicklistener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
                     return true;
@@ -222,9 +206,9 @@ public class ReadFragment extends Fragment {
 
         @Override
         public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            View child=rv.findChildViewUnder(e.getX(),e.getY());
-            if(child!=null && clicklistener!=null && gestureDetector.onTouchEvent(e)){
-                clicklistener.onClick(child,rv.getChildAdapterPosition(child));
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clicklistener != null && gestureDetector.onTouchEvent(e)) {
+                clicklistener.onClick(child, rv.getChildAdapterPosition(child));
             }
 
             return false;

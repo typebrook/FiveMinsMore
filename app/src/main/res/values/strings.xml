@@ -9,6 +9,7 @@
     <string name="settings_menu_item">Settings</string>
     <!-- Settings Menu Item [CHAR LIMIT=NONE] -->
     <string name="double_maps_menu_item">雙地圖模式</string>
+    <string name="draw_menu_item">繪圖模式</string>
     <string name="read_menu_item">閱讀模式</string>
     <string name="options">其它選項</string>
     <string name="setting_gps">設定GPS</string>

@@ -8,8 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import io.typebrook.fiveminsmore.model.GpxHolder;
-import io.typebrook.fiveminsmore.model.GpxUtils;
+import io.typebrook.fiveminsmore.gpx.GpxHolder;
+import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -28,7 +28,6 @@ public class GpxManager {
     private final static String TAG = "GpxManager";
 
     private Activity mContext;
-    public List<GpxUtils> gpxList = new ArrayList<>();
 
     private RelativeLayout managerView;
     private TreeNode root = TreeNode.root();
@@ -99,12 +98,12 @@ public class GpxManager {
         }
     }
 
-    public void add(GpxUtils gpx) {
-        gpxList.add(gpx);
-    }
-
     public boolean isShowingDialog() {
         isShowingDialog = !isShowingDialog;
         return !isShowingDialog;
+    }
+
+    public TreeNode getGpxTree(){
+        return root;
     }
 }

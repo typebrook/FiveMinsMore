@@ -1,19 +1,16 @@
-package io.typebrook.fiveminsmore.model;
+package io.typebrook.fiveminsmore.gpx;
 
 import android.graphics.Color;
 import android.util.Log;
 
-import io.typebrook.fiveminsmore.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.clustering.ClusterManager;
 import com.unnamed.b.atv.model.TreeNode;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -30,13 +27,9 @@ import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.TrackPoint;
 import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_ICON_GPX;
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_ICON_TRACK;
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_ICON_WAYPOINT;
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_TYPE_GPX;
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_TYPE_TRACK;
-import static io.typebrook.fiveminsmore.model.GpxHolder.ITEM_TYPE_WAYPOINT;
+import io.typebrook.fiveminsmore.MapsManager;
+import io.typebrook.fiveminsmore.R;
+import io.typebrook.fiveminsmore.model.CustomMarker;
 
 /**
  * Created by pham on 2017/4/9.
@@ -71,27 +64,10 @@ public class GpxUtils {
 
         PolylineOptions pos = new PolylineOptions();
 
-        LatLngBounds.Builder builder = LatLngBounds.builder();
-
         for (TrackPoint trkPt : trkPts) {
             LatLng latLng = new LatLng(trkPt.getLatitude(), trkPt.getLongitude());
             pos.add(latLng);
-            builder.include(latLng);
         }
-
-        // Get the LatLngBounds
-        final LatLngBounds bounds = builder.build();
-        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150), 1500, new GoogleMap.CancelableCallback() {
-            @Override
-            public void onFinish() {
-
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-        });
 
         return map.addPolyline(pos
                 .color(Color.RED)
@@ -104,7 +80,7 @@ public class GpxUtils {
     }
 
     // 將航點畫在地圖上
-    public static CustomMarker drawWaypt(WayPoint wpt, ClusterManager<CustomMarker> manager) {
+    public static CustomMarker drawWaypt(WayPoint wpt, MapsManager manager) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
         String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
@@ -112,42 +88,55 @@ public class GpxUtils {
         String snippet = "北緯" + lat + "度，東經" + lon + "度";
 
         CustomMarker newCustomMarker = new CustomMarker(latLng, name, snippet);
-        manager.addItem(newCustomMarker);
+        manager.getCurrentClusterManager().addItem(newCustomMarker);
 
         // Let the marker show on map instantly.
-        manager.cluster();
+        manager.getCurrentClusterManager().cluster();
+
+        manager.getCurrentMap().animateCamera(CameraUpdateFactory.newLatLng(latLng));
+//                , 1500, new GoogleMap.CancelableCallback() {
+//            @Override
+//            public void onFinish() {
+//            }
+//
+//            @Override
+//            public void onCancel() {
+//            }
+//        });
+
+        manager.getCurrentMap().animateCamera(CameraUpdateFactory.zoomTo(18));
 
         return newCustomMarker;
     }
 
     public static TreeNode getTreeNode(String filename, Gpx gpx) {
-        GpxHolder.IconTreeItem.Builder gpx_builder = new GpxHolder.IconTreeItem.Builder();
+        GpxHolder.GpxTreeItem.Builder gpx_builder = new GpxHolder.GpxTreeItem.Builder();
         TreeNode gpxRoot = new TreeNode(gpx_builder
-                .setType(ITEM_TYPE_GPX)
-                .setIcon(ITEM_ICON_GPX)
+                .setType(GpxHolder.ITEM_TYPE_GPX)
+                .setIcon(GpxHolder.ITEM_ICON_GPX)
                 .setText(filename)
                 .build());
 
-        for (Track trk : gpx.getTracks()) {
-            GpxHolder.IconTreeItem.Builder trk_builder = new GpxHolder.IconTreeItem.Builder();
-            TreeNode trkNode = new TreeNode(trk_builder
-                    .setType(ITEM_TYPE_TRACK)
-                    .setIcon(ITEM_ICON_TRACK)
-                    .setText(trk.getTrackName())
-                    .setTrack(trk)
-                    .build());
-            gpxRoot.addChildren(trkNode);
-        }
-
         for (WayPoint wpt : gpx.getWayPoints()) {
-            GpxHolder.IconTreeItem.Builder wpt_builder = new GpxHolder.IconTreeItem.Builder();
+            GpxHolder.GpxTreeItem.Builder wpt_builder = new GpxHolder.GpxTreeItem.Builder();
             TreeNode wptNode = new TreeNode(wpt_builder
-                    .setType(ITEM_TYPE_WAYPOINT)
-                    .setIcon(ITEM_ICON_WAYPOINT)
+                    .setType(GpxHolder.ITEM_TYPE_WAYPOINT)
+                    .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
                     .setText(wpt.getName())
                     .setWayPoint(wpt)
                     .build());
             gpxRoot.addChildren(wptNode);
+        }
+
+        for (Track trk : gpx.getTracks()) {
+            GpxHolder.GpxTreeItem.Builder trk_builder = new GpxHolder.GpxTreeItem.Builder();
+            TreeNode trkNode = new TreeNode(trk_builder
+                    .setType(GpxHolder.ITEM_TYPE_TRACK)
+                    .setIcon(GpxHolder.ITEM_ICON_TRACK)
+                    .setText(trk.getTrackName())
+                    .setTrack(trk)
+                    .build());
+            gpxRoot.addChildren(trkNode);
         }
 
         return gpxRoot;

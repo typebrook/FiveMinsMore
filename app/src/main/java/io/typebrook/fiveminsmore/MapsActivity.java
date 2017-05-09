@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,7 +34,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.draw.DrawUtils;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
+import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
@@ -49,7 +53,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.data.kml.KmlLayer;
+import com.unnamed.b.atv.model.TreeNode;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.NormalFile;
@@ -96,7 +102,7 @@ public class MapsActivity extends AppCompatActivity implements
     private Polyline mCurrentTrack;
     private List<Polyline> mMyTracks = new ArrayList<>();
     private boolean isTracking = false;
-    public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATIOON_UPDATE";
+    public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATION_UPDATE";
     private BroadcastReceiver mBroadcast = new BroadcastReceiver() {
 
         @Override
@@ -286,12 +292,13 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+        if (list.isEmpty())
+            return;
+
         switch (requestCode) {
             case REQUEST_CODE_PICK_GPX_FILE:
-
                 if (resultCode == RESULT_OK) {
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
-
                     for (NormalFile fileData : list) {
                         File file = new File(fileData.getPath());
                         mGpxManager.add(file, mMapsManager);
@@ -302,21 +309,18 @@ public class MapsActivity extends AppCompatActivity implements
 
             case REQUEST_CODE_PICK_MAPSFORGE_FILE:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
-
                     MapsForgeTilesProvider p = new MapsForgeTilesProvider(getApplication(),
                             new File(list.get(0).getPath()));
 
-                    mMapsManager.getMapTiles().set(MapsManager.currentMapCode,
-                            mMap.addTileOverlay(new TileOverlayOptions().tileProvider(p)));
-                    mMapsManager.getMapTiles().get(MapsManager.currentMapCode).setZIndex(-10);
-                    mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                    mMapsManager.getMapTiles().set(mMapsManager.getCurrentMapCode(),
+                            mMapsManager.getCurrentMap().addTileOverlay(new TileOverlayOptions().tileProvider(p)));
+                    mMapsManager.getMapTiles().get(mMapsManager.getCurrentMapCode()).setZIndex(-10);
+                    mMapsManager.getCurrentMap().setMapType(GoogleMap.MAP_TYPE_NONE);
                 }
                 break;
 
             case REQUEST_CODE_PICK_KML_FILE:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
                     try {
                         InputStream kmlStream = new FileInputStream(new File(list.get(0).getPath()));
                         kmlLayer = new KmlLayer(mMap, kmlStream, this);
@@ -351,6 +355,8 @@ public class MapsActivity extends AppCompatActivity implements
                     removeSubMap();
                 }
 
+                mMapsManager.setCurrentMap(MapsManager.MAP_CODE_SUB);
+
                 // Change the icon of menu item
                 StateListDrawable stateListDrawable = (StateListDrawable)
                         ContextCompat.getDrawable(this, R.drawable.item_sub_map);
@@ -360,11 +366,32 @@ public class MapsActivity extends AppCompatActivity implements
 
                 break;
 
+            case R.id.action_draw:
+                if (item.isChecked()) {
+                    DrawUtils drawUtils = new DrawUtils(mMapsManager.getCurrentMap());
+                    mMapsManager.getCurrentMap().setOnMapClickListener(drawUtils);
+                    mMapsManager.getCurrentMap().setOnMapLongClickListener(drawUtils);
+                    mMapsManager.getCurrentMap().setOnInfoWindowClickListener(drawUtils);
+                    mMapsManager.getCurrentMap().setOnMarkerClickListener(drawUtils);
+
+                } else {
+                    DrawUtils.endDraw();
+                    mMapsManager.getCurrentMap().setOnMapClickListener(mMapsManager);
+                    mMapsManager.getCurrentMap().setOnMapLongClickListener(mMapsManager);
+                    mMapsManager.getCurrentMap().setOnInfoWindowClickListener(mMapsManager);
+                    mMapsManager.getCurrentMap().setOnMarkerClickListener(mMapsManager.getCurrentClusterManager());
+                }
+                break;
+
             case R.id.action_read:
-//                if (item.isChecked())
-//                    importReadFragment();
-//                else
-//                    removeReadFragment();
+                if (item.isChecked()) {
+                    if (mGpxManager.getGpxTree().getChildren().isEmpty()) {
+                        item.setChecked(false);
+                        break;
+                    }
+                    importReadFragment();
+                } else
+                    removeReadFragment();
                 break;
 
             case R.id.gps:
@@ -376,6 +403,8 @@ public class MapsActivity extends AppCompatActivity implements
                 showCross = !item.isChecked();
                 for (ImageView cross : mCrossSet)
                     cross.setVisibility(showCross ? View.VISIBLE : View.INVISIBLE);
+                View tvLatLon = findViewById(R.id.indicator);
+                tvLatLon.setVisibility(showCross ? View.VISIBLE : View.INVISIBLE);
                 break;
 
             case R.id.about:
@@ -664,24 +693,31 @@ public class MapsActivity extends AppCompatActivity implements
             setSubContentLayout(0.0f);
     }
 
-//    private void importReadFragment() {
-//        readFragment = ReadFragment.newInstance(mGpxFileList);
-//        mFragmentsNumber++;
-//        FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
-//        mTransaction.replace(R.id.sub_content, readFragment).commit();
-//
-//        setSubContentLayout(0.4f);
-//    }
-//
-//    private void removeReadFragment() {
-//        FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
-//        mTransaction.remove(readFragment).commit();
-//
-//        mFragmentsNumber--;
-//
-//        if (mFragmentsNumber == 0)
-//            setSubContentLayout(0.0f);
-//    }
+    private void importReadFragment() {
+        List<WayPoint> wpts = new ArrayList<>();
+        for (TreeNode node : mGpxManager.getGpxTree().getChildren().get(0).getChildren()) {
+
+            if (((GpxHolder.GpxTreeItem) node.getValue()).type == GpxHolder.ITEM_TYPE_WAYPOINT)
+                wpts.add(((GpxHolder.GpxTreeItem) node.getValue()).wpt);
+        }
+
+        readFragment = ReadFragment.newInstance(wpts);
+        mFragmentsNumber++;
+        FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
+        mTransaction.replace(R.id.sub_content, readFragment).commit();
+
+        setSubContentLayout(0.4f);
+    }
+
+    private void removeReadFragment() {
+        FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
+        mTransaction.remove(readFragment).commit();
+
+        mFragmentsNumber--;
+
+        if (mFragmentsNumber == 0)
+            setSubContentLayout(0.0f);
+    }
 
 
     private void setSubContentLayout(float f) {

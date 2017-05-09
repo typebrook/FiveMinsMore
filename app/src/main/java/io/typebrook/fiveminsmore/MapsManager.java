@@ -9,11 +9,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
-
-import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
-import io.typebrook.fiveminsmore.model.CustomMarker;
-import io.typebrook.fiveminsmore.model.CustomRenderer;
-import io.typebrook.fiveminsmore.model.TileList;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,23 +19,31 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
 import com.google.maps.android.clustering.ClusterManager;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
+import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.model.CustomRenderer;
+import io.typebrook.fiveminsmore.model.TileList;
+
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
-import static io.typebrook.fiveminsmore.model.TileList.HappyMan1_URL_FORMAT;
 import static io.typebrook.fiveminsmore.model.TileList.HappyMan2_URL_FORMAT;
 import static io.typebrook.fiveminsmore.model.TileList.MAPSFORGE_FORMAT;
 import static io.typebrook.fiveminsmore.model.TileList.OSM_URL_FORMAT;
@@ -59,7 +63,7 @@ public class MapsManager implements
 
     protected static final int MAP_CODE_MAIN = 0;
     protected static final int MAP_CODE_SUB = 1;
-    public static int currentMapCode = MAP_CODE_MAIN;
+    protected static int currentMapCode = MAP_CODE_MAIN;
 
     // 航跡樣式
     // static final List<PatternItem> dashedPattern = Arrays.asList(new Dash(50), new Gap(30));
@@ -98,6 +102,10 @@ public class MapsManager implements
 
     // Temporary marker
     Marker mMarker;
+
+    // Boundary of Main map
+    PolygonOptions boundaryMain;
+    Polygon boundaryMainPolygon;
 
     MapsManager(Context context, GoogleMap map) {
         mContext = context;
@@ -155,16 +163,18 @@ public class MapsManager implements
         mMapTiles.add(MAP_CODE_SUB, null);
         mMapAddTiles.add(MAP_CODE_SUB, null);
 
-        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
+        LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
+        boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
+        boundaryMainPolygon = map.addPolygon(boundaryMain);
 
-        // LongClick on map, you get a new marker
-        map.setOnMapClickListener(this);
+        map.setMapType(MAP_TYPE_HYBRID);
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
 
         // 在Activity和Map物件註冊ClusterManager
         mClusterManagers.add(MAP_CODE_SUB, new ClusterManager<CustomMarker>(mContext, map));
         // The Rule about Cluster Managing
-        mClusterManagers.get(MAP_CODE_SUB).setRenderer(new CustomRenderer(mContext, map, mClusterManagers.get(MAP_CODE_SUB)));
+        mClusterManagers.get(MAP_CODE_SUB).setRenderer(
+                new CustomRenderer(mContext, map, mClusterManagers.get(MAP_CODE_SUB)));
         // Click on marker to open infoWindow
         map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
         // Click on Cluster to zoom to Markers
@@ -185,8 +195,8 @@ public class MapsManager implements
         currentMapCode = code;
     }
 
-    public ClusterManager<CustomMarker> getCurrentClusterManager() {
-        return mClusterManagers.get(currentMapCode);
+    public int getCurrentMapCode() {
+        return currentMapCode;
     }
 
     public GoogleMap getCurrentMap() {
@@ -195,6 +205,10 @@ public class MapsManager implements
 
     public List<TileOverlay> getMapTiles() {
         return mMapTiles;
+    }
+
+    public ClusterManager<CustomMarker> getCurrentClusterManager() {
+        return mClusterManagers.get(currentMapCode);
     }
 
     // 設定鏡頭可動範圍
@@ -214,20 +228,6 @@ public class MapsManager implements
         if (mMarker != null) {
             mMarker.remove();
             mMarker = null;
-        } else {
-            String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-            String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-            mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title("點選位置")
-                            .snippet("北緯" + lat + "度，東經" + lon + "度")
-                            .draggable(true)
-//                        .anchor(0.5f, 0.5f)
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
-            );
-
-            mMarker.showInfoWindow();
-            mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
         }
     }
 
@@ -238,6 +238,20 @@ public class MapsManager implements
             mMarker.remove();
             mMarker = null;
         }
+        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
+        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
+        mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("點選位置")
+                        .snippet("北緯" + lat + "度，東經" + lon + "度")
+                        .draggable(true)
+//                        .anchor(0.5f, 0.5f)
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
+        );
+
+        mMarker.showInfoWindow();
+        mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
     }
 
     @Override
@@ -291,8 +305,14 @@ public class MapsManager implements
         mIndicator.setText(lat + ", " + lon);
 
         if (mMaps.size() > 1) {
-            mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
-                    .newCameraPosition(cameraPosition));
+//            mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
+//                    .newCameraPosition(cameraPosition));
+
+            LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
+            boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
+            boundaryMainPolygon.remove();
+            boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
+
         }
     }
 
@@ -306,7 +326,7 @@ public class MapsManager implements
                     public void onClick(DialogInterface dialogInterface, int which) {
 
                         // TODO
-                        if (which < 4) {
+                        if (which < 3) {
                             mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
                             if (mMapTiles.get(currentMapCode) != null) {
                                 mMapTiles.get(currentMapCode).remove();
@@ -317,7 +337,7 @@ public class MapsManager implements
 
                         switch (which) {
                             case 0:
-                                mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;
 
                             case 1:
@@ -354,9 +374,20 @@ public class MapsManager implements
 
                             case 5:
                                 mMaps.get(currentMapCode).clear();
+                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;
                         }
                     }
                 }).show();
+    }
+
+    public List<LatLng> getBounds(LatLngBounds b) {
+        List<LatLng> list = new ArrayList<>();
+        list.add(b.northeast);
+        list.add(new LatLng(b.northeast.latitude, b.southwest.longitude));
+        list.add(b.southwest);
+        list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
+
+        return list;
     }
 }
