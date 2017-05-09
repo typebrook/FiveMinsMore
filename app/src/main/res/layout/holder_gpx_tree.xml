@@ -55,6 +55,16 @@
                 android:textColor="@android:color/black"
                 tools:text="tree item" />
 
+            <com.github.johnkil.print.PrintView
+                android:padding="5dp"
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:iconSize="20dp"
+                app:iconColor="#ff4444"
+                app:iconFont="fonts/material-icon-font.ttf"
+                app:iconText="@string/ic_close" />
+
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

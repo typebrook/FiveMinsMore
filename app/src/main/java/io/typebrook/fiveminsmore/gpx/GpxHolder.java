@@ -109,7 +109,14 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 }
             }
         });
-        nodeSelector.setChecked(node.isSelected());
+
+        view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nodeSelector.setChecked(false);
+                getTreeView().removeNode(node);
+            }
+        });
 
         return view;
     }

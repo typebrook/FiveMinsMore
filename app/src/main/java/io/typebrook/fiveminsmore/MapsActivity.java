@@ -12,7 +12,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,7 +52,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.unnamed.b.atv.model.TreeNode;
 import com.vincent.filepicker.Constant;
@@ -350,12 +348,10 @@ public class MapsActivity extends AppCompatActivity implements
             case R.id.action_sub_map:
 
                 if (item.isChecked()) {
-                    import2ndMap();
+                    importSubMap();
                 } else {
                     removeSubMap();
                 }
-
-                mMapsManager.setCurrentMap(MapsManager.MAP_CODE_SUB);
 
                 // Change the icon of menu item
                 StateListDrawable stateListDrawable = (StateListDrawable)
@@ -621,7 +617,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     // 在上方載入第二張地圖供對照
-    private void import2ndMap() {
+    private void importSubMap() {
         // To programmatically add the map, we first create a MapFragment.
         mSubMapFragment = MapFragment.newInstance();
         mFragmentsNumber++;
@@ -666,7 +662,8 @@ public class MapsActivity extends AppCompatActivity implements
         mBtnsSet.add(mTopMapBtn);
         mBtnsSet.add(mBottomMapBtn);
 
-        mTopMapBtn.setSelected(true);
+        mBottomMapBtn.setSelected(true);
+        this.onClick(mTopMapBtn);
 
         // Set the sub content layout
         setSubContentLayout(1.0f);
@@ -674,10 +671,11 @@ public class MapsActivity extends AppCompatActivity implements
 
     private void removeSubMap() {
         mMapsManager.disableSubMap();
-
+        mMapsManager.setCurrentMap(MAP_CODE_MAIN);
+        
+        this.onClick(mBottomMapBtn);
         mBottomMapBtn.setVisibility(View.INVISIBLE);
         mTopMapBtn.setVisibility(View.INVISIBLE);
-        mTopMapBtn.setSelected(false);
 
         FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
         mTransaction.remove(mSubMapFragment).commit();
@@ -687,7 +685,6 @@ public class MapsActivity extends AppCompatActivity implements
 
         mBtnsSet.remove(mTopMapBtn);
         mBtnsSet.remove(mBottomMapBtn);
-        mBottomMapBtn.setSelected(false);
 
         if (mFragmentsNumber == 0)
             setSubContentLayout(0.0f);
