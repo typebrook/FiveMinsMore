@@ -20,7 +20,7 @@ import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
-import io.typebrook.fiveminsmore.model.MapUtils;
+import io.typebrook.fiveminsmore.utils.MapUtils;
 
 /**
  * Created by pham on 2017/4/30.

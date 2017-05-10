@@ -1,10 +1,12 @@
-package io.typebrook.fiveminsmore.model;
+package io.typebrook.fiveminsmore.utils;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
+
+import io.typebrook.fiveminsmore.model.CustomMarker;
 
 /**
  * Created by pham on 2017/5/9.

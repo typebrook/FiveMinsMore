@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,21 +32,21 @@ import com.vincent.filepicker.activity.NormalFilePickActivity;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
-import io.typebrook.fiveminsmore.model.TileList;
+import io.typebrook.fiveminsmore.res.TileList;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
-import static io.typebrook.fiveminsmore.model.TileList.HappyMan2_URL_FORMAT;
-import static io.typebrook.fiveminsmore.model.TileList.MAPSFORGE_FORMAT;
-import static io.typebrook.fiveminsmore.model.TileList.OSM_URL_FORMAT;
-import static io.typebrook.fiveminsmore.model.TileList.SINICA_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.DIGITALGLOBE_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.OSM_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.SINICA_URL_FORMAT;
 
 /**
  * Created by pham on 2017/4/10.
@@ -326,7 +325,7 @@ public class MapsManager implements
                     public void onClick(DialogInterface dialogInterface, int which) {
 
                         // TODO
-                        if (which < 3) {
+                        if (which < 4) {
                             mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
                             if (mMapTiles.get(currentMapCode) != null) {
                                 mMapTiles.get(currentMapCode).remove();
@@ -353,6 +352,12 @@ public class MapsManager implements
                                 break;
 
                             case 3:
+                                mMapTiles.set(currentMapCode,
+                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(DIGITALGLOBE_URL_FORMAT)));
+                                mMapTiles.get(currentMapCode).setZIndex(-10);
+                                break;
+
+                            case 4:
                                 Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
                                 pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
                                 pickOfflineMapIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{MAPSFORGE_FORMAT});
@@ -360,7 +365,7 @@ public class MapsManager implements
                                         REQUEST_CODE_PICK_MAPSFORGE_FILE);
                                 break;
 
-                            case 4:
+                            case 5:
                                 if (mMapAddTiles.get(currentMapCode) != null) {
                                     mMapAddTiles.get(currentMapCode).remove();
                                     mMapAddTiles.get(currentMapCode).clearTileCache();
@@ -372,7 +377,7 @@ public class MapsManager implements
                                 }
                                 break;
 
-                            case 5:
+                            case 6:
                                 mMaps.get(currentMapCode).clear();
                                 mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;

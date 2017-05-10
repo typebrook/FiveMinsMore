@@ -1,6 +1,7 @@
 package io.typebrook.fiveminsmore;
 
 import android.Manifest;
+import android.support.v7.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -26,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +42,7 @@ import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
+import io.typebrook.fiveminsmore.utils.DrawingView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -133,6 +136,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     GpxManager mGpxManager;
     KmlLayer kmlLayer;
+    int indexOfPad;
+    ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,6 +182,9 @@ public class MapsActivity extends AppCompatActivity implements
             Intent bindIntent = new Intent(this, TrackingService.class);
             bindService(bindIntent, this, BIND_AUTO_CREATE);
         }
+
+        // Test
+        actionBar = getSupportActionBar();
     }
 
     /**
@@ -218,6 +226,12 @@ public class MapsActivity extends AppCompatActivity implements
                 for (View btn : mBtnsSet) {
                     btn.setVisibility(visibility);
                 }
+
+                if (mSwitchButton.isSelected())
+                    actionBar.hide();
+                else
+                    actionBar.show();
+
                 break;
 
             case R.id.btn_pick_tiles:
@@ -276,15 +290,32 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_help:
-                Intent pickKmlIntent = new Intent(this, CustomFilePickActivity.class);
-//                pickGpxIntent.putExtra(Constant.MAX_NUMBER, 3);
-                pickKmlIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{"kml"});
-                startActivityForResult(pickKmlIntent, REQUEST_CODE_PICK_KML_FILE);
+                onClick(mSwitchButton);
+                RelativeLayout pad = (RelativeLayout) this.getLayoutInflater().inflate(R.layout.layout_draw, null);
+
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+                layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+
+                pad.setLayoutParams(layoutParams);
+
+                ((ViewGroup) findViewById(R.id.container)).addView(pad);
+                indexOfPad = ((ViewGroup) pad.getParent()).indexOfChild(pad);
+
+                DrawingView drawingView = (DrawingView) pad.findViewById(R.id.DrawingView);
+                drawingView.initializePen();
+
+                Button exit = (Button) pad.findViewById(R.id.exit_drawing);
+                exit.setOnClickListener(this);
                 break;
 
             case R.id.leave_gpx_manager:
                 mGpxManager.removeDialog();
                 break;
+
+            case R.id.exit_drawing:
+                ((ViewGroup) findViewById(R.id.container)).removeViewAt(indexOfPad);
+                onClick(mSwitchButton);
         }
     }
 
@@ -672,7 +703,7 @@ public class MapsActivity extends AppCompatActivity implements
     private void removeSubMap() {
         mMapsManager.disableSubMap();
         mMapsManager.setCurrentMap(MAP_CODE_MAIN);
-        
+
         this.onClick(mBottomMapBtn);
         mBottomMapBtn.setVisibility(View.INVISIBLE);
         mTopMapBtn.setVisibility(View.INVISIBLE);
