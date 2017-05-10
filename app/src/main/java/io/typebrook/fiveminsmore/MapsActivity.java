@@ -138,6 +138,7 @@ public class MapsActivity extends AppCompatActivity implements
     KmlLayer kmlLayer;
     int indexOfPad;
     ActionBar actionBar;
+    ViewGroup layoutContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +146,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 取得地圖物件
         setContentView(R.layout.activity_maps);
+        layoutContainer = (ViewGroup) findViewById(R.id.container);
         // Obtain the MapFragment and get notified when the map is ready to be used.
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
@@ -299,7 +301,7 @@ public class MapsActivity extends AppCompatActivity implements
 
                 pad.setLayoutParams(layoutParams);
 
-                ((ViewGroup) findViewById(R.id.container)).addView(pad);
+                layoutContainer.addView(pad);
                 indexOfPad = ((ViewGroup) pad.getParent()).indexOfChild(pad);
 
                 DrawingView drawingView = (DrawingView) pad.findViewById(R.id.DrawingView);
@@ -314,7 +316,7 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.exit_drawing:
-                ((ViewGroup) findViewById(R.id.container)).removeViewAt(indexOfPad);
+                layoutContainer.removeViewAt(indexOfPad);
                 onClick(mSwitchButton);
         }
     }
@@ -680,7 +682,7 @@ public class MapsActivity extends AppCompatActivity implements
         // Import map choosing button set
         LinearLayout btnSet = (LinearLayout)
                 getLayoutInflater().inflate(R.layout.btn_set_map_choosing, null);
-        ((ViewGroup) findViewById(R.id.container)).addView(btnSet);
+        layoutContainer.addView(btnSet);
         RelativeLayout.LayoutParams params_btn_set =
                 (RelativeLayout.LayoutParams) btnSet.getLayoutParams();
         params_btn_set.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
