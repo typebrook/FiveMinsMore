@@ -106,6 +106,8 @@ public class MapsManager implements
     PolygonOptions boundaryMain;
     Polygon boundaryMainPolygon;
 
+    private boolean isMapsSync = false;
+
     MapsManager(Context context, GoogleMap map) {
         mContext = context;
         mMaps.add(MAP_CODE_MAIN, map);
@@ -304,15 +306,33 @@ public class MapsManager implements
         mIndicator.setText(lat + ", " + lon);
 
         if (mMaps.size() > 1) {
-//            mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
-//                    .newCameraPosition(cameraPosition));
-
-            LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
-            boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
-            boundaryMainPolygon.remove();
-            boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
+            if (isMapsSync) {
+                mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
+                        .newCameraPosition(cameraPosition));
+            }else {
+                LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
+                boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
+                boundaryMainPolygon.remove();
+                boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
+            }
 
         }
+    }
+
+    public List<LatLng> getBounds(LatLngBounds b) {
+        List<LatLng> list = new ArrayList<>();
+        list.add(b.northeast);
+        list.add(new LatLng(b.northeast.latitude, b.southwest.longitude));
+        list.add(b.southwest);
+        list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
+
+        return list;
+    }
+
+    public void changeSyncMaps(){
+        isMapsSync = ! isMapsSync;
+        if (isMapsSync)
+            boundaryMainPolygon.remove();
     }
 
     public void setTileOverlay() {
@@ -384,15 +404,5 @@ public class MapsManager implements
                         }
                     }
                 }).show();
-    }
-
-    public List<LatLng> getBounds(LatLngBounds b) {
-        List<LatLng> list = new ArrayList<>();
-        list.add(b.northeast);
-        list.add(new LatLng(b.northeast.latitude, b.southwest.longitude));
-        list.add(b.southwest);
-        list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
-
-        return list;
     }
 }

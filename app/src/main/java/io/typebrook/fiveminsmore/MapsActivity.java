@@ -318,6 +318,12 @@ public class MapsActivity extends AppCompatActivity implements
             case R.id.exit_drawing:
                 layoutContainer.removeViewAt(indexOfPad);
                 onClick(mSwitchButton);
+                break;
+
+            case R.id.btn_sync:
+                mMapsManager.changeSyncMaps();
+                Button btn = (Button) findViewById(R.id.btn_sync);
+                btn.setSelected(!btn.isSelected());
         }
     }
 
@@ -651,13 +657,19 @@ public class MapsActivity extends AppCompatActivity implements
 
     // 在上方載入第二張地圖供對照
     private void importSubMap() {
-        // To programmatically add the map, we first create a MapFragment.
-        mSubMapFragment = MapFragment.newInstance();
-        mFragmentsNumber++;
+//        // To programmatically add the map, we first create a MapFragment.
+//        mSubMapFragment = MapFragment.newInstance();
+//        mFragmentsNumber++;
+//
+//        // Then we add it using a FragmentTransaction.
+//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//        transaction.replace(R.id.sub_content, mSubMapFragment, SUBMAP_FRAGMENT_TAG).commit();
 
-        // Then we add it using a FragmentTransaction.
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.sub_content, mSubMapFragment, SUBMAP_FRAGMENT_TAG).commit();
+        RelativeLayout layout_sub_map = (RelativeLayout)getLayoutInflater().inflate(R.layout.sub_map, null, false);
+        ((ViewGroup) findViewById(R.id.sub_content)).addView(layout_sub_map);
+        mSubMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.sub_map);
+        mFragmentsNumber++;
+        findViewById(R.id.btn_sync).setOnClickListener(this);
 
         mSubMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
