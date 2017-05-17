@@ -93,9 +93,6 @@ public class GpxUtils {
         // Let the marker show on map instantly.
         manager.getClusterManager(mapCode).cluster();
 
-        manager.getCurrentMap().animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        manager.getCurrentMap().animateCamera(CameraUpdateFactory.zoomTo(18));
-
         return newCustomMarker;
     }
 
@@ -107,17 +104,6 @@ public class GpxUtils {
                 .setText(filename)
                 .build());
 
-        for (WayPoint wpt : gpx.getWayPoints()) {
-            GpxHolder.GpxTreeItem.Builder wpt_builder = new GpxHolder.GpxTreeItem.Builder();
-            TreeNode wptNode = new TreeNode(wpt_builder
-                    .setType(GpxHolder.ITEM_TYPE_WAYPOINT)
-                    .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
-                    .setText(wpt.getName())
-                    .setWayPoint(wpt)
-                    .build());
-            gpxRoot.addChildren(wptNode);
-        }
-
         for (Track trk : gpx.getTracks()) {
             GpxHolder.GpxTreeItem.Builder trk_builder = new GpxHolder.GpxTreeItem.Builder();
             TreeNode trkNode = new TreeNode(trk_builder
@@ -127,6 +113,17 @@ public class GpxUtils {
                     .setTrack(trk)
                     .build());
             gpxRoot.addChildren(trkNode);
+        }
+
+        for (WayPoint wpt : gpx.getWayPoints()) {
+            GpxHolder.GpxTreeItem.Builder wpt_builder = new GpxHolder.GpxTreeItem.Builder();
+            TreeNode wptNode = new TreeNode(wpt_builder
+                    .setType(GpxHolder.ITEM_TYPE_WAYPOINT)
+                    .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
+                    .setText(wpt.getName())
+                    .setWayPoint(wpt)
+                    .build());
+            gpxRoot.addChildren(wptNode);
         }
 
         return gpxRoot;

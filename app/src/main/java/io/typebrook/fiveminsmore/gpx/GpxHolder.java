@@ -1,6 +1,7 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -68,7 +69,29 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             }
         });
 
+        if (node.isLeaf())
+            view.setOnClickListener(getClickListener(value));
+
         return view;
+    }
+
+    private View.OnClickListener getClickListener(final GpxTreeItem value) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (value.type) {
+                    case ITEM_TYPE_TRACK:
+                        MapUtils.zoomToPolyline(manager.getCurrentMap(),
+                                value.polylines[0]);
+                        break;
+                    case ITEM_TYPE_WAYPOINT:
+                        MapUtils.zoomToMarker(manager.getCurrentMap(),
+                                value.markers[0]);
+                        break;
+
+                }
+            }
+        };
     }
 
     private CompoundButton.OnCheckedChangeListener getCheckListener
@@ -106,9 +129,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                                 value.markers[mapCode] =
                                         GpxUtils.drawWaypt(value.wpt, manager, mapCode);
                                 manager.getClusterManager(mapCode).cluster();
-
-                                MapUtils.zoomToMarker(manager.getMap(mapCode),
-                                        value.markers[mapCode]);
                             } else if (value.markers[mapCode] == null) {
                                 break;
                             } else {
