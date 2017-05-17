@@ -12,9 +12,6 @@ import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
 import com.unnamed.b.atv.model.TreeNode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.MapsManager;
@@ -29,7 +26,8 @@ import io.typebrook.fiveminsmore.utils.MapUtils;
 public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem> {
     private static final String TAG = "GpxHolder";
     private PrintView arrowView;
-    private CheckBox nodeSelector;
+    private CheckBox nodeSelector_main_map;
+    private CheckBox nodeSelector_sub_map;
     private MapsManager manager;
 
     public GpxHolder(Context context) {
@@ -57,8 +55,32 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             arrowView.setVisibility(View.GONE);
         }
 
-        nodeSelector = (CheckBox) view.findViewById(R.id.node_selector);
-        nodeSelector.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        nodeSelector_main_map = (CheckBox) view.findViewById(R.id.node_selector);
+        nodeSelector_main_map.setOnCheckedChangeListener(getCheckListener(node, value, 0));
+
+        if (manager != null && manager.isSubMapOn()) {
+            nodeSelector_sub_map = (CheckBox) view.findViewById(R.id.node_selector_sub_map);
+            nodeSelector_sub_map.setVisibility(View.VISIBLE);
+            nodeSelector_sub_map.setOnCheckedChangeListener(getCheckListener(node, value, 1));
+        }
+
+        view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nodeSelector_main_map.setChecked(false);
+                if (nodeSelector_sub_map != null)
+                   nodeSelector_sub_map.setChecked(false);
+                getTreeView().removeNode(node);
+            }
+        });
+
+
+        return view;
+    }
+
+    private CompoundButton.OnCheckedChangeListener getCheckListener
+            (final TreeNode node, final GpxTreeItem value, final int mapCode){
+        return new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 node.setSelected(isChecked);
@@ -71,54 +93,39 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                         break;
                     case ITEM_TYPE_TRACK:
                         if (isChecked) {
-                            if (value.polylines.size() <= manager.getCurrentMapCode()) {
-                                value.polylines.add(manager.getCurrentMapCode(),
-                                        GpxUtils.drawTrack(value.track, manager.getCurrentMap()));
+                            if (value.polylines[mapCode] == null) {
+                                value.polylines[mapCode] =
+                                        GpxUtils.drawTrack(value.track, manager.getMap(mapCode));
                             } else {
-                                value.polylines.get(manager.getCurrentMapCode()).setVisible(true);
+                                value.polylines[mapCode].setVisible(true);
                             }
-                            MapUtils.zoomToPolyline(manager.getCurrentMap(),
-                                    value.polylines.get(manager.getCurrentMapCode()));
+                            MapUtils.zoomToPolyline(manager.getMap(mapCode),
+                                    value.polylines[mapCode]);
                         } else {
-                            value.polylines.get(manager.getCurrentMapCode()).setVisible(false);
+                            value.polylines[mapCode].setVisible(false);
                         }
 
                         break;
 
                     case ITEM_TYPE_WAYPOINT:
                         if (isChecked) {
-                            if (value.markers.size() <= manager.getCurrentMapCode()) {
+                            value.markers[mapCode] =
+                                    GpxUtils.drawWaypt(value.wpt, manager);
+                            manager.getClusterManager(mapCode).cluster();
 
-                                value.markers.add(manager.getCurrentMapCode(),
-                                        GpxUtils.drawWaypt(value.wpt, manager));
-                            } else {
-                                value.markers.set(manager.getCurrentMapCode(),
-                                        GpxUtils.drawWaypt(value.wpt, manager));
-                                manager.getCurrentClusterManager().cluster();
-                            }
-                            MapUtils.zoomToMarker(manager.getCurrentMap(),
-                                    value.markers.get(manager.getCurrentMapCode()));
+                            MapUtils.zoomToMarker(manager.getMap(mapCode),
+                                    value.markers[mapCode]);
                         } else {
-                            manager.getCurrentClusterManager().removeItem(
-                                    value.markers.get(manager.getCurrentMapCode()));
-                            manager.getCurrentClusterManager().cluster();
-                            value.markers.set(manager.getCurrentMapCode(), null);
+                            manager.getClusterManager(mapCode).removeItem(
+                                    value.markers[mapCode]);
+                            manager.getClusterManager(mapCode).cluster();
+                            value.markers[mapCode] = null;
                         }
 
                         break;
                 }
             }
-        });
-
-        view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                nodeSelector.setChecked(false);
-                getTreeView().removeNode(node);
-            }
-        });
-
-        return view;
+        };
     }
 
     // 展開後讓箭頭向下
@@ -130,8 +137,9 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     // 增加CheckBox
     @Override
     public void toggleSelectionMode(boolean editModeEnabled) {
-        nodeSelector.setVisibility(editModeEnabled ? View.VISIBLE : View.GONE);
-        nodeSelector.setChecked(mNode.isSelected());
+        nodeSelector_main_map.setChecked(mNode.isSelected());
+        if (nodeSelector_sub_map != null)
+            nodeSelector_sub_map.setChecked(mNode.isSelected());
     }
 
     public static class GpxTreeItem {
@@ -141,12 +149,12 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
         // attribute for WayPoint
         public WayPoint wpt;
-        public List<CustomMarker> markers = new ArrayList<>();
+        public CustomMarker[] markers = {null, null};
 
-        // TODO add polylineoptions into attribute
+        // TODO add polylineOptions into attribute
         // attribute for Track
         public Track track;
-        public List<Polyline> polylines = new ArrayList<>();
+        public Polyline[] polylines = {null, null};
 
         public GpxTreeItem(Builder builder) {
             type = builder.type;

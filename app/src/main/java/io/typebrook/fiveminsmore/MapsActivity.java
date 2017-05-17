@@ -41,6 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.GregorianCalendar;
 
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
@@ -282,6 +283,14 @@ public class MapsActivity extends AppCompatActivity implements
 
             case R.id.btn_gpx_files_list:
                 mGpxManager.showDialog();
+                this.onClick(mSwitchButton);
+                mSwitchButton.setVisibility(View.INVISIBLE);
+                break;
+
+            case R.id.leave_gpx_manager:
+                mGpxManager.removeDialog();
+                this.onClick(mSwitchButton);
+                mSwitchButton.setVisibility(View.VISIBLE);
                 break;
 
             // See the usage: https://github.com/fishwjy/MultiType-FilePicker
@@ -324,9 +333,6 @@ public class MapsActivity extends AppCompatActivity implements
                 exit.setOnClickListener(this);
                 break;
 
-            case R.id.leave_gpx_manager:
-                mGpxManager.removeDialog();
-                break;
 
             case R.id.exit_drawing:
                 layoutContainer.removeViewAt(indexOfPad);
@@ -493,7 +499,7 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         if (mGpxManager.isShowingDialog())
-            mGpxManager.removeDialog();
+            this.onClick(findViewById(R.id.leave_gpx_manager));
         else
             moveTaskToBack(true);
     }
@@ -645,7 +651,7 @@ public class MapsActivity extends AppCompatActivity implements
         saveToGpxFile();
     }
 
-    private void saveToGpxFile(){
+    private void saveToGpxFile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("請輸入航跡名稱");
 

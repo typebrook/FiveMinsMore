@@ -51,7 +51,7 @@ public class GpxManager {
     }
 
     void showDialog() {
-        isShowingDialog = !isShowingDialog;
+        isShowingDialog = true;
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
@@ -65,7 +65,8 @@ public class GpxManager {
         Button leaveDialog = (Button) managerView.findViewById(R.id.leave_gpx_manager);
         leaveDialog.setOnClickListener((MapsActivity) mContext);
 
-        ((ViewGroup) mContext.findViewById(R.id.container)).addView(managerView);
+        ViewGroup container = ((ViewGroup) mContext.findViewById(R.id.container));
+        container.addView(managerView, container.getChildCount());
     }
 
     void renewDialog() {
@@ -75,6 +76,7 @@ public class GpxManager {
     }
 
     void removeDialog() {
+        isShowingDialog = false;
         ((ViewGroup) mContext.findViewById(R.id.container)).removeView(managerView);
     }
 
@@ -99,8 +101,7 @@ public class GpxManager {
     }
 
     public boolean isShowingDialog() {
-        isShowingDialog = !isShowingDialog;
-        return !isShowingDialog;
+        return isShowingDialog;
     }
 
     public TreeNode getGpxTree(){

@@ -100,11 +100,11 @@ public class MapsManager implements
     private List<ClusterManager<CustomMarker>> mClusterManagers = new ArrayList<>();
 
     // Temporary marker
-    Marker mMarker;
+    private Marker mMarker;
 
     // Boundary of Main map
-    PolygonOptions boundaryMain;
-    Polygon boundaryMainPolygon;
+    private PolygonOptions boundaryMain;
+    private Polygon boundaryMainPolygon;
 
     private boolean isMapsSync = false;
 
@@ -192,6 +192,10 @@ public class MapsManager implements
         mClusterManagers.remove(MAP_CODE_SUB);
     }
 
+    public boolean isSubMapOn() {
+        return mMaps.size() > 1;
+    }
+
     public void setCurrentMap(int code) {
         currentMapCode = code;
     }
@@ -204,12 +208,20 @@ public class MapsManager implements
         return mMaps.get(currentMapCode);
     }
 
+    public GoogleMap getMap(int mapCode) {
+        return mMaps.get(mapCode);
+    }
+
     public List<TileOverlay> getMapTiles() {
         return mMapTiles;
     }
 
     public ClusterManager<CustomMarker> getCurrentClusterManager() {
         return mClusterManagers.get(currentMapCode);
+    }
+
+    public ClusterManager<CustomMarker> getClusterManager(int mapCode) {
+        return mClusterManagers.get(mapCode);
     }
 
     // 設定鏡頭可動範圍
@@ -309,7 +321,7 @@ public class MapsManager implements
             if (isMapsSync) {
                 mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
-            }else {
+            } else {
                 LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
                 boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
                 boundaryMainPolygon.remove();
@@ -329,8 +341,8 @@ public class MapsManager implements
         return list;
     }
 
-    public void changeSyncMaps(){
-        isMapsSync = ! isMapsSync;
+    public void changeSyncMaps() {
+        isMapsSync = !isMapsSync;
         if (isMapsSync)
             boundaryMainPolygon.remove();
     }

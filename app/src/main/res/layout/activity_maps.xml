@@ -54,6 +54,7 @@
         </RelativeLayout>
     </LinearLayout>
 
+    <!--TODO use LinearLayout-->
     <Button
         android:id="@+id/btn_switch"
         style="@style/button_map"

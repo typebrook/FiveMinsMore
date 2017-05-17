@@ -24,8 +24,14 @@
             android:orientation="horizontal">
 
             <CheckBox
-                android:visibility="gone"
                 android:id="@+id/node_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false" />
+
+            <CheckBox
+                android:visibility="gone"
+                android:id="@+id/node_selector_sub_map"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false" />
