@@ -1,14 +1,12 @@
 package io.typebrook.fiveminsmore;
 
 import android.Manifest;
-import android.content.DialogInterface;
-import android.icu.util.Calendar;
-import android.support.v7.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -22,11 +20,11 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,17 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.GregorianCalendar;
-
-import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.draw.DrawUtils;
-import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
-import io.typebrook.fiveminsmore.gpx.GpxHolder;
-import io.typebrook.fiveminsmore.model.CustomMarker;
-
-import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
-import io.typebrook.fiveminsmore.utils.DrawingView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -75,18 +62,23 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SimpleTimeZone;
 
-import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
-import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
+import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.draw.DrawUtils;
+import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
+import io.typebrook.fiveminsmore.gpx.GpxHolder;
+import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
+import io.typebrook.fiveminsmore.utils.DrawingView;
+
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
+import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
 import static io.typebrook.fiveminsmore.MapsManager.TRKPTS_STYLE;
 import static io.typebrook.fiveminsmore.MapsManager.TRK_STYLE;
-import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
-import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 
 public class MapsActivity extends AppCompatActivity implements
         ServiceConnection,

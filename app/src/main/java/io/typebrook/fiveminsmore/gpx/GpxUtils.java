@@ -80,7 +80,7 @@ public class GpxUtils {
     }
 
     // 將航點畫在地圖上
-    public static CustomMarker drawWaypt(WayPoint wpt, MapsManager manager) {
+    public static CustomMarker drawWaypt(WayPoint wpt, MapsManager manager, int mapCode) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
         String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
@@ -88,22 +88,12 @@ public class GpxUtils {
         String snippet = "北緯" + lat + "度，東經" + lon + "度";
 
         CustomMarker newCustomMarker = new CustomMarker(latLng, name, snippet);
-        manager.getCurrentClusterManager().addItem(newCustomMarker);
+        manager.getClusterManager(mapCode).addItem(newCustomMarker);
 
         // Let the marker show on map instantly.
-        manager.getCurrentClusterManager().cluster();
+        manager.getClusterManager(mapCode).cluster();
 
         manager.getCurrentMap().animateCamera(CameraUpdateFactory.newLatLng(latLng));
-//                , 1500, new GoogleMap.CancelableCallback() {
-//            @Override
-//            public void onFinish() {
-//            }
-//
-//            @Override
-//            public void onCancel() {
-//            }
-//        });
-
         manager.getCurrentMap().animateCamera(CameraUpdateFactory.zoomTo(18));
 
         return newCustomMarker;

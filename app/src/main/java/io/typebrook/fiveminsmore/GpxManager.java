@@ -85,7 +85,7 @@ public class GpxManager {
             Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
 
             TreeNode gpxRoot = GpxUtils.getTreeNode(file.getName(), gpx);
-            gpxRoot.setViewHolder(new GpxHolder(mContext));
+            gpxRoot.setViewHolder(new GpxHolder(mContext, manager));
 
             treeView.addNode(root, gpxRoot);
 

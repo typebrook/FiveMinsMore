@@ -192,10 +192,6 @@ public class MapsManager implements
         mClusterManagers.remove(MAP_CODE_SUB);
     }
 
-    public boolean isSubMapOn() {
-        return mMaps.size() > 1;
-    }
-
     public void setCurrentMap(int code) {
         currentMapCode = code;
     }
@@ -210,6 +206,10 @@ public class MapsManager implements
 
     public GoogleMap getMap(int mapCode) {
         return mMaps.get(mapCode);
+    }
+
+    public int getMapsNum() {
+        return mMaps.size();
     }
 
     public List<TileOverlay> getMapTiles() {

@@ -19,6 +19,8 @@ import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 
+import static java.lang.System.in;
+
 /**
  * Created by pham on 2017/4/30.
  */
@@ -26,8 +28,7 @@ import io.typebrook.fiveminsmore.utils.MapUtils;
 public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem> {
     private static final String TAG = "GpxHolder";
     private PrintView arrowView;
-    private CheckBox nodeSelector_main_map;
-    private CheckBox nodeSelector_sub_map;
+    private CheckBox nodeSelector;
     private MapsManager manager;
 
     public GpxHolder(Context context) {
@@ -55,31 +56,22 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             arrowView.setVisibility(View.GONE);
         }
 
-        nodeSelector_main_map = (CheckBox) view.findViewById(R.id.node_selector);
-        nodeSelector_main_map.setOnCheckedChangeListener(getCheckListener(node, value, 0));
-
-        if (manager != null && manager.isSubMapOn()) {
-            nodeSelector_sub_map = (CheckBox) view.findViewById(R.id.node_selector_sub_map);
-            nodeSelector_sub_map.setVisibility(View.VISIBLE);
-            nodeSelector_sub_map.setOnCheckedChangeListener(getCheckListener(node, value, 1));
-        }
+        nodeSelector = (CheckBox) view.findViewById(R.id.node_selector);
+        nodeSelector.setOnCheckedChangeListener(getCheckListener(node, value));
 
         view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                nodeSelector_main_map.setChecked(false);
-                if (nodeSelector_sub_map != null)
-                   nodeSelector_sub_map.setChecked(false);
+                nodeSelector.setChecked(false);
                 getTreeView().removeNode(node);
             }
         });
-
 
         return view;
     }
 
     private CompoundButton.OnCheckedChangeListener getCheckListener
-            (final TreeNode node, final GpxTreeItem value, final int mapCode){
+            (final TreeNode node, final GpxTreeItem value) {
         return new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -88,41 +80,47 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                     getTreeView().selectNode(n, isChecked);
                 }
 
-                switch (value.type) {
-                    case ITEM_TYPE_GPX:
-                        break;
-                    case ITEM_TYPE_TRACK:
-                        if (isChecked) {
-                            if (value.polylines[mapCode] == null) {
-                                value.polylines[mapCode] =
-                                        GpxUtils.drawTrack(value.track, manager.getMap(mapCode));
+                for (int mapCode = 0; mapCode < manager.getMapsNum(); mapCode++) {
+                    switch (value.type) {
+                        case ITEM_TYPE_GPX:
+                            break;
+                        case ITEM_TYPE_TRACK:
+                            if (isChecked) {
+                                if (value.polylines[mapCode] == null) {
+                                    value.polylines[mapCode] =
+                                            GpxUtils.drawTrack(value.track, manager.getMap(mapCode));
+                                } else {
+                                    value.polylines[mapCode].setVisible(true);
+                                }
+                                MapUtils.zoomToPolyline(manager.getMap(mapCode),
+                                        value.polylines[mapCode]);
+                            } else if (value.polylines[mapCode] == null) {
+                                break;
                             } else {
-                                value.polylines[mapCode].setVisible(true);
+                                value.polylines[mapCode].setVisible(false);
                             }
-                            MapUtils.zoomToPolyline(manager.getMap(mapCode),
-                                    value.polylines[mapCode]);
-                        } else {
-                            value.polylines[mapCode].setVisible(false);
-                        }
 
-                        break;
+                            break;
 
-                    case ITEM_TYPE_WAYPOINT:
-                        if (isChecked) {
-                            value.markers[mapCode] =
-                                    GpxUtils.drawWaypt(value.wpt, manager);
-                            manager.getClusterManager(mapCode).cluster();
+                        case ITEM_TYPE_WAYPOINT:
+                            if (isChecked) {
+                                value.markers[mapCode] =
+                                        GpxUtils.drawWaypt(value.wpt, manager, mapCode);
+                                manager.getClusterManager(mapCode).cluster();
 
-                            MapUtils.zoomToMarker(manager.getMap(mapCode),
-                                    value.markers[mapCode]);
-                        } else {
-                            manager.getClusterManager(mapCode).removeItem(
-                                    value.markers[mapCode]);
-                            manager.getClusterManager(mapCode).cluster();
-                            value.markers[mapCode] = null;
-                        }
+                                MapUtils.zoomToMarker(manager.getMap(mapCode),
+                                        value.markers[mapCode]);
+                            } else if (value.markers[mapCode] == null) {
+                                break;
+                            } else {
+                                manager.getClusterManager(mapCode).removeItem(
+                                        value.markers[mapCode]);
+                                manager.getClusterManager(mapCode).cluster();
+                                value.markers[mapCode] = null;
+                            }
 
-                        break;
+                            break;
+                    }
                 }
             }
         };
@@ -137,9 +135,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     // 增加CheckBox
     @Override
     public void toggleSelectionMode(boolean editModeEnabled) {
-        nodeSelector_main_map.setChecked(mNode.isSelected());
-        if (nodeSelector_sub_map != null)
-            nodeSelector_sub_map.setChecked(mNode.isSelected());
+        nodeSelector.setChecked(mNode.isSelected());
     }
 
     public static class GpxTreeItem {
