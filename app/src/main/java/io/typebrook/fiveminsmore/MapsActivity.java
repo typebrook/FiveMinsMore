@@ -769,7 +769,6 @@ public class MapsActivity extends AppCompatActivity implements
         mMapsManager.disableSubMap();
         mMapsManager.setCurrentMap(MAP_CODE_MAIN);
 
-        this.onClick(mBottomMapBtn);
         mBottomMapBtn.setVisibility(View.INVISIBLE);
         mTopMapBtn.setVisibility(View.INVISIBLE);
 
