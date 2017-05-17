@@ -33,45 +33,6 @@
                 map:uiZoomControls="true"
                 tools:context="io.typebrook.fiveminsmore.MapsActivity" />
 
-            <Button
-                android:id="@+id/btn_switch"
-                style="@style/button_map"
-                android:layout_marginLeft="9.8dp"
-                android:layout_marginTop="10.4dp"
-                android:text="隱藏" />
-
-            <Button
-                android:id="@+id/btn_tracking"
-                style="@style/button_map"
-                android:layout_alignLeft="@+id/btn_switch"
-                android:layout_below="@+id/btn_switch"
-                android:drawableTop="@drawable/btn_tracking"
-                android:paddingTop="3dp" />
-
-            <Button
-                android:id="@+id/btn_pick_tiles"
-                style="@style/button_map"
-                android:layout_alignLeft="@+id/btn_switch"
-                android:layout_below="@+id/btn_tracking"
-                android:drawableTop="@drawable/ic_layers_black_24dp"
-                android:paddingTop="8.5dp" />
-
-
-            <Button
-                android:id="@+id/btn_gpx_files_list"
-                style="@style/button_map"
-                android:layout_alignLeft="@+id/btn_switch"
-                android:layout_below="@+id/btn_pick_tiles"
-                android:drawableTop="@drawable/ic_geo_data"
-                android:paddingTop="8.5dp" />
-
-            <Button
-                android:id="@+id/btn_help"
-                style="@style/button_map"
-                android:layout_alignLeft="@+id/btn_switch"
-                android:layout_below="@+id/btn_gpx_files_list"
-                android:drawableTop="@drawable/ic_help_black_24dp"
-                android:paddingTop="8.5dp" />
 
             <TextView
                 android:id="@+id/zoom_number"
@@ -92,6 +53,45 @@
 
         </RelativeLayout>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_switch"
+        style="@style/button_map"
+        android:layout_marginLeft="9.8dp"
+        android:layout_marginTop="10.4dp"
+        android:text="隱藏" />
+
+    <Button
+        android:id="@+id/btn_tracking"
+        style="@style/button_map"
+        android:layout_alignLeft="@+id/btn_switch"
+        android:layout_below="@+id/btn_switch"
+        android:drawableTop="@drawable/btn_tracking"
+        android:paddingTop="3dp" />
+
+    <Button
+        android:id="@+id/btn_pick_tiles"
+        style="@style/button_map"
+        android:layout_alignLeft="@+id/btn_switch"
+        android:layout_below="@+id/btn_tracking"
+        android:drawableTop="@drawable/ic_layers_black_24dp"
+        android:paddingTop="8.5dp" />
+
+    <Button
+        android:id="@+id/btn_gpx_files_list"
+        style="@style/button_map"
+        android:layout_alignLeft="@+id/btn_switch"
+        android:layout_below="@+id/btn_pick_tiles"
+        android:drawableTop="@drawable/ic_geo_data"
+        android:paddingTop="8.5dp" />
+
+    <Button
+        android:id="@+id/btn_help"
+        style="@style/button_map"
+        android:layout_alignLeft="@+id/btn_switch"
+        android:layout_below="@+id/btn_gpx_files_list"
+        android:drawableTop="@drawable/ic_help_black_24dp"
+        android:paddingTop="8.5dp" />
 
     <TextView
         android:id="@+id/indicator"

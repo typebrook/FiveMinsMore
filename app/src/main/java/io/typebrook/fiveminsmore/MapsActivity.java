@@ -1,6 +1,8 @@
 package io.typebrook.fiveminsmore;
 
 import android.Manifest;
+import android.content.DialogInterface;
+import android.icu.util.Calendar;
 import android.support.v7.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
@@ -20,13 +22,18 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -34,6 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.GregorianCalendar;
 
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.draw.DrawUtils;
@@ -66,7 +74,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SimpleTimeZone;
 
+import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
+import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
@@ -192,7 +203,6 @@ public class MapsActivity extends AppCompatActivity implements
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
      */
     @Override
     public void onMapReady(GoogleMap map) {
@@ -206,8 +216,11 @@ public class MapsActivity extends AppCompatActivity implements
         else
             askPermission();
 
-        // Set the boundaries of Taiwan
+        // Set the boundaries of Taiwan, and set other view by using onCameraMove().
         mMapsManager.setTaiwanBoundaries();
+        mMapsManager.onCameraMove();
+
+        // TODO add blue dot beam to indicate user direction
     }
 
     @Override
@@ -329,6 +342,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null)
+            return;
         ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
         if (list.isEmpty())
             return;
@@ -498,7 +513,7 @@ public class MapsActivity extends AppCompatActivity implements
                         mMap.setMyLocationEnabled(true);
                 } else {
                     // Permission denied
-                    // TODO
+                    Log.d(TAG, "Fail to get permission PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION");
                 }
                 break;
             }
@@ -510,44 +525,6 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "Location services connected.");
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        TrackingService.MyBinder myBinder = (TrackingService.MyBinder) service;
-
-        Toast.makeText(this, "onServiceConnected", Toast.LENGTH_SHORT).show();
-
-        // 將按鈕顏色變紅
-        mTrackingButton.setSelected(true);
-
-        // 監聽回傳的位置訊息
-        registerReceiver(mBroadcast, new IntentFilter(LOCATION_UPDATE));
-
-        // 將航跡點與Service內同步
-        mCurrentTrackPoints = myBinder.getTrkpts();
-
-        // Tracking where you passed
-        mMyTracks.add(mCurrentTrack);
-        mCurrentTrack = mMap.addPolyline(TRK_STYLE);
-        // 更新地圖上的航跡
-        updateTracking(true);
-    }
-
-    // 與TrackingService繫結時，更新紀錄中的航跡
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        Toast.makeText(this, "onServiceDisconnected", Toast.LENGTH_SHORT).show();
-
-        isTracking = false;
-    }
-
-    // Google Services連線中斷
-    @Override
-    public void onConnectionSuspended(int i) {
-        // int參數是連線中斷的代號
-        Log.i(TAG, "Location services suspended. Please reconnect.");
-        mGoogleApiClient.connect();
     }
 
     // Google Services連線失敗
@@ -588,7 +565,7 @@ public class MapsActivity extends AppCompatActivity implements
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    // 設定mGoogleApiclient
+    // 設定mGoogleApiClient
     private synchronized void configGoogleApiClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -597,6 +574,40 @@ public class MapsActivity extends AppCompatActivity implements
                     .addApi(LocationServices.API)
                     .build();
         }
+    }
+
+    // Google Services連線中斷
+    @Override
+    public void onConnectionSuspended(int i) {
+        // int參數是連線中斷的代號
+        Log.i(TAG, "Location services suspended. Please reconnect.");
+        mGoogleApiClient.connect();
+    }
+
+    // 與TrackingService繫結時，更新紀錄中的航跡
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        TrackingService.MyBinder myBinder = (TrackingService.MyBinder) service;
+
+        // 將按鈕顏色變紅
+        mTrackingButton.setSelected(true);
+
+        // 監聽回傳的位置訊息
+        registerReceiver(mBroadcast, new IntentFilter(LOCATION_UPDATE));
+
+        // 將航跡點與Service內同步
+        mCurrentTrackPoints = myBinder.getTrkpts();
+
+        // Tracking where you passed
+        mMyTracks.add(mCurrentTrack);
+        mCurrentTrack = mMap.addPolyline(TRK_STYLE);
+        // 更新地圖上的航跡
+        updateTracking(true);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        isTracking = false;
     }
 
     // PendingIntent
@@ -618,18 +629,52 @@ public class MapsActivity extends AppCompatActivity implements
         bindService(bindIntent, this, BIND_AUTO_CREATE);
     }
 
+    // 結束TrackingService
     public void removeLocationUpdates() {
         // Set intent for Tracking
         Intent mServiceIntent = new Intent(this, TrackingService.class);
         PendingIntent mPendingIntent = PendingIntent.getService(
                 this, 0, mServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        // End tracking
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, mPendingIntent);
         unbindService(this);
         stopService(mServiceIntent);
+
+        // Save to GPX file
+        saveToGpxFile();
     }
 
-    // 更新航跡顯示
+    private void saveToGpxFile(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("請輸入航跡名稱");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        java.util.Calendar mCal = java.util.Calendar.getInstance();
+        CharSequence timeString = DateFormat.format("yyyy-MM-dd kk:mm:ss", mCal.getTime());
+        input.setText(timeString);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("儲存為GPX檔", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
+    }
+
+    // 更新螢幕上的航跡
     private void updateTracking(boolean updateAllPts) {
         if (updateAllPts) {
             // 將所有航跡點輸入ClusterManager
@@ -665,7 +710,7 @@ public class MapsActivity extends AppCompatActivity implements
 //        FragmentTransaction transaction = getFragmentManager().beginTransaction();
 //        transaction.replace(R.id.sub_content, mSubMapFragment, SUBMAP_FRAGMENT_TAG).commit();
 
-        RelativeLayout layout_sub_map = (RelativeLayout)getLayoutInflater().inflate(R.layout.sub_map, null, false);
+        RelativeLayout layout_sub_map = (RelativeLayout) getLayoutInflater().inflate(R.layout.sub_map, null, false);
         ((ViewGroup) findViewById(R.id.sub_content)).addView(layout_sub_map);
         mSubMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.sub_map);
         mFragmentsNumber++;

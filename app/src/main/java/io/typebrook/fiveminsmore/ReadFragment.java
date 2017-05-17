@@ -19,23 +19,17 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import io.typebrook.fiveminsmore.model.ClockDrawable;
-import io.typebrook.fiveminsmore.gpx.GpxUtils;
-import io.typebrook.fiveminsmore.model.TimeLineModel;
-
 import com.github.vipulasri.timelineview.TimelineView;
-import com.vincent.filepicker.filter.entity.NormalFile;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.model.ClockDrawable;
+import io.typebrook.fiveminsmore.model.TimeLineModel;
 
 import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
 

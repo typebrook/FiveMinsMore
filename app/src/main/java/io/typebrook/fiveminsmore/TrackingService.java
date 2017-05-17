@@ -89,9 +89,10 @@ public class TrackingService extends Service {
 
         }
 
-        Toast.makeText(getBaseContext(), "service starting " + count + " " + succeed + " "
-                + mTrackPoints.size() + " time: "
-                + (new Date().getTime() - startTime) / 1000, Toast.LENGTH_SHORT).show();
+//        // Message for testing
+//        Toast.makeText(getBaseContext(), "service starting " + count + " " + succeed + " "
+//                + mTrackPoints.size() + " time: "
+//                + (new Date().getTime() - startTime) / 1000, Toast.LENGTH_SHORT).show();
 
         return START_STICKY;
     }

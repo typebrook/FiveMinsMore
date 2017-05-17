@@ -6,7 +6,6 @@ package io.typebrook.fiveminsmore.res;
 
 public class TileList {
 
-    // TODO put into source file
     public static final CharSequence[] onlineMaps = {
             "Google衛星街道混合圖",
             "經建三版地形圖",

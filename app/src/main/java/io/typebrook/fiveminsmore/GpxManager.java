@@ -1,6 +1,7 @@
 package io.typebrook.fiveminsmore;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -92,8 +93,7 @@ public class GpxManager {
 
             return gpx;
         } catch (Exception e) {
-            // TODO
-            Toast.makeText(mContext, "failed", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Fail to load GPX file " + file.getName());
             return null;
         }
     }

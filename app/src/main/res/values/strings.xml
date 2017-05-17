@@ -17,7 +17,6 @@
     <string name="about">關於</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="gpx_manager_default_text">尚未匯入任何航跡及航點</string>
 
     <!--icon for tree view-->

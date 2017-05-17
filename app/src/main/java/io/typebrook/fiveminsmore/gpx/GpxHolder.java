@@ -143,6 +143,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public WayPoint wpt;
         public List<CustomMarker> markers = new ArrayList<>();
 
+        // TODO add polylineoptions into attribute
         // attribute for Track
         public Track track;
         public List<Polyline> polylines = new ArrayList<>();

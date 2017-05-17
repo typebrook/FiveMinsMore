@@ -54,7 +54,7 @@ public class GpxUtils {
         }
     }
 
-    // 將航跡畫在地圖上(只取trk0, seg0)
+    // 將航跡畫在地圖上
     public static Polyline drawTrack(Track trk, GoogleMap map) {
         List<TrackPoint> trkPts = new ArrayList<>();
 

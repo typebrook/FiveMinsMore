@@ -344,7 +344,6 @@ public class MapsManager implements
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
 
-                        // TODO
                         if (which < 4) {
                             mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
                             if (mMapTiles.get(currentMapCode) != null) {
