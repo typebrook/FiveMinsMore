@@ -54,8 +54,8 @@ public class GpxUtils {
         }
     }
 
-    // 將航跡畫在地圖上
-    public static Polyline drawTrack(Track trk, GoogleMap map) {
+    // 取得PolyLine設定值，以便將航跡畫在地圖上
+    public static PolylineOptions getTrkOpts(Track trk) {
         List<TrackPoint> trkPts = new ArrayList<>();
 
         for (TrackSegment seg : trk.getTrackSegments()) {
@@ -69,14 +69,14 @@ public class GpxUtils {
             pos.add(latLng);
         }
 
-        return map.addPolyline(pos
+        return pos
                 .color(Color.RED)
                 .startCap(new CustomCap(BitmapDescriptorFactory.fromResource(
                         R.drawable.ic_start_point_24dp), 10))
                 .endCap(new CustomCap(BitmapDescriptorFactory.fromResource(
                         R.drawable.ic_arrowhead_white), 5))
                 .jointType(JointType.ROUND)
-                .zIndex(5));
+                .zIndex(5);
     }
 
     // 將航點畫在地圖上

@@ -87,18 +87,16 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                             break;
                         case ITEM_TYPE_TRACK:
                             if (isChecked) {
-                                if (value.polylines[mapCode] == null) {
-                                    value.polylines[mapCode] =
-                                            GpxUtils.drawTrack(value.track, manager.getMap(mapCode));
-                                } else {
-                                    value.polylines[mapCode].setVisible(true);
-                                }
+                                value.polylines[mapCode] = manager.getMap(mapCode)
+                                        .addPolyline(value.trkOpts);
+
                                 MapUtils.zoomToPolyline(manager.getMap(mapCode),
                                         value.polylines[mapCode]);
                             } else if (value.polylines[mapCode] == null) {
                                 break;
                             } else {
-                                value.polylines[mapCode].setVisible(false);
+                                value.polylines[mapCode].remove();
+                                value.markers[mapCode] = null;
                             }
 
                             break;
@@ -150,7 +148,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
         // TODO add polylineOptions into attribute
         // attribute for Track
-        public Track track;
         public PolylineOptions trkOpts;
         public Polyline[] polylines = {null, null};
 
@@ -159,7 +156,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             icon = builder.icon;
             text = builder.text;
             wpt = builder.wpt;
-            track = builder.track;
+            trkOpts = builder.trkOpts;
         }
 
         public static class Builder {
@@ -167,7 +164,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             private int icon;
             private String text;
             private WayPoint wpt;
-            private Track track;
+            private PolylineOptions trkOpts;
 
             public Builder setType(int type) {
                 this.type = type;
@@ -190,7 +187,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             }
 
             public Builder setTrack(Track track) {
-                this.track = track;
+                this.trkOpts = GpxUtils.getTrkOpts(track);
                 return this;
             }
 
