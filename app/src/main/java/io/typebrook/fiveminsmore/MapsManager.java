@@ -68,11 +68,11 @@ public class MapsManager implements
     // static final List<PatternItem> dashedPattern = Arrays.asList(new Dash(50), new Gap(30));
     static final PolylineOptions TRK_STYLE = new PolylineOptions()
             .color(Color.BLUE)
-            .zIndex(100);
+            .zIndex(5);
 
     // 航跡點樣式
     static final MarkerOptions TRKPTS_STYLE = new MarkerOptions()
-            .zIndex(100)
+            .zIndex(5)
             .anchor(0.5f, 0.5f)
             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_trkpt));
 
@@ -138,26 +138,6 @@ public class MapsManager implements
         map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_MAIN));
     }
 
-    // Set the TileOverlay
-    private static TileOverlayOptions getTileSetting(final String tileUrl) {
-        TileProvider provider = new UrlTileProvider(1024, 1024) {
-            @Override
-            public synchronized URL getTileUrl(int x, int y, int zoom) {
-                String s = String.format(Locale.US, tileUrl, zoom, x, y);
-                Log.i(TAG, "tile url: " + s);
-                URL url;
-                try {
-                    url = new URL(s);
-                } catch (MalformedURLException e) {
-                    throw new AssertionError(e);
-                }
-                return url;
-            }
-        };
-
-        return new TileOverlayOptions().tileProvider(provider);
-    }
-
     // Add SubMap for contrast
     public void enableSubMap(GoogleMap map) {
         mMaps.add(MAP_CODE_SUB, map);
@@ -176,6 +156,8 @@ public class MapsManager implements
         // The Rule about Cluster Managing
         mClusterManagers.get(MAP_CODE_SUB).setRenderer(
                 new CustomRenderer(mContext, map, mClusterManagers.get(MAP_CODE_SUB)));
+        mClusterManagers.get(MAP_CODE_SUB).setOnClusterClickListener(
+                (CustomRenderer) mClusterManagers.get(MAP_CODE_SUB).getRenderer());
         // Click on marker to open infoWindow
         map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
         // Click on Cluster to zoom to Markers
@@ -323,7 +305,10 @@ public class MapsManager implements
                         .newCameraPosition(cameraPosition));
             } else {
                 LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
-                boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
+                boundaryMain = new PolygonOptions()
+                        .addAll(getBounds(latLngBounds))
+                        .strokeColor(Color.YELLOW)
+                        .zIndex(10);
                 boundaryMainPolygon.remove();
                 boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
             }
@@ -341,10 +326,30 @@ public class MapsManager implements
         return list;
     }
 
-    public void changeSyncMaps() {
+    void changeSyncMaps() {
         isMapsSync = !isMapsSync;
         if (isMapsSync)
             boundaryMainPolygon.remove();
+    }
+
+    // Set the TileOverlay
+    private static TileOverlayOptions getTileSetting(final String tileUrl) {
+        TileProvider provider = new UrlTileProvider(1024, 1024) {
+            @Override
+            public synchronized URL getTileUrl(int x, int y, int zoom) {
+                String s = String.format(Locale.US, tileUrl, zoom, x, y);
+                Log.i(TAG, "tile url: " + s);
+                URL url;
+                try {
+                    url = new URL(s);
+                } catch (MalformedURLException e) {
+                    throw new AssertionError(e);
+                }
+                return url;
+            }
+        };
+
+        return new TileOverlayOptions().tileProvider(provider);
     }
 
     public void setTileOverlay() {

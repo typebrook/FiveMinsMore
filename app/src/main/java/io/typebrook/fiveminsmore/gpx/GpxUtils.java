@@ -76,7 +76,7 @@ public class GpxUtils {
                 .endCap(new CustomCap(BitmapDescriptorFactory.fromResource(
                         R.drawable.ic_arrowhead_white), 5))
                 .jointType(JointType.ROUND)
-                .zIndex(200));
+                .zIndex(5));
     }
 
     // 將航點畫在地圖上

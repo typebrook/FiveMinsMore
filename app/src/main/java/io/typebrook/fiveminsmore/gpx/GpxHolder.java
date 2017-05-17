@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.unnamed.b.atv.model.TreeNode;
 
 import io.ticofab.androidgpxparser.parser.domain.Track;
@@ -150,6 +151,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         // TODO add polylineOptions into attribute
         // attribute for Track
         public Track track;
+        public PolylineOptions trkOpts;
         public Polyline[] polylines = {null, null};
 
         public GpxTreeItem(Builder builder) {
