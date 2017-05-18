@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.unnamed.b.atv.model.TreeNode;
 
+import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.MapsManager;
@@ -122,8 +123,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
                         case ITEM_TYPE_WAYPOINT:
                             if (isChecked) {
-                                value.markers[mapCode] =
-                                        GpxUtils.drawWaypt(value.wpt, manager, mapCode);
+                                value.markers[mapCode] = value.marker;
                                 manager.getClusterManager(mapCode).cluster();
                             } else if (value.markers[mapCode] == null) {
                                 break;
@@ -157,8 +157,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public int icon;
         public String text;
 
+        // attribute for GPX
+        public Gpx gpx;
+
         // attribute for WayPoint
-        public WayPoint wpt;
+        public CustomMarker marker;
         public CustomMarker[] markers = {null, null};
 
         // attribute for Track
@@ -169,7 +172,8 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             type = builder.type;
             icon = builder.icon;
             text = builder.text;
-            wpt = builder.wpt;
+            gpx = builder.gpx;
+            marker = builder.marker;
             trkOpts = builder.trkOpts;
         }
 
@@ -177,7 +181,8 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             private int type;
             private int icon;
             private String text;
-            private WayPoint wpt;
+            private Gpx gpx;
+            private CustomMarker marker;
             private PolylineOptions trkOpts;
 
             public Builder setType(int type) {
@@ -195,13 +200,18 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 return this;
             }
 
-            public Builder setWayPoint(WayPoint wpt) {
-                this.wpt = wpt;
+            public Builder setGpx(Gpx gpx) {
+                this.gpx = gpx;
                 return this;
             }
 
-            public Builder setTrack(Track track) {
-                this.trkOpts = GpxUtils.getTrkOpts(track);
+            public Builder setMarker(WayPoint wpt) {
+                this.marker = GpxUtils.waypt2Marker(wpt);
+                return this;
+            }
+
+            public Builder setTrkOpts(Track track) {
+                this.trkOpts = GpxUtils.trk2TrkOpts(track);
                 return this;
             }
 

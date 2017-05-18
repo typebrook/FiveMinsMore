@@ -54,12 +54,11 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <!--TODO use LinearLayout-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="9.8dp"
-        android:layout_marginTop="52.9dp"
         android:orientation="vertical">
 
         <Button
@@ -90,7 +89,6 @@
             style="@style/button_map"
             android:drawableTop="@drawable/ic_help_black_24dp"
             android:paddingTop="8.5dp" />
-
     </LinearLayout>
 
     <TextView

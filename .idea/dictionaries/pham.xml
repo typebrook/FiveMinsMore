@@ -3,11 +3,14 @@
     <words>
       <w>btns</w>
       <w>fiveminsmore</w>
+      <w>lngs</w>
       <w>mapbutton</w>
       <w>polylines</w>
       <w>submap</w>
+      <w>trkpts</w>
       <w>typebrook</w>
       <w>waypoint</w>
+      <w>waypt</w>
     </words>
   </dictionary>
 </component>

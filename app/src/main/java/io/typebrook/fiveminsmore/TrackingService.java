@@ -86,7 +86,6 @@ public class TrackingService extends Service {
 
                 Log.d("BroadcastIntent", "intent send " + latLng.toString());
             }
-
         }
 
 //        // Message for testing

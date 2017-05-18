@@ -3,14 +3,13 @@ package io.typebrook.fiveminsmore.gpx;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.jamesmurty.utils.XMLBuilder2;
 import com.unnamed.b.atv.model.TreeNode;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -27,7 +26,6 @@ import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.TrackPoint;
 import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 
@@ -40,14 +38,13 @@ public class GpxUtils {
 
     // 讀入GPX檔
     public static Gpx parseGpx(InputStream in) {
-        Log.i("Inputstream", "parseGpx: parsing");
-        GPXParser mParser = new GPXParser(); // consider injection
+        GPXParser mParser = new GPXParser();
+
         try {
             Gpx gpx = mParser.parse(in);
             Log.d(TAG, "parseGpx: parsed succeed");
             return gpx;
         } catch (IOException | XmlPullParserException e) {
-            // do something with this exception
             e.printStackTrace();
             Log.d(TAG, "parseGpx: parsed failed");
             return null;
@@ -55,7 +52,7 @@ public class GpxUtils {
     }
 
     // 取得PolyLine設定值，以便將航跡畫在地圖上
-    public static PolylineOptions getTrkOpts(Track trk) {
+    static PolylineOptions trk2TrkOpts(Track trk) {
         List<TrackPoint> trkPts = new ArrayList<>();
 
         for (TrackSegment seg : trk.getTrackSegments()) {
@@ -80,20 +77,14 @@ public class GpxUtils {
     }
 
     // 將航點畫在地圖上
-    public static CustomMarker drawWaypt(WayPoint wpt, MapsManager manager, int mapCode) {
+    static CustomMarker waypt2Marker(WayPoint wpt) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
         String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
         String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
         String snippet = "北緯" + lat + "度，東經" + lon + "度";
 
-        CustomMarker newCustomMarker = new CustomMarker(latLng, name, snippet);
-        manager.getClusterManager(mapCode).addItem(newCustomMarker);
-
-        // Let the marker show on map instantly.
-        manager.getClusterManager(mapCode).cluster();
-
-        return newCustomMarker;
+        return new CustomMarker(latLng, name, snippet);
     }
 
     public static TreeNode getTreeNode(String filename, Gpx gpx) {
@@ -102,6 +93,7 @@ public class GpxUtils {
                 .setType(GpxHolder.ITEM_TYPE_GPX)
                 .setIcon(GpxHolder.ITEM_ICON_GPX)
                 .setText(filename)
+                .setGpx(gpx)
                 .build());
 
         for (Track trk : gpx.getTracks()) {
@@ -110,7 +102,7 @@ public class GpxUtils {
                     .setType(GpxHolder.ITEM_TYPE_TRACK)
                     .setIcon(GpxHolder.ITEM_ICON_TRACK)
                     .setText(trk.getTrackName())
-                    .setTrack(trk)
+                    .setTrkOpts(trk)
                     .build());
             gpxRoot.addChildren(trkNode);
         }
@@ -121,12 +113,27 @@ public class GpxUtils {
                     .setType(GpxHolder.ITEM_TYPE_WAYPOINT)
                     .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
                     .setText(wpt.getName())
-                    .setWayPoint(wpt)
+                    .setMarker(wpt)
                     .build());
             gpxRoot.addChildren(wptNode);
         }
 
         return gpxRoot;
+    }
+
+    public static String polyline2Xml(List<CustomMarker> pts) {
+        XMLBuilder2 builder = XMLBuilder2.create("gpx");
+        builder.a("version", "1.1")
+                .a("creator", "https://github.com/typebrook/FiveMinsMore")
+                .a("xmlns", "http://www.topografix.com/GPX/1/1")
+                .a("xsi:schemaLocation", "http://www.topografix.com/GPX/1/0 " +
+                        "http://www.topografix.com/GPX/1/0/gpx.xsd");
+
+        for (CustomMarker pt : pts) {
+
+        }
+
+        return builder.asString();
     }
 
 }
