@@ -161,7 +161,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public WayPoint wpt;
         public CustomMarker[] markers = {null, null};
 
-        // TODO add polylineOptions into attribute
         // attribute for Track
         public PolylineOptions trkOpts;
         public Polyline[] polylines = {null, null};
