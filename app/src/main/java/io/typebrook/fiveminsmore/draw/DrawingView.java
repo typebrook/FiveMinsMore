@@ -1,4 +1,4 @@
-package io.typebrook.fiveminsmore.utils;
+package io.typebrook.fiveminsmore.draw;
 
 import android.content.Context;
 import android.graphics.Canvas;

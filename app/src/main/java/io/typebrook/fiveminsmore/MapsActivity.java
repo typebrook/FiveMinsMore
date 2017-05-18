@@ -69,7 +69,7 @@ import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
-import io.typebrook.fiveminsmore.utils.DrawingView;
+import io.typebrook.fiveminsmore.draw.DrawingView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -230,6 +230,8 @@ public class MapsActivity extends AppCompatActivity implements
                 mMap.getUiSettings().setMyLocationButtonEnabled(visibility == 0);
                 TextView zoomNumber = (TextView) findViewById(R.id.zoom_number);
                 zoomNumber.setVisibility(visibility);
+                if (mMapsManager.getMapsNum() > 1)
+                    mMapsManager.getMap(MAP_CODE_SUB).getUiSettings().setZoomControlsEnabled(visibility == 0);
 
                 for (View btn : mBtnsSet) {
                     btn.setVisibility(visibility);
@@ -333,8 +335,8 @@ public class MapsActivity extends AppCompatActivity implements
 
             case R.id.btn_sync:
                 mMapsManager.changeSyncMaps();
-                Button btn = (Button) findViewById(R.id.btn_sync);
-                btn.setSelected(!btn.isSelected());
+                Button syncBtn = (Button) findViewById(R.id.btn_sync);
+                syncBtn.setSelected(!syncBtn.isSelected());
         }
     }
 
@@ -734,7 +736,7 @@ public class MapsActivity extends AppCompatActivity implements
         mCrossSet.add(MAP_CODE_SUB, cross);
 
 
-        // Import map choosing button set
+        // Put map into choosing button set
         LinearLayout btnSet = (LinearLayout)
                 getLayoutInflater().inflate(R.layout.btn_set_map_choosing, null);
         layoutContainer.addView(btnSet);
@@ -752,6 +754,9 @@ public class MapsActivity extends AppCompatActivity implements
 
         mBottomMapBtn.setSelected(true);
         this.onClick(mTopMapBtn);
+
+        Button syncBtn = (Button) findViewById(R.id.btn_sync);
+        mBtnsSet.add(syncBtn);
 
         // Set the sub content layout
         setSubContentLayout(1.0f);
@@ -772,6 +777,9 @@ public class MapsActivity extends AppCompatActivity implements
 
         mBtnsSet.remove(mTopMapBtn);
         mBtnsSet.remove(mBottomMapBtn);
+
+        Button syncBtn = (Button) findViewById(R.id.btn_sync);
+        mBtnsSet.remove(syncBtn);
 
         if (mFragmentsNumber == 0)
             setSubContentLayout(0.0f);

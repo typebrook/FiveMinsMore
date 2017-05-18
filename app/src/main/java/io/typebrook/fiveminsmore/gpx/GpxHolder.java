@@ -1,7 +1,6 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -20,8 +19,6 @@ import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
-
-import static java.lang.System.in;
 
 /**
  * Created by pham on 2017/4/30.
@@ -121,7 +118,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                                 value.polylines[mapCode].remove();
                                 value.markers[mapCode] = null;
                             }
-
                             break;
 
                         case ITEM_TYPE_WAYPOINT:
@@ -137,7 +133,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                                 manager.getClusterManager(mapCode).cluster();
                                 value.markers[mapCode] = null;
                             }
-
                             break;
                     }
                 }
