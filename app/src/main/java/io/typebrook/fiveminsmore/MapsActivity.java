@@ -55,6 +55,8 @@ import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
+import org.joda.time.DateTime;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -85,6 +87,7 @@ import static io.typebrook.fiveminsmore.MapsManager.TRK_STYLE;
 * Most of works on map are done here.
 */
 public class MapsActivity extends AppCompatActivity implements
+        TrackingService.CallBack,
         ServiceConnection,
         OnMapReadyCallback, Button.OnClickListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -556,7 +559,10 @@ public class MapsActivity extends AppCompatActivity implements
     // 與TrackingService繫結時，更新紀錄中的航跡
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        TrackingService.MyBinder myBinder = (TrackingService.MyBinder) service;
+        TrackingService.TrackingBinder trackingBinder = (TrackingService.TrackingBinder) service;
+
+        // Test
+        trackingBinder.getService().setCallBack(this);
 
         // 將按鈕顏色變紅
         mTrackingBtn.setSelected(true);
@@ -565,7 +571,7 @@ public class MapsActivity extends AppCompatActivity implements
         registerReceiver(mBroadcastReceiver, new IntentFilter(LOCATION_UPDATE));
 
         // 將航跡點與Service內同步
-        mCurrentTrkpts = myBinder.getTrkpts();
+        mCurrentTrkpts = trackingBinder.getTrkpts();
 
         // Tracking where you passed
         mMyTracks.add(mCurrentTrack);
@@ -785,5 +791,10 @@ public class MapsActivity extends AppCompatActivity implements
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(MATCH_PARENT, 0);
         params.weight = f;
         findViewById(R.id.sub_content).setLayoutParams(params);
+    }
+
+    @Override
+    public void getServiceData(Location location) {
+        Toast.makeText(this, DateFormat.format("yyyy-MM-dd_kk-mm-ss", location.getTime()), Toast.LENGTH_SHORT).show();
     }
 }

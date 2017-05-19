@@ -29,7 +29,7 @@ import static io.typebrook.fiveminsmore.Constant.INTERVAL_BETWEEN_TRKPTS;
 public class TrackingService extends Service {
     public static final String TAG = "TrackingService";
 
-    private MyBinder mBinder = new MyBinder();
+    private TrackingBinder mBinder = new TrackingBinder();
 
     private Location mLastPosition;
     List<Location> mTrkpts = new ArrayList<>();
@@ -85,6 +85,10 @@ public class TrackingService extends Service {
                 Intent broadcastIntent = new Intent();
                 broadcastIntent.setAction(MapsActivity.LOCATION_UPDATE);
                 sendBroadcast(broadcastIntent);
+
+                // Send Location Update to Activity
+                if (callBack != null)
+                    callBack.getServiceData(location);
             }
         }
 
@@ -107,11 +111,26 @@ public class TrackingService extends Service {
         return mBinder;
     }
 
-    class MyBinder extends Binder {
+    class TrackingBinder extends Binder {
         List<Location> getTrkpts() {
             Log.d("TAG", "getTrkpts() executed");
             return mTrkpts;
         }
 
+        // Test
+        public TrackingService getService() {
+            return TrackingService.this;
+        }
+    }
+
+
+    // Callback implemented by MapsActivity
+    private CallBack callBack = null;
+    public interface CallBack {
+        void getServiceData(Location location);
+    }
+
+    public void setCallBack(CallBack callBack) {
+        this.callBack = callBack;
     }
 }
