@@ -81,11 +81,6 @@ public class TrackingService extends Service {
                 mTrkpts.add(location);
                 mLastPosition = location;
 
-                //將LatLng物件傳給intent
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(MapsActivity.LOCATION_UPDATE);
-                sendBroadcast(broadcastIntent);
-
                 // Send Location Update to Activity
                 if (callBack != null)
                     callBack.getServiceData(location);
@@ -112,14 +107,13 @@ public class TrackingService extends Service {
     }
 
     class TrackingBinder extends Binder {
+        TrackingService getService() {
+            return TrackingService.this;
+        }
+
         List<Location> getTrkpts() {
             Log.d("TAG", "getTrkpts() executed");
             return mTrkpts;
-        }
-
-        // Test
-        public TrackingService getService() {
-            return TrackingService.this;
         }
     }
 

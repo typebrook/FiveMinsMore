@@ -55,7 +55,6 @@ import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
-import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -113,22 +112,13 @@ public class MapsActivity extends AppCompatActivity implements
     // Location請求物件
     private LocationRequest mLocationRequest;
     // 記錄目前最新的位置
-    private LatLng mCurrentLatLng;
+    private Location mCurrentLocation;
     // 紀錄現在航跡
     private List<Location> mCurrentTrkpts = new ArrayList<>();
     private Polyline mCurrentTrack;
     private List<Polyline> mMyTracks = new ArrayList<>();
     private boolean isTracking = false;
-
     public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATION_UPDATE";
-
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context mContext, Intent mIntent) {
-            updateTracking(false);
-        }
-    };
 
     // 按鈕群組
     private List<View> mBtnsSet = new ArrayList<>();
@@ -567,9 +557,6 @@ public class MapsActivity extends AppCompatActivity implements
         // 將按鈕顏色變紅
         mTrackingBtn.setSelected(true);
 
-        // 監聽回傳的位置訊息
-        registerReceiver(mBroadcastReceiver, new IntentFilter(LOCATION_UPDATE));
-
         // 將航跡點與Service內同步
         mCurrentTrkpts = trackingBinder.getTrkpts();
 
@@ -662,12 +649,9 @@ public class MapsActivity extends AppCompatActivity implements
             }
         } else {
             // 將最新航跡點加入地圖
-            Location location = mCurrentTrkpts.get(mCurrentTrkpts.size() - 1);
-            mMap.addMarker(TRKPTS_STYLE.position(MapUtils.location2LatLng(location)));
+            mCurrentTrkpts.add(mCurrentLocation);
+            mMap.addMarker(TRKPTS_STYLE.position(MapUtils.location2LatLng(mCurrentLocation)));
         }
-
-        // 更新Cluster
-        mMapsManager.getCurrentClusterManager().cluster();
 
         // 將航跡的Polyline更新
         if (!mCurrentTrkpts.isEmpty())
@@ -675,8 +659,8 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 將攝影機對準最新航跡點
         if (mCurrentTrkpts.size() > 0 && updateAllPts) {
-            mCurrentLatLng = MapUtils.location2LatLng(mCurrentTrkpts.get(mCurrentTrkpts.size() - 1));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mCurrentLatLng, 15));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    MapUtils.location2LatLng(mCurrentLocation), 15));
         }
     }
 
@@ -795,6 +779,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void getServiceData(Location location) {
+        mCurrentLocation = location;
         Toast.makeText(this, DateFormat.format("yyyy-MM-dd_kk-mm-ss", location.getTime()), Toast.LENGTH_SHORT).show();
     }
 }
