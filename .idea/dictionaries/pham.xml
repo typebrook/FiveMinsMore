@@ -5,12 +5,16 @@
       <w>fiveminsmore</w>
       <w>lngs</w>
       <w>mapbutton</w>
+      <w>mins</w>
       <w>polylines</w>
       <w>submap</w>
+      <w>trkpt</w>
       <w>trkpts</w>
+      <w>trkseg</w>
       <w>typebrook</w>
       <w>waypoint</w>
       <w>waypt</w>
+      <w>wpts</w>
     </words>
   </dictionary>
 </component>

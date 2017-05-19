@@ -28,7 +28,6 @@ public class CustomMarker implements ClusterItem {
     private String mTitle;
     private String mSnippet;
 
-
     public CustomMarker(LatLng latLng) {
         mPosition = latLng;
         mTitle = "no title";
@@ -39,19 +38,6 @@ public class CustomMarker implements ClusterItem {
         mPosition = latLng;
         mTitle = title;
         mSnippet = snippet;
-    }
-
-    public static List<LatLng> toLatLng(List<CustomMarker> markers) {
-        if (markers.isEmpty()) {
-            throw new EmptyStackException();
-        }
-
-        List<LatLng> latLngs = new ArrayList<>();
-
-        for (CustomMarker marker : markers) {
-            latLngs.add(marker.getPosition());
-        }
-        return latLngs;
     }
 
     @Override
@@ -67,5 +53,18 @@ public class CustomMarker implements ClusterItem {
     @Override
     public String getSnippet() {
         return mSnippet;
+    }
+
+    public static List<LatLng> toLatLng(List<CustomMarker> markers) {
+        if (markers.isEmpty()) {
+            throw new EmptyStackException();
+        }
+
+        List<LatLng> latLngs = new ArrayList<>();
+
+        for (CustomMarker marker : markers) {
+            latLngs.add(marker.getPosition());
+        }
+        return latLngs;
     }
 }

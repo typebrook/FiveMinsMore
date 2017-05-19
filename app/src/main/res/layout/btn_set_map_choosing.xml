@@ -11,11 +11,13 @@
         android:id="@+id/btn_map_top"
         android:layout_width="42.5dp"
         android:layout_height="42.5dp"
-        android:background="@drawable/btn_map_1" />
+        android:background="@drawable/btn_map_1"
+        android:contentDescription="btn_for_choosing"/>
 
     <ImageButton
         android:id="@+id/btn_map_bottom"
         android:layout_width="42.5dp"
         android:layout_height="42.5dp"
-        android:background="@drawable/btn_map_2" />
+        android:background="@drawable/btn_map_2"
+        android:contentDescription="btn_for_choosing"/>
 </LinearLayout>

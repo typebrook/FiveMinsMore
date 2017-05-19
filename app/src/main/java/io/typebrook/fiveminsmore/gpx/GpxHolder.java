@@ -84,7 +84,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                         break;
                     case ITEM_TYPE_WAYPOINT:
                         MapUtils.zoomToMarker(manager.getCurrentMap(),
-                                value.markers[0]);
+                                value.marker);
                         break;
 
                 }
@@ -117,21 +117,21 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                                 break;
                             } else {
                                 value.polylines[mapCode].remove();
-                                value.markers[mapCode] = null;
+                                value.polylines[mapCode] = null;
                             }
                             break;
 
                         case ITEM_TYPE_WAYPOINT:
                             if (isChecked) {
-                                value.markers[mapCode] = value.marker;
+                                value.isMarkers[mapCode] = true;
+                                manager.getClusterManager(mapCode).addItem(value.marker);
                                 manager.getClusterManager(mapCode).cluster();
-                            } else if (value.markers[mapCode] == null) {
+                            } else if (!value.isMarkers[mapCode]) {
                                 break;
                             } else {
-                                manager.getClusterManager(mapCode).removeItem(
-                                        value.markers[mapCode]);
+                                value.isMarkers[mapCode] = false;
+                                manager.getClusterManager(mapCode).removeItem(value.marker);
                                 manager.getClusterManager(mapCode).cluster();
-                                value.markers[mapCode] = null;
                             }
                             break;
                     }
@@ -162,7 +162,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
         // attribute for WayPoint
         public CustomMarker marker;
-        public CustomMarker[] markers = {null, null};
+        public boolean[] isMarkers = {false, false};
 
         // attribute for Track
         public PolylineOptions trkOpts;

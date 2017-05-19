@@ -80,7 +80,7 @@ public class ReadFragment extends Fragment {
             mDataList.add(new TimeLineModel(wpt.getName(), wpt.getTime().getMillis()));
         }
 
-        superContainer = (RelativeLayout) getActivity().findViewById(R.id.container);
+        superContainer = (RelativeLayout) getActivity().findViewById(R.id.layout_container);
     }
 
     @Override

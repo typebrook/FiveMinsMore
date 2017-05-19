@@ -1,24 +1,28 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jamesmurty.utils.XMLBuilder2;
 import com.unnamed.b.atv.model.TreeNode;
 
+import org.joda.time.DateTime;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import io.ticofab.androidgpxparser.parser.GPXParser;
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
@@ -121,19 +125,46 @@ public class GpxUtils {
         return gpxRoot;
     }
 
-    public static String polyline2Xml(List<CustomMarker> pts) {
+    // A temporary method to generate gpx file
+    public static String polyline2Xml(String trkName, List<Location> pts) {
         XMLBuilder2 builder = XMLBuilder2.create("gpx");
         builder.a("version", "1.1")
                 .a("creator", "https://github.com/typebrook/FiveMinsMore")
                 .a("xmlns", "http://www.topografix.com/GPX/1/1")
+                .a("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
                 .a("xsi:schemaLocation", "http://www.topografix.com/GPX/1/0 " +
                         "http://www.topografix.com/GPX/1/0/gpx.xsd");
 
-        for (CustomMarker pt : pts) {
+        XMLBuilder2 trk = builder.e("trk");
+        trk.e("name").t(trkName);
 
+        XMLBuilder2 trkseg = trk.e("trkseg");
+
+        for (Location pt : pts) {
+            String lat = String.format(Locale.getDefault(), "%.6f", pt.getLatitude());
+            String lon = String.format(Locale.getDefault(), "%.6f", pt.getLongitude());
+
+            trkseg.e("trkpt").a("lat", lat).a("lon", lon)
+                    .e("ele").t(String.format(Locale.getDefault(), "%.0f", pt.getAltitude())).up()
+                    .e("time").t(new DateTime(pt.getTime()).toString());
+            Log.d(TAG, new DateTime(pt.getTime()).toString());
+        }
+        try {
+            PrintWriter writer = new PrintWriter(new FileOutputStream("/sdcard/Download/" + trkName + ".gpx"));
+
+            Properties outputProperties = new Properties();
+            // Explicitly identify the output as an XML document
+            outputProperties.put(javax.xml.transform.OutputKeys.METHOD, "xml");
+            // Pretty-print the XML output (doesn't work in all cases)
+            outputProperties.put(javax.xml.transform.OutputKeys.INDENT, "yes");
+            // Get 2-space indenting when using the Apache transformer
+            outputProperties.put("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            builder.toWriter(true, writer, outputProperties);
+        } catch (Exception e) {
+            Log.d(TAG, "Failed to save GPX file");
         }
 
         return builder.asString();
     }
-
 }

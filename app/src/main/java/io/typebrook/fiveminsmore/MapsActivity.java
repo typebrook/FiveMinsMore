@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.StateListDrawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -37,7 +38,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -52,7 +52,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.data.kml.KmlLayer;
-import com.unnamed.b.atv.model.TreeNode;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.NormalFile;
@@ -70,8 +69,8 @@ import io.typebrook.fiveminsmore.draw.DrawingView;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
-import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
+import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -82,6 +81,10 @@ import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
 import static io.typebrook.fiveminsmore.MapsManager.TRKPTS_STYLE;
 import static io.typebrook.fiveminsmore.MapsManager.TRK_STYLE;
 
+/*
+* The Main Activity contains Google Map Fragment
+* Most of works on map are done here.
+*/
 public class MapsActivity extends AppCompatActivity implements
         ServiceConnection,
         OnMapReadyCallback, Button.OnClickListener,
@@ -91,25 +94,32 @@ public class MapsActivity extends AppCompatActivity implements
     private final String TAG = "MapsActivity";
 
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3857;
-    private final String PREFS_NAME = "PREFS_5minMore";
+    private final String PREFS_NAME = "PREFS_5MinsMore";
 
     // 地圖元件
     private GoogleMap mMap;
     private MapsManager mMapsManager;
+    GpxManager mGpxManager;
+
+    // Activity Layout
+    ViewGroup layoutContainer;
+    ActionBar actionBar;
 
     // Google API用戶端物件
     protected GoogleApiClient mGoogleApiClient;
+
     // Location請求物件
     private LocationRequest mLocationRequest;
-
     // 記錄目前最新的位置
     LatLng mCurrentLatLng;
     // 紀錄現在航跡
-    private List<CustomMarker> mCurrentTrackPoints = new ArrayList<>();
+    private List<Location> mCurrentTrkpts = new ArrayList<>();
     private Polyline mCurrentTrack;
     private List<Polyline> mMyTracks = new ArrayList<>();
     private boolean isTracking = false;
+
     public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATION_UPDATE";
+
     private BroadcastReceiver mBroadcast = new BroadcastReceiver() {
 
         @Override
@@ -117,22 +127,20 @@ public class MapsActivity extends AppCompatActivity implements
             updateTracking(false);
         }
     };
-
+    // 按鈕群組
+    private List<View> mBtnsSet = new ArrayList<>();
     // 主畫面按鈕
     private Button mSwitchBtn;
-    private Button mPickTilesBtn;
     private Button mTrackingBtn;
-    private Button mFolderBtn;
+    private Button mPickTilesBtn;
+    private Button mGpxManagerBtn;
     private Button mHelpBtn;
     private ImageButton mTopMapBtn;
     private ImageButton mBottomMapBtn;
-    // 按鈕群組
-    private List<View> mBtnsSet = new ArrayList<>();
-
     // 準心十字
     private List<ImageView> mCrossSet = new ArrayList<>();
-    private boolean showCross = true;
 
+    private boolean showCross = true;
     // 其它Fragment
     MapFragment mSubMapFragment;
     ReadFragment readFragment;
@@ -140,11 +148,9 @@ public class MapsActivity extends AppCompatActivity implements
     private static final String SUBMAP_FRAGMENT_TAG = "map";
     private static final String READ_FRAGMENT_TAG = "read";
 
-    GpxManager mGpxManager;
+    // TODO need to implement corresponding functions
     KmlLayer kmlLayer;
     int indexOfPad;
-    ActionBar actionBar;
-    ViewGroup layoutContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,26 +158,25 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 取得地圖物件
         setContentView(R.layout.activity_maps);
-        layoutContainer = (ViewGroup) findViewById(R.id.container);
+        layoutContainer = (ViewGroup) findViewById(R.id.layout_container);
         // Obtain the MapFragment and get notified when the map is ready to be used.
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         // For tracking, Create an instance of GoogleAPIClient and LocationRequest.
         configGoogleApiClient();
         configLocationRequest();
 
-        // 按鈕
+        // Buttons on map
         mSwitchBtn = (Button) findViewById(R.id.btn_switch);
-        mPickTilesBtn = (Button) findViewById(R.id.btn_pick_tiles);
         mTrackingBtn = (Button) findViewById(R.id.btn_tracking);
-        mFolderBtn = (Button) findViewById(R.id.btn_gpx_files_list);
+        mPickTilesBtn = (Button) findViewById(R.id.btn_pick_tiles);
+        mGpxManagerBtn = (Button) findViewById(R.id.btn_gpx_files_list);
         mHelpBtn = (Button) findViewById(R.id.btn_help);
 
         mBtnsSet.add(mPickTilesBtn);
         mBtnsSet.add(mTrackingBtn);
-        mBtnsSet.add(mFolderBtn);
+        mBtnsSet.add(mGpxManagerBtn);
         mBtnsSet.add(mHelpBtn);
 
         mSwitchBtn.setOnClickListener(this);
@@ -179,10 +184,11 @@ public class MapsActivity extends AppCompatActivity implements
             btn.setOnClickListener(this);
         }
 
+        // Add center cross into main map
         mCrossSet.add(MAP_CODE_MAIN, (ImageView) findViewById(R.id.cross));
 
-        // 檢查是否紀錄航跡中
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
+        // 檢查是否紀錄航跡中
         isTracking = prefs.getBoolean("isTracking", false);
 
         if (isTracking) {
@@ -206,6 +212,7 @@ public class MapsActivity extends AppCompatActivity implements
         mMapsManager = new MapsManager(this, map);
         mGpxManager = new GpxManager(this);
 
+        // Check whether this app could get location
         if (checkLocationPermission())
             map.setMyLocationEnabled(true);
         else
@@ -218,26 +225,27 @@ public class MapsActivity extends AppCompatActivity implements
         // TODO add blue dot beam to indicate user direction
     }
 
+    // Button functions on map
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+
+            // Hide all things except map
             case R.id.btn_switch:
                 v.setSelected(!v.isSelected());
-
-                String text = v.isSelected() ? "顯示" : "隱藏";
-                ((Button) v).setText(text);
-
+                ((Button) v).setText(v.isSelected() ? "顯示" : "隱藏");
                 int visibility = v.isSelected() ? View.INVISIBLE : View.VISIBLE;
-                mMap.getUiSettings().setZoomControlsEnabled(visibility == 0);
-                mMap.getUiSettings().setMyLocationButtonEnabled(visibility == 0);
-                TextView zoomNumber = (TextView) findViewById(R.id.zoom_number);
-                zoomNumber.setVisibility(visibility);
-                if (mMapsManager.getMapsNum() > 1)
-                    mMapsManager.getMap(MAP_CODE_SUB).getUiSettings().setZoomControlsEnabled(visibility == 0);
 
                 for (View btn : mBtnsSet) {
                     btn.setVisibility(visibility);
                 }
+
+                mMap.getUiSettings().setZoomControlsEnabled(visibility == 0);
+                mMap.getUiSettings().setMyLocationButtonEnabled(visibility == 0);
+                if (mMapsManager.getMapsNum() > 1)
+                    mMapsManager.getMap(MAP_CODE_SUB).getUiSettings().setZoomControlsEnabled(visibility == 0);
+
+                findViewById(R.id.zoom_number).setVisibility(visibility);
 
                 if (v.isSelected())
                     actionBar.hide();
@@ -254,8 +262,8 @@ public class MapsActivity extends AppCompatActivity implements
                 isTracking = !isTracking;
 
                 if (isTracking) {
-                    // 清空目前航跡
-                    mCurrentTrackPoints = new ArrayList<>();
+                    // 清空目前航跡點
+                    mCurrentTrkpts = new ArrayList<>();
                     if (!mMyTracks.isEmpty())
                         mCurrentTrack.remove();
 
@@ -292,7 +300,6 @@ public class MapsActivity extends AppCompatActivity implements
             // See the usage: https://github.com/fishwjy/MultiType-FilePicker
             case R.id.btn_pick_gpx_files:
                 Intent pickGpxIntent = new Intent(this, CustomFilePickActivity.class);
-//                pickGpxIntent.putExtra(Constant.MAX_NUMBER, 3);
                 pickGpxIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{"gpx"});
                 startActivityForResult(pickGpxIntent, REQUEST_CODE_PICK_GPX_FILE);
                 break;
@@ -302,11 +309,11 @@ public class MapsActivity extends AppCompatActivity implements
                 mBottomMapBtn.setSelected(!mBottomMapBtn.isSelected());
                 mTopMapBtn.setSelected(!mTopMapBtn.isSelected());
 
-                if (mBottomMapBtn.isSelected()) {
+                if (mBottomMapBtn.isSelected())
                     mMapsManager.setCurrentMap(MAP_CODE_MAIN);
-                } else {
+                else
                     mMapsManager.setCurrentMap(MAP_CODE_SUB);
-                }
+
                 break;
 
             case R.id.btn_help:
@@ -599,7 +606,7 @@ public class MapsActivity extends AppCompatActivity implements
         registerReceiver(mBroadcast, new IntentFilter(LOCATION_UPDATE));
 
         // 將航跡點與Service內同步
-        mCurrentTrackPoints = myBinder.getTrkpts();
+        mCurrentTrkpts = myBinder.getTrkpts();
 
         // Tracking where you passed
         mMyTracks.add(mCurrentTrack);
@@ -661,16 +668,16 @@ public class MapsActivity extends AppCompatActivity implements
         builder.setView(input);
 
         // Set up the buttons
-        builder.setPositiveButton("儲存為GPX檔", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Log.d(TAG, GpxUtils.polyline2Xml(mCurrentTrackPoints));
-            }
-        });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("儲存為GPX檔", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                GpxUtils.polyline2Xml(input.getText().toString(), mCurrentTrkpts);
             }
         });
 
@@ -681,25 +688,26 @@ public class MapsActivity extends AppCompatActivity implements
     // 更新螢幕上的航跡
     private void updateTracking(boolean updateAllPts) {
         if (updateAllPts) {
-            // 將所有航跡點輸入ClusterManager
-            for (CustomMarker marker : mCurrentTrackPoints) {
-                mMap.addMarker(TRKPTS_STYLE.position(marker.getPosition()));
+            // 將所有航跡點加入地圖
+            for (Location location : mCurrentTrkpts) {
+                mMap.addMarker(TRKPTS_STYLE.position(MapUtils.location2LatLng(location)));
             }
         } else {
-            CustomMarker newMarker = mCurrentTrackPoints.get(mCurrentTrackPoints.size() - 1);
-            mMap.addMarker(TRKPTS_STYLE.position(newMarker.getPosition()));
+            // 將最新航跡點加入地圖
+            Location location = mCurrentTrkpts.get(mCurrentTrkpts.size() - 1);
+            mMap.addMarker(TRKPTS_STYLE.position(MapUtils.location2LatLng(location)));
         }
 
         // 更新Cluster
         mMapsManager.getCurrentClusterManager().cluster();
 
         // 將航跡的Polyline更新
-        if (!mCurrentTrackPoints.isEmpty())
-            mCurrentTrack.setPoints(CustomMarker.toLatLng(mCurrentTrackPoints));
+        if (!mCurrentTrkpts.isEmpty())
+            mCurrentTrack.setPoints(MapUtils.locations2LatLngs(mCurrentTrkpts));
 
         // 將攝影機對準最新航跡點
-        if (mCurrentTrackPoints.size() > 0 && updateAllPts) {
-            mCurrentLatLng = mCurrentTrackPoints.get(mCurrentTrackPoints.size() - 1).getPosition();
+        if (mCurrentTrkpts.size() > 0 && updateAllPts) {
+            mCurrentLatLng = MapUtils.location2LatLng(mCurrentTrkpts.get(mCurrentTrkpts.size() - 1));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mCurrentLatLng, 15));
         }
     }
@@ -735,7 +743,8 @@ public class MapsActivity extends AppCompatActivity implements
 
         // Put map into choosing button set
         LinearLayout btnSet = (LinearLayout)
-                getLayoutInflater().inflate(R.layout.btn_set_map_choosing, layoutContainer);
+                getLayoutInflater().inflate(R.layout.btn_set_map_choosing, null);
+        layoutContainer.addView(btnSet);
         RelativeLayout.LayoutParams params_btn_set =
                 (RelativeLayout.LayoutParams) btnSet.getLayoutParams();
         params_btn_set.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);

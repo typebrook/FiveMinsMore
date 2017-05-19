@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
@@ -16,8 +15,6 @@ import com.unnamed.b.atv.view.AndroidTreeView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 
@@ -65,7 +62,7 @@ public class GpxManager {
         Button leaveDialog = (Button) managerView.findViewById(R.id.leave_gpx_manager);
         leaveDialog.setOnClickListener((MapsActivity) mContext);
 
-        ViewGroup container = ((ViewGroup) mContext.findViewById(R.id.container));
+        ViewGroup container = ((ViewGroup) mContext.findViewById(R.id.layout_container));
         container.addView(managerView, container.getChildCount());
     }
 
@@ -77,7 +74,7 @@ public class GpxManager {
 
     void removeDialog() {
         isShowingDialog = false;
-        ((ViewGroup) mContext.findViewById(R.id.container)).removeView(managerView);
+        ((ViewGroup) mContext.findViewById(R.id.layout_container)).removeView(managerView);
     }
 
     public Gpx add(File file, MapsManager manager) {

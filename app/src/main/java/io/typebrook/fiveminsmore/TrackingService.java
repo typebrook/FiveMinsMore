@@ -11,7 +11,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import io.typebrook.fiveminsmore.model.CustomMarker;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
@@ -28,9 +27,9 @@ public class TrackingService extends Service {
     public static final String TAG = "TrackingService";
 
     private int MIN_TRKPTS_INTERVAL = 5;
-    private LatLng mLastPosition;
+    private Location mLastPosition;
 
-    List<CustomMarker> mTrackPoints = new ArrayList<CustomMarker>();
+    List<Location> mTrkpts = new ArrayList<>();
     private MyBinder mBinder = new MyBinder();
 
     // 紀錄api呼叫Service的次數和已收到的位置資料數目
@@ -41,9 +40,9 @@ public class TrackingService extends Service {
     @Override
     public void onCreate() {
         // 開始紀錄航跡時，顯示notification，點擊即可開啟MapsActivity
-        Intent openintent = new Intent(this, MapsActivity.class);
-        openintent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openintent, 0);
+        Intent openIntent = new Intent(this, MapsActivity.class);
+        openIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openIntent, 0);
 
         // notification內容為現在時間
         Date date = new Date();
@@ -68,30 +67,29 @@ public class TrackingService extends Service {
             if (location != null) {
                 succeed++;
 
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                if (mTrackPoints.size() > 1) {
-                    double interval = SphericalUtil.computeDistanceBetween(latLng, mLastPosition);
+                // 若小於最小間距，則不紀錄該航跡
+                if (mTrkpts.size() > 1) {
+                    double interval = SphericalUtil.computeDistanceBetween(
+                            new LatLng(location.getLatitude(), location.getLongitude()),
+                            new LatLng(mLastPosition.getLatitude(), mLastPosition.getLongitude()));
                     if (interval < MIN_TRKPTS_INTERVAL)
                         return START_STICKY;
                 }
 
-                mTrackPoints.add(new CustomMarker(latLng));
-                mLastPosition = latLng;
+                mTrkpts.add(location);
+                mLastPosition = location;
 
                 //將LatLng物件傳給intent
                 Intent broadcastIntent = new Intent();
                 broadcastIntent.setAction(MapsActivity.LOCATION_UPDATE);
                 sendBroadcast(broadcastIntent);
-
-                Log.d("BroadcastIntent", "intent send " + latLng.toString());
             }
         }
 
-//        // Message for testing
-//        Toast.makeText(getBaseContext(), "service starting " + count + " " + succeed + " "
-//                + mTrackPoints.size() + " time: "
-//                + (new Date().getTime() - startTime) / 1000, Toast.LENGTH_SHORT).show();
+        // Message for testing
+        Log.d(TAG, "Record Times: " + count + ", Succeed times: " + succeed +
+                ",  Points number: " + mTrkpts.size()
+                + ", Time from start: " + (new Date().getTime() - startTime) / 1000);
 
         return START_STICKY;
     }
@@ -107,11 +105,10 @@ public class TrackingService extends Service {
         return mBinder;
     }
 
-    public class MyBinder extends Binder {
-
-        public List<CustomMarker> getTrkpts() {
+    class MyBinder extends Binder {
+        List<Location> getTrkpts() {
             Log.d("TAG", "getTrkpts() executed");
-            return mTrackPoints;
+            return mTrkpts;
         }
 
     }
