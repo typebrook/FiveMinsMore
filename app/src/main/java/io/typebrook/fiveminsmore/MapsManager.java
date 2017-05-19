@@ -42,7 +42,7 @@ import io.typebrook.fiveminsmore.res.TileList;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
-import static io.typebrook.fiveminsmore.res.TileList.DIGITALGLOBE_URL_FORMAT;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASPMAP;
 import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.OSM_URL_FORMAT;
@@ -114,7 +114,7 @@ public class MapsManager implements
         mMapTiles.add(MAP_CODE_MAIN, null);
         mMapAddTiles.add(MAP_CODE_MAIN, null);
         mZoomNumber = (TextView) ((Activity) context).findViewById(R.id.zoom_number);
-        mIndicator = (TextView) ((Activity) context).findViewById(R.id.indicator);
+        mIndicator = (TextView) ((Activity) context).findViewById(R.id.tvLatLon);
 
         // 註冊畫面縮放的監聽
         map.setOnCameraMoveListener(this);
@@ -361,7 +361,7 @@ public class MapsManager implements
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
 
-                        if (which < 4) {
+                        if (which < 3) {
                             mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
                             if (mMapTiles.get(currentMapCode) != null) {
                                 mMapTiles.get(currentMapCode).remove();
@@ -378,22 +378,16 @@ public class MapsManager implements
                             case 1:
                                 mMapTiles.set(currentMapCode,
                                         mMaps.get(currentMapCode).addTileOverlay(getTileSetting(SINICA_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(-10);
+                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASPMAP);
                                 break;
 
                             case 2:
                                 mMapTiles.set(currentMapCode,
                                         mMaps.get(currentMapCode).addTileOverlay(getTileSetting(OSM_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(-10);
+                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASPMAP);
                                 break;
 
                             case 3:
-                                mMapTiles.set(currentMapCode,
-                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(DIGITALGLOBE_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(-10);
-                                break;
-
-                            case 4:
                                 Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
                                 pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
                                 pickOfflineMapIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{MAPSFORGE_FORMAT});
@@ -401,7 +395,7 @@ public class MapsManager implements
                                         REQUEST_CODE_PICK_MAPSFORGE_FILE);
                                 break;
 
-                            case 5:
+                            case 4:
                                 if (mMapAddTiles.get(currentMapCode) != null) {
                                     mMapAddTiles.get(currentMapCode).remove();
                                     mMapAddTiles.get(currentMapCode).clearTileCache();
@@ -413,7 +407,7 @@ public class MapsManager implements
                                 }
                                 break;
 
-                            case 6:
+                            case 5:
                                 mMaps.get(currentMapCode).clear();
                                 mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;

@@ -126,7 +126,7 @@ public class GpxUtils {
     }
 
     // A temporary method to generate gpx file
-    public static String polyline2Xml(String trkName, List<Location> pts) {
+    public static void polyline2Xml(String trkName, List<Location> pts) {
         XMLBuilder2 builder = XMLBuilder2.create("gpx");
         builder.a("version", "1.1")
                 .a("creator", "https://github.com/typebrook/FiveMinsMore")
@@ -164,7 +164,5 @@ public class GpxUtils {
         } catch (Exception e) {
             Log.d(TAG, "Failed to save GPX file");
         }
-
-        return builder.asString();
     }
 }

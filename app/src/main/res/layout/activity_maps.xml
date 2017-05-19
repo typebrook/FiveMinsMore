@@ -92,7 +92,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/indicator"
+        android:id="@+id/tvLatLon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
