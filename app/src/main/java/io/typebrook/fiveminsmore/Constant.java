@@ -23,4 +23,6 @@ public class Constant {
 
     // Interval for tracking
     static final int INTERVAL_TRACKING = 5;
+    public static int INTERVAL_BETWEEN_TRKPTS = 5;
+
 }

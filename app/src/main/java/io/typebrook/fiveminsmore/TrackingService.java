@@ -19,18 +19,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static io.typebrook.fiveminsmore.Constant.INTERVAL_BETWEEN_TRKPTS;
+
 /**
  * Created by pham on 2017/4/15.
+ * Service for Tracking where you go, even when you wipe app out.
  */
 
 public class TrackingService extends Service {
     public static final String TAG = "TrackingService";
 
-    private int MIN_TRKPTS_INTERVAL = 5;
-    private Location mLastPosition;
-
-    List<Location> mTrkpts = new ArrayList<>();
     private MyBinder mBinder = new MyBinder();
+
+    private Location mLastPosition;
+    List<Location> mTrkpts = new ArrayList<>();
 
     // 紀錄api呼叫Service的次數和已收到的位置資料數目
     private int count = 0;
@@ -72,7 +74,7 @@ public class TrackingService extends Service {
                     double interval = SphericalUtil.computeDistanceBetween(
                             new LatLng(location.getLatitude(), location.getLongitude()),
                             new LatLng(mLastPosition.getLatitude(), mLastPosition.getLongitude()));
-                    if (interval < MIN_TRKPTS_INTERVAL)
+                    if (interval < INTERVAL_BETWEEN_TRKPTS)
                         return START_STICKY;
                 }
 

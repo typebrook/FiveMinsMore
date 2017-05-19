@@ -119,7 +119,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATION_UPDATE";
 
-    private BroadcastReceiver mBroadcast = new BroadcastReceiver() {
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context mContext, Intent mIntent) {
@@ -530,7 +530,7 @@ public class MapsActivity extends AppCompatActivity implements
     protected void configLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(INTERVAL_TRACKING * 1000); //milliseconds
-//        mLocationRequest.setFastestInterval(3 * 1000); //milliseconds
+        mLocationRequest.setFastestInterval(3 * 1000); //milliseconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -562,7 +562,7 @@ public class MapsActivity extends AppCompatActivity implements
         mTrackingBtn.setSelected(true);
 
         // 監聽回傳的位置訊息
-        registerReceiver(mBroadcast, new IntentFilter(LOCATION_UPDATE));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(LOCATION_UPDATE));
 
         // 將航跡點與Service內同步
         mCurrentTrkpts = myBinder.getTrkpts();
