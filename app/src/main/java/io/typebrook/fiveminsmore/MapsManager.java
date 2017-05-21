@@ -44,7 +44,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASPMAP;
 import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
-import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_SUFFIX;
 import static io.typebrook.fiveminsmore.res.TileList.OSM_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.SINICA_URL_FORMAT;
 
@@ -352,7 +352,7 @@ public class MapsManager implements
         return new TileOverlayOptions().tileProvider(provider);
     }
 
-    public void setTileOverlay() {
+    void setTileOverlay() {
         CharSequence[] onlineMaps = TileList.onlineMaps;
 
         new AlertDialog.Builder(mContext)
@@ -390,7 +390,7 @@ public class MapsManager implements
                             case 3:
                                 Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
                                 pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
-                                pickOfflineMapIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{MAPSFORGE_FORMAT});
+                                pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
                                 ((Activity) mContext).startActivityForResult(pickOfflineMapIntent,
                                         REQUEST_CODE_PICK_MAPSFORGE_FILE);
                                 break;

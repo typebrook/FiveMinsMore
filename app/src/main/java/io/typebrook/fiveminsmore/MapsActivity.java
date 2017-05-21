@@ -1,14 +1,14 @@
 package io.typebrook.fiveminsmore;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,12 +18,15 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -41,13 +44,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.ResultCallbacks;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.data.kml.KmlLayer;
@@ -55,6 +65,7 @@ import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,7 +101,8 @@ public class MapsActivity extends AppCompatActivity implements
         ServiceConnection,
         OnMapReadyCallback, Button.OnClickListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        ResultCallback<LocationSettingsResult> {
 
     private final String TAG = "MapsActivity";
 
@@ -118,7 +130,6 @@ public class MapsActivity extends AppCompatActivity implements
     private Polyline mCurrentTrack;
     private List<Polyline> mMyTracks = new ArrayList<>();
     private boolean isTracking = false;
-    public static final String LOCATION_UPDATE = "io.typebrook.fiveminsmore.LOCATION_UPDATE";
 
     // 按鈕群組
     private List<View> mBtnsSet = new ArrayList<>();
@@ -253,23 +264,21 @@ public class MapsActivity extends AppCompatActivity implements
                 isTracking = !isTracking;
 
                 if (isTracking) {
+                    // 檢查GPS設定
+                    askGPSSetting();
+                    // 檢查飛航模式
+                    askAirPlaneMode();
                     // 清空目前航跡點
                     mCurrentTrkpts = new ArrayList<>();
                     if (!mMyTracks.isEmpty())
                         mCurrentTrack.remove();
-
                     // 將按鈕顏色變紅
                     mTrackingBtn.setTextColor(Color.RED);
-
                     // 使用FusedLocationApi持續取得位置
                     requestLocationUpdates();
-
-                    // 更新紀錄中的航跡
-                    updateTracking(true);
                 } else {
                     // 將按鈕顏色變黑
                     mTrackingBtn.setTextColor(Color.BLACK);
-
                     // 移除FusedLocationApi
                     removeLocationUpdates();
                 }
@@ -291,7 +300,7 @@ public class MapsActivity extends AppCompatActivity implements
             // See the usage: https://github.com/fishwjy/MultiType-FilePicker
             case R.id.btn_pick_gpx_files:
                 Intent pickGpxIntent = new Intent(this, CustomFilePickActivity.class);
-                pickGpxIntent.putExtra(NormalFilePickActivity.SUFFIX, new String[]{"gpx", "kml"});
+                pickGpxIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{"gpx", "kml"});
                 startActivityForResult(pickGpxIntent, REQUEST_CODE_PICK_GPX_FILE);
                 break;
 
@@ -313,12 +322,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_help:
+                MediaStore.Files.getContentUri(".gpx");
                 break;
-
-
-            case R.id.exit_drawing:
-                break;
-
         }
     }
 
@@ -551,7 +556,7 @@ public class MapsActivity extends AppCompatActivity implements
     public void onServiceConnected(ComponentName name, IBinder service) {
         TrackingService.TrackingBinder trackingBinder = (TrackingService.TrackingBinder) service;
 
-        // Test
+        // Set the CallBack
         trackingBinder.getService().setCallBack(this);
 
         // 將按鈕顏色變紅
@@ -637,6 +642,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
 
+        builder.setCancelable(false);
         builder.show();
     }
 
@@ -649,7 +655,6 @@ public class MapsActivity extends AppCompatActivity implements
             }
         } else {
             // 將最新航跡點加入地圖
-            mCurrentTrkpts.add(mCurrentLocation);
             mMap.addMarker(TRKPTS_STYLE.position(MapUtils.location2LatLng(mCurrentLocation)));
         }
 
@@ -657,10 +662,10 @@ public class MapsActivity extends AppCompatActivity implements
         if (!mCurrentTrkpts.isEmpty())
             mCurrentTrack.setPoints(MapUtils.locations2LatLngs(mCurrentTrkpts));
 
-        // 將攝影機對準最新航跡點
-        if (mCurrentTrkpts.size() > 0 && updateAllPts) {
+        // 將攝影機對準最初的航跡點
+        if (mCurrentTrkpts.size() == 1) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    MapUtils.location2LatLng(mCurrentLocation), 15));
+                    MapUtils.location2LatLng(mCurrentTrkpts.get(0)), 15));
         }
     }
 
@@ -780,6 +785,88 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void getServiceData(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(this, DateFormat.format("yyyy-MM-dd_kk-mm-ss", location.getTime()), Toast.LENGTH_SHORT).show();
+        updateTracking(false);
+    }
+
+    private void askGPSSetting() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                        builder.build());
+
+        result.setResultCallback(this);
+    }
+
+    // Ask whether set Airplane Mode
+    private void askAirPlaneMode() {
+        // 若minsdk >= 17，可改為使用Settings.Global.AIRPLANE_MODE_ON
+        Boolean isEnabled = Settings.System.getInt(this.getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+
+        if (!isEnabled) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setTitle("提醒一下");
+            String warning = "目前尚未開啟飛航模式。\n\n" +
+                    "若您在紀錄航跡時不會用到網路，建議開啟飛航模式，讓手機電力更持久";
+            builder.setMessage(warning);
+
+            // Set up the buttons
+            builder.setNegativeButton("這樣就好", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.setPositiveButton("馬上設定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent AirModeConfigIntent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+                    startActivity(AirModeConfigIntent);
+                }
+            });
+
+            builder.setCancelable(false);
+            builder.show();
+        }
+    }
+
+    // 收到目前的定位設定
+    @Override
+    public void onResult(@NonNull LocationSettingsResult result) {
+        final LocationSettingsStates states = result.getLocationSettingsStates();
+        if (!states.isGpsUsable() || states.isNetworkLocationUsable()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setTitle("提醒一下");
+
+            String warning = "若接下來的路徑上沒有基地台，建議定位模式使用「僅用GPS」，可以更節約電量。";
+            if (!states.isLocationUsable()) {
+                builder.setTitle("哎呀糟糕了");
+                warning = "紀錄航跡需要開啟定位功能，您目前還沒有把該功能啟用。" + "\n\nPS: " + warning;
+
+                builder.setCancelable(false);
+            } else{
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+            }
+            builder.setMessage(warning);
+
+            builder.setPositiveButton("馬上設定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent GpsConfigIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(GpsConfigIntent);
+                }
+            });
+
+            builder.show();
+        }
     }
 }

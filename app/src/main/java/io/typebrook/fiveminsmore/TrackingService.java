@@ -2,10 +2,12 @@ package io.typebrook.fiveminsmore;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -27,7 +29,8 @@ import static io.typebrook.fiveminsmore.Constant.INTERVAL_BETWEEN_TRKPTS;
  */
 
 public class TrackingService extends Service {
-    public static final String TAG = "TrackingService";
+    private static final String TAG = "TrackingService";
+    private static final int ID_NOTIFICATION = 3857;
 
     private TrackingBinder mBinder = new TrackingBinder();
 
@@ -55,7 +58,7 @@ public class TrackingService extends Service {
                 .setSmallIcon(R.drawable.ic_double_peek_24dp)
                 .setOngoing(true)
                 .setContentIntent(contentIntent);
-        startForeground(3857, notificationBuilder.build());
+        startForeground(ID_NOTIFICATION , notificationBuilder.build());
     }
 
     @WorkerThread
@@ -117,10 +120,9 @@ public class TrackingService extends Service {
         }
     }
 
-
     // Callback implemented by MapsActivity
     private CallBack callBack = null;
-    public interface CallBack {
+    interface CallBack {
         void getServiceData(Location location);
     }
 

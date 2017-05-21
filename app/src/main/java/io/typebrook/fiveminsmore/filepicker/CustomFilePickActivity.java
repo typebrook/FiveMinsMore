@@ -31,7 +31,6 @@ public class CustomFilePickActivity extends BaseActivity {
     public static final int DEFAULT_MAX_NUMBER = 9;
     public static final String SUFFIX = "Suffix";
     private int mMaxNumber;
-    private int mCurrentNumber = 0;
     private Toolbar mTbImagePick;
     private RecyclerView mRecyclerView;
     private CustomFilePickAdapter mAdapter;
@@ -67,7 +66,7 @@ public class CustomFilePickActivity extends BaseActivity {
 
     private void initView() {
         mTbImagePick = (Toolbar) findViewById(com.vincent.filepicker.R.id.tb_file_pick);
-        mTbImagePick.setTitle(mCurrentNumber + "/" + mMaxNumber);
+        mTbImagePick.setTitle("請選擇檔案");
         setSupportActionBar(mTbImagePick);
         mTbImagePick.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,20 +82,6 @@ public class CustomFilePickActivity extends BaseActivity {
                 LinearLayoutManager.VERTICAL, com.vincent.filepicker.R.drawable.divider_rv_file));
         mAdapter = new CustomFilePickAdapter(this, mMaxNumber);
         mRecyclerView.setAdapter(mAdapter);
-
-        mAdapter.setOnSelectStateListener(new OnSelectStateListener<NormalFile>() {
-            @Override
-            public void OnSelectStateChanged(boolean state, NormalFile file) {
-                if (state) {
-                    mSelectedList.add(file);
-                    mCurrentNumber++;
-                } else {
-                    mSelectedList.remove(file);
-                    mCurrentNumber--;
-                }
-                mTbImagePick.setTitle(mCurrentNumber + "/" + mMaxNumber);
-            }
-        });
 
         mProgressBar = (ProgressBar) findViewById(com.vincent.filepicker.R.id.pb_file_pick);
     }

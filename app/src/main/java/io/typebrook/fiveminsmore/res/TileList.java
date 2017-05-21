@@ -10,7 +10,6 @@ public class TileList {
             "Google衛星街道混合圖",
             "經建三版地形圖",
             "OpenStreetMap",
-            "DigitalGlobe",
             "離線地圖",
             "HappyMan",
             "clear"};
@@ -20,6 +19,6 @@ public class TileList {
     public static final String OSM_URL_FORMAT = "http://c.tile.openstreetmap.org/%d/%d/%d.png";
     public static final String HappyMan2_URL_FORMAT = "http://rs.happyman.idv.tw/map/gpxtrack/%d/%d/%d.png";
 
-    // offlinemap format
-    public static final String MAPSFORGE_FORMAT = ".map";
+    // mapsforge suffix
+    public static final String MAPSFORGE_SUFFIX = ".map";
 }
