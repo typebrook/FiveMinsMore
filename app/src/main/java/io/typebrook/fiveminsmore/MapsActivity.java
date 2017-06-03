@@ -575,7 +575,6 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        isTracking = false;
     }
 
     /*

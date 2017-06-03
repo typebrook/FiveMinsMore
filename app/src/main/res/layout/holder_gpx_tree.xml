@@ -42,7 +42,7 @@
                 android:id="@+id/tree_item_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                tools:src="@drawable/ic_gpx_96" />
+                tools:src="@drawable/ic_gpx_48" />
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/tree_item_text"
