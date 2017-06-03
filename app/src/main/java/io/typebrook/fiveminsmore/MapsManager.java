@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
 import com.google.maps.android.clustering.ClusterManager;
 import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -88,7 +87,7 @@ public class MapsManager implements
 
     // 標示縮放大小
     private TextView mZoomNumber;
-    private TextView mIndicator;
+    private TextView mCrossCoor;
 
     // Context
     private Context mContext;
@@ -114,7 +113,7 @@ public class MapsManager implements
         mMapTiles.add(MAP_CODE_MAIN, null);
         mMapAddTiles.add(MAP_CODE_MAIN, null);
         mZoomNumber = (TextView) ((Activity) context).findViewById(R.id.zoom_number);
-        mIndicator = (TextView) ((Activity) context).findViewById(R.id.tvLatLon);
+        mCrossCoor = (TextView) ((Activity) context).findViewById(R.id.tvLatLon);
 
         // 註冊畫面縮放的監聽
         map.setOnCameraMoveListener(this);
@@ -144,9 +143,7 @@ public class MapsManager implements
         mMapTiles.add(MAP_CODE_SUB, null);
         mMapAddTiles.add(MAP_CODE_SUB, null);
 
-        LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
-        boundaryMain = new PolygonOptions().addAll(getBounds(latLngBounds)).strokeColor(Color.YELLOW);
-        boundaryMainPolygon = map.addPolygon(boundaryMain);
+        onCameraMove();
 
         map.setMapType(MAP_TYPE_HYBRID);
         map.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
@@ -164,7 +161,7 @@ public class MapsManager implements
         map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_SUB));
     }
 
-    public void disableSubMap() {
+    void disableSubMap() {
         mMaps.get(MAP_CODE_SUB).setMapType(GoogleMap.MAP_TYPE_NONE);
         setCurrentMap(MAP_CODE_MAIN);
 
@@ -172,6 +169,9 @@ public class MapsManager implements
         mMapTiles.remove(MAP_CODE_SUB);
         mMapAddTiles.remove(MAP_CODE_SUB);
         mClusterManagers.remove(MAP_CODE_SUB);
+
+        boundaryMainPolygon.remove();
+        boundaryMainPolygon = null;
     }
 
     public void setCurrentMap(int code) {
@@ -287,30 +287,35 @@ public class MapsManager implements
     @Override
     public void onCameraMove() {
 
+        // 顯示縮放層級
         CameraPosition cameraPosition = mMaps.get(MAP_CODE_MAIN).getCameraPosition();
         float currentZoomNumber = cameraPosition.zoom;
-
 //        String currentZoom = Integer.toString(Math.round(currentZoomNumber));
         String currentZoom = "" + (int) currentZoomNumber;
         mZoomNumber.setText(currentZoom);
 
+        // 顯示準心座標
         LatLng latLng = cameraPosition.target;
         String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
         String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-        mIndicator.setText(lat + ", " + lon);
+        mCrossCoor.setText(lat + ", " + lon);
 
+        // 次要地圖，若同步，則隨主要地圖移動畫面，若非同步，使用Polygon顯示主要地圖的範圍
         if (mMaps.size() > 1) {
             if (isMapsSync) {
                 mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
             } else {
                 LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
-                boundaryMain = new PolygonOptions()
-                        .addAll(getBounds(latLngBounds))
-                        .strokeColor(Color.YELLOW)
-                        .zIndex(10);
-                boundaryMainPolygon.remove();
-                boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
+                if (boundaryMainPolygon == null) {
+                    boundaryMain = new PolygonOptions()
+                            .addAll(getBounds(latLngBounds))
+                            .strokeColor(Color.YELLOW)
+                            .zIndex(10);
+                    boundaryMainPolygon = mMaps.get(MAP_CODE_SUB).addPolygon(boundaryMain);
+                } else {
+                    boundaryMainPolygon.setPoints(getBounds(latLngBounds));
+                }
             }
 
         }
@@ -328,8 +333,10 @@ public class MapsManager implements
 
     void changeSyncMaps() {
         isMapsSync = !isMapsSync;
-        if (isMapsSync)
+        if (isMapsSync) {
             boundaryMainPolygon.remove();
+            boundaryMainPolygon = null;
+        }
     }
 
     // Set the TileOverlay
