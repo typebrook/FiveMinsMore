@@ -45,6 +45,7 @@ import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
 import io.typebrook.fiveminsmore.res.TileList;
+import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
@@ -259,7 +260,6 @@ public class MapsManager implements
     public void onInfoWindowClick(Marker marker) {
 
         LatLng latLng = marker.getPosition();
-
         String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
         String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
 
@@ -268,24 +268,6 @@ public class MapsManager implements
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));
         mContext.startActivity(i);
-
-        // Test
-        String csName1 = "EPSG:4326";
-        String csName2 = "EPSG:3826";
-        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
-        CRSFactory csFactory = new CRSFactory();
-        CoordinateReferenceSystem crs1 = csFactory.createFromParameters(csName1, "+proj=longlat +datum=WGS84 +no_defs");
-        CoordinateReferenceSystem crs2 = csFactory.createFromParameters(csName2, "+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-        CoordinateTransform trans = ctFactory.createTransform(crs1, crs2);
-        ProjCoordinate p1 = new ProjCoordinate();
-        ProjCoordinate p2 = new ProjCoordinate();
-        p1.x = latLng.longitude;
-        p1.y = latLng.latitude;
-        trans.transform(p1, p2);
-
-        Toast.makeText(mContext, "TWD97: " + (int) p2.x + ", " + (int) p2.y + "\n"
-                + "TWD67: " + (int) (p2.x-828) + ", " + (int) (p2.y + 207), Toast.LENGTH_LONG).show();
-
     }
 
     @Override
@@ -320,9 +302,11 @@ public class MapsManager implements
 
         // 顯示準心座標
         LatLng latLng = cameraPosition.target;
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-        mCrossCoor.setText(lat + ", " + lon);
+        int coorX = (int) ProjFuncs.latlon2twd67(latLng).x;
+        int coorY = (int) ProjFuncs.latlon2twd67(latLng).y;
+//        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
+//        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
+        mCrossCoor.setText(coorX + ", " + coorY);
 
         // 次要地圖，若同步，則隨主要地圖移動畫面，若非同步，使用Polygon顯示主要地圖的範圍
         if (mMaps.size() > 1) {
