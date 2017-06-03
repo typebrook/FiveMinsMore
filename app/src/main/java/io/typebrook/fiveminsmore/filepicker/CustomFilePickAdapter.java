@@ -72,6 +72,8 @@ public class CustomFilePickAdapter extends BaseAdapter<NormalFile, CustomFilePic
             holder.mIvIcon.setImageResource(R.drawable.ic_pdf);
         } else if (file.getPath().endsWith("txt")) {
             holder.mIvIcon.setImageResource(R.drawable.ic_txt);
+        } else if (file.getPath().endsWith("gpx")) {
+            holder.mIvIcon.setImageResource(R.drawable.ic_gpx_96);
         } else {
             holder.mIvIcon.setImageResource(R.drawable.ic_file);
         }

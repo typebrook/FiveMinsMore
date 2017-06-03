@@ -13,7 +13,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
         android:background="@drawable/mapbutton_background"
-        android:drawableLeft="@drawable/ic_gpx_64"
+        android:drawableLeft="@drawable/ic_gpx_96"
         android:padding="10dp"
         android:text="匯入航跡檔" />
 
