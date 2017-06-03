@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +28,12 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
 import com.google.maps.android.clustering.ClusterManager;
 import com.vincent.filepicker.Constant;
+
+import org.osgeo.proj4j.CRSFactory;
+import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.CoordinateTransform;
+import org.osgeo.proj4j.CoordinateTransformFactory;
+import org.osgeo.proj4j.ProjCoordinate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -161,7 +168,7 @@ public class MapsManager implements
         map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_SUB));
     }
 
-    void disableSubMap() {
+    public void disableSubMap() {
         mMaps.get(MAP_CODE_SUB).setMapType(GoogleMap.MAP_TYPE_NONE);
         setCurrentMap(MAP_CODE_MAIN);
 
@@ -246,7 +253,6 @@ public class MapsManager implements
 
         mMarker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
     }
 
     @Override
@@ -262,6 +268,24 @@ public class MapsManager implements
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));
         mContext.startActivity(i);
+
+        // Test
+        String csName1 = "EPSG:4326";
+        String csName2 = "EPSG:3826";
+        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
+        CRSFactory csFactory = new CRSFactory();
+        CoordinateReferenceSystem crs1 = csFactory.createFromParameters(csName1, "+proj=longlat +datum=WGS84 +no_defs");
+        CoordinateReferenceSystem crs2 = csFactory.createFromParameters(csName2, "+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+        CoordinateTransform trans = ctFactory.createTransform(crs1, crs2);
+        ProjCoordinate p1 = new ProjCoordinate();
+        ProjCoordinate p2 = new ProjCoordinate();
+        p1.x = latLng.longitude;
+        p1.y = latLng.latitude;
+        trans.transform(p1, p2);
+
+        Toast.makeText(mContext, "TWD97: " + (int) p2.x + ", " + (int) p2.y + "\n"
+                + "TWD67: " + (int) (p2.x-828) + ", " + (int) (p2.y + 207), Toast.LENGTH_LONG).show();
+
     }
 
     @Override

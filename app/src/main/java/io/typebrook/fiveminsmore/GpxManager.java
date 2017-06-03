@@ -79,6 +79,7 @@ public class GpxManager {
 
     public Gpx add(File file, MapsManager manager) {
         try {
+            Log.d(TAG, "Start to Load gpx file: " + file.getName());
             Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
 
             TreeNode gpxRoot = GpxUtils.getTreeNode(file.getName(), gpx);

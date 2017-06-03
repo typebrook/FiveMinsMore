@@ -332,6 +332,7 @@ public class MapsActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null || resultCode != RESULT_OK)
             return;
+        Log.d(TAG, "onActivityResult: " + resultCode);
 
         ArrayList<NormalFile> fileList = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
         if (fileList.isEmpty())

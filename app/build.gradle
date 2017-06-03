@@ -40,6 +40,7 @@ dependencies {
     compile 'org.mapsforge:mapsforge-themes:0.8.0'
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     compile 'org.osmdroid:osmdroid-mapsforge:5.6.4'
+    compile group: 'org.osgeo', name: 'proj4j', version: '0.1.0'
 
     testCompile 'junit:junit:4.12'
 }
