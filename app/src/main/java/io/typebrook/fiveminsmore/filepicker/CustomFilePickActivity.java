@@ -83,6 +83,16 @@ public class CustomFilePickActivity extends BaseActivity {
         mAdapter = new CustomFilePickAdapter(this, mMaxNumber);
         mRecyclerView.setAdapter(mAdapter);
 
+        mAdapter.setOnSelectStateListener(new OnSelectStateListener<NormalFile>() {
+            @Override
+            public void OnSelectStateChanged(boolean state, NormalFile file) {
+                if (state)
+                    mSelectedList.add(file);
+                else
+                    mSelectedList.remove(file);
+            }
+        });
+
         mProgressBar = (ProgressBar) findViewById(com.vincent.filepicker.R.id.pb_file_pick);
     }
 
