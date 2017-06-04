@@ -4,41 +4,43 @@
     android:layout_height="match_parent"
     android:background="@color/gpxManager">
 
-    <Button
-        android:id="@+id/btn_pick_gpx_files"
-        style="@style/button_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/mapbutton_background"
-        android:drawableLeft="@drawable/ic_gpx_96"
-        android:padding="10dp"
-        android:text="匯入航跡檔" />
+    <LinearLayout
+        android:id="@+id/gpx_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:layout_above="@+id/separate"
+        android:orientation="horizontal"/>
 
     <View
         android:id="@+id/separate"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:layout_below="@+id/btn_pick_gpx_files"
-        android:layout_margin="5dp"
+        android:layout_above="@+id/btns"
+        android:layout_margin="15dp"
         android:background="#cc898989" />
 
     <LinearLayout
-        android:id="@+id/gpx_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_below="@+id/separate"
-        android:layout_above="@+id/leave_gpx_manager"></LinearLayout>
-
-    <Button
-        android:id="@+id/leave_gpx_manager"
-        android:layout_width="130dp"
-        android:layout_height="50dp"
+        android:id="@+id/btns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
-        android:text="確定" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_pick_gpx_files"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:drawableLeft="@drawable/ic_gpx_36"
+            android:text="匯入航跡檔" />
+
+        <Button
+            android:id="@+id/leave_gpx_manager"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="確定" />
+    </LinearLayout>
+
 </RelativeLayout>
