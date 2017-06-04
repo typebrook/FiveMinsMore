@@ -1,7 +1,11 @@
 package io.typebrook.fiveminsmore.gpx;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -15,6 +19,7 @@ import com.unnamed.b.atv.model.TreeNode;
 import org.joda.time.DateTime;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +37,14 @@ import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.utils.MapUtils;
+
+import static io.typebrook.fiveminsmore.Constant.DIR_GPX_FILE;
+import static io.typebrook.fiveminsmore.model.PolylilneStyle.STYLE_IN_MANAGER;
 
 /**
  * Created by pham on 2017/4/9.
+ * 處理有關GPX檔的功能
  */
 
 public class GpxUtils {
@@ -91,7 +101,7 @@ public class GpxUtils {
         return new CustomMarker(latLng, name, snippet);
     }
 
-    public static TreeNode getTreeNode(String filename, Gpx gpx) {
+    public static TreeNode gpxFile2TreeNode(String filename, Gpx gpx) {
         GpxHolder.GpxTreeItem.Builder gpx_builder = new GpxHolder.GpxTreeItem.Builder();
         TreeNode gpxRoot = new TreeNode(gpx_builder
                 .setType(GpxHolder.ITEM_TYPE_GPX)
@@ -100,15 +110,31 @@ public class GpxUtils {
                 .setGpx(gpx)
                 .build());
 
+        // TODO temporary node
+        TreeNode tracks = new TreeNode(gpx_builder
+                .setType(GpxHolder.ITEM_TYPE_GPX)
+                .setIcon(GpxHolder.ITEM_ICON_GPX)
+                .setText("航跡")
+                .build());
+
+        TreeNode wpts = new TreeNode(gpx_builder
+                .setType(GpxHolder.ITEM_TYPE_GPX)
+                .setIcon(GpxHolder.ITEM_ICON_GPX)
+                .setText("航點")
+                .build());
+
+        gpxRoot.addChildren(tracks);
+        gpxRoot.addChildren(wpts);
+
         for (Track trk : gpx.getTracks()) {
             GpxHolder.GpxTreeItem.Builder trk_builder = new GpxHolder.GpxTreeItem.Builder();
             TreeNode trkNode = new TreeNode(trk_builder
                     .setType(GpxHolder.ITEM_TYPE_TRACK)
                     .setIcon(GpxHolder.ITEM_ICON_TRACK)
                     .setText(trk.getTrackName())
-                    .setTrkOpts(trk)
+                    .setTrkOpts(GpxUtils.trk2TrkOpts(trk))
                     .build());
-            gpxRoot.addChildren(trkNode);
+            tracks.addChildren(trkNode);
         }
 
         for (WayPoint wpt : gpx.getWayPoints()) {
@@ -119,14 +145,29 @@ public class GpxUtils {
                     .setText(wpt.getName())
                     .setMarker(wpt)
                     .build());
-            gpxRoot.addChildren(wptNode);
+            wpts.addChildren(wptNode);
         }
 
         return gpxRoot;
     }
 
+    public static TreeNode locs2TreeNode(String trkName, List<Location> locs) {
+        GpxHolder.GpxTreeItem.Builder trk_builder = new GpxHolder.GpxTreeItem.Builder();
+
+        PolylineOptions opts = STYLE_IN_MANAGER.addAll(MapUtils.locs2LatLngs(locs));
+
+        return new TreeNode(trk_builder
+                .setType(GpxHolder.ITEM_TYPE_TRACK)
+                .setIcon(GpxHolder.ITEM_ICON_TRACK)
+                .setText(trkName)
+                .setTrkOpts(opts)
+                .build());
+    }
+
     // A temporary method to generate gpx file
-    public static void polyline2Xml(String trkName, List<Location> pts) {
+    public static void polyline2Xml(Context context, String trkName, List<Location> pts) {
+        if (pts.size() == 0 || !isExternalStorageWritable())
+            return;
         XMLBuilder2 builder = XMLBuilder2.create("gpx");
         builder.a("version", "1.1")
                 .a("creator", "https://github.com/typebrook/FiveMinsMore")
@@ -149,8 +190,16 @@ public class GpxUtils {
                     .e("time").t(new DateTime(pt.getTime()).toString());
             Log.d(TAG, new DateTime(pt.getTime()).toString());
         }
+
+        // 若外部資料夾不存在，就建立新的
+        if (!DIR_GPX_FILE.exists()) {
+            boolean result = DIR_GPX_FILE.mkdirs();
+            Log.d(TAG, "result of making dir " + DIR_GPX_FILE.getPath() + ": " + result);
+        }
+
         try {
-            PrintWriter writer = new PrintWriter(new FileOutputStream("/sdcard/Download/" + trkName + ".gpx"));
+            String path = DIR_GPX_FILE.getPath() + "/" + trkName + ".gpx";
+            PrintWriter writer = new PrintWriter(new FileOutputStream(path, true));
 
             Properties outputProperties = new Properties();
             // Explicitly identify the output as an XML document
@@ -161,8 +210,20 @@ public class GpxUtils {
             outputProperties.put("{http://xml.apache.org/xslt}indent-amount", "2");
 
             builder.toWriter(true, writer, outputProperties);
+
+            // 將File加入android.providers.media 資料庫
+            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri uri = Uri.fromFile(new File(path));
+            intent.setData(uri);
+            context.sendBroadcast(intent);
         } catch (Exception e) {
             Log.d(TAG, "Failed to save GPX file");
         }
+    }
+
+    /* Checks if external storage is available for read and write */
+    private static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 }

@@ -14,11 +14,24 @@ import java.util.List;
 
 import io.typebrook.fiveminsmore.model.CustomMarker;
 
+import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
+import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
+import static io.typebrook.fiveminsmore.Constant.TAIWAN_ZOOM_MAX;
+import static io.typebrook.fiveminsmore.Constant.TAIWAN_ZOOM_MIN;
+
 /**
  * Created by pham on 2017/5/9.
+ * Some convenient ways to manipulate map
  */
 
 public class MapUtils {
+    // 設定鏡頭可動範圍
+    public static void setTaiwanBoundaries(GoogleMap map) {
+        map.setMinZoomPreference(TAIWAN_ZOOM_MIN);
+        map.setMaxZoomPreference(TAIWAN_ZOOM_MAX);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(TAIWAN_CENTER, STARTING_ZOOM));
+    }
+
     public static void zoomToPolyline(GoogleMap map, Polyline p) {
         LatLngBounds.Builder builder = LatLngBounds.builder();
 
@@ -35,19 +48,15 @@ public class MapUtils {
         map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 400));
     }
 
-    public static LatLng location2LatLng(Location loc) {
+    public static LatLng loc2LatLng(Location loc) {
         return new LatLng(loc.getLatitude(), loc.getLongitude());
     }
 
-    public static List<LatLng> locations2LatLngs(List<Location> locs) {
-        if (locs.isEmpty()) {
-            throw new EmptyStackException();
-        }
-
+    public static List<LatLng> locs2LatLngs(List<Location> locs) {
         List<LatLng> latLngs = new ArrayList<>();
 
         for (Location loc : locs) {
-            latLngs.add(location2LatLng(loc));
+            latLngs.add(loc2LatLng(loc));
         }
         return latLngs;
     }

@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
+
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -32,7 +33,7 @@ public class GpxManager {
     private AndroidTreeView treeView;
     private boolean isShowingDialog = false;
 
-    public GpxManager(Activity context) {
+    GpxManager(Activity context) {
         this.mContext = context;
 
         managerView = (RelativeLayout) mContext.getLayoutInflater().inflate(R.layout.manager_gpx, null);
@@ -77,32 +78,38 @@ public class GpxManager {
         ((ViewGroup) mContext.findViewById(R.id.layout_container)).removeView(managerView);
     }
 
-    public Gpx add(File file, MapsManager manager) {
+    public void add(File file, MapsManager manager) {
         try {
-            Log.d(TAG, "Start to Load gpx file: " + file.getName());
             Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
 
-            TreeNode gpxRoot = GpxUtils.getTreeNode(file.getName(), gpx);
+            TreeNode gpxRoot = GpxUtils.gpxFile2TreeNode(file.getName(), gpx);
             gpxRoot.setViewHolder(new GpxHolder(mContext, manager));
 
             treeView.addNode(root, gpxRoot);
 
             for (TreeNode node : gpxRoot.getChildren()) {
                 node.setViewHolder(new GpxHolder(mContext, manager));
+                for (TreeNode n : node.getChildren()) {
+                    n.setViewHolder(new GpxHolder(mContext, manager));
+                }
             }
 
-            return gpx;
         } catch (Exception e) {
             Log.d(TAG, "Fail to load GPX file " + file.getName());
-            return null;
         }
+    }
+
+    public void add(TreeNode node, MapsManager manager) {
+        node.setViewHolder(new GpxHolder(mContext, manager));
+        treeView.addNode(root, node);
+
     }
 
     public boolean isShowingDialog() {
         return isShowingDialog;
     }
 
-    public TreeNode getGpxTree(){
+    public TreeNode getGpxTree() {
         return root;
     }
 }

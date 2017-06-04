@@ -210,8 +210,8 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 return this;
             }
 
-            public Builder setTrkOpts(Track track) {
-                this.trkOpts = GpxUtils.trk2TrkOpts(track);
+            public Builder setTrkOpts(PolylineOptions opts) {
+                this.trkOpts = opts;
                 return this;
             }
 

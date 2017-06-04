@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static io.typebrook.fiveminsmore.Constant.INTERVAL_BETWEEN_TRKPTS;
+import static io.typebrook.fiveminsmore.Constant.DISTANCE_INTERVAL_FOR_TRKPTS;
 
 /**
  * Created by pham on 2017/4/15.
@@ -77,7 +77,7 @@ public class TrackingService extends Service {
                     double interval = SphericalUtil.computeDistanceBetween(
                             new LatLng(location.getLatitude(), location.getLongitude()),
                             new LatLng(mLastPosition.getLatitude(), mLastPosition.getLongitude()));
-                    if (interval < INTERVAL_BETWEEN_TRKPTS)
+                    if (interval < DISTANCE_INTERVAL_FOR_TRKPTS)
                         return START_STICKY;
                 }
 

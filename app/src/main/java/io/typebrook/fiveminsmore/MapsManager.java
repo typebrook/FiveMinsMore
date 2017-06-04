@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,12 +28,6 @@ import com.google.android.gms.maps.model.UrlTileProvider;
 import com.google.maps.android.clustering.ClusterManager;
 import com.vincent.filepicker.Constant;
 
-import org.osgeo.proj4j.CRSFactory;
-import org.osgeo.proj4j.CoordinateReferenceSystem;
-import org.osgeo.proj4j.CoordinateTransform;
-import org.osgeo.proj4j.CoordinateTransformFactory;
-import org.osgeo.proj4j.ProjCoordinate;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,9 +42,10 @@ import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
-import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASPMAP;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_SUFFIX;
+import static io.typebrook.fiveminsmore.res.TileList.NLSC_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.OSM_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.SINICA_URL_FORMAT;
 
@@ -214,18 +208,6 @@ public class MapsManager implements
         return mClusterManagers.get(mapCode);
     }
 
-    // 設定鏡頭可動範圍
-    public void setTaiwanBoundaries() {
-        mMaps.get(MAP_CODE_MAIN).setLatLngBoundsForCameraTarget(TAIWAN_BOUNDS);
-        mMaps.get(MAP_CODE_MAIN).setMinZoomPreference(TAIWAN_ZOOM_MIN);
-        mMaps.get(MAP_CODE_MAIN).setMaxZoomPreference(TAIWAN_ZOOM_MAX);
-        LatLng taiwan = new LatLng(24.027002, 121.514085);
-        mMaps.get(MAP_CODE_MAIN).moveCamera(CameraUpdateFactory.newLatLngZoom(taiwan, STARTING_ZOOM));
-
-        String currentZoom = Integer.toString(STARTING_ZOOM);
-        mZoomNumber.setText(currentZoom);
-    }
-
     @Override
     public void onMapClick(LatLng latLng) {
         if (mMarker != null) {
@@ -376,7 +358,7 @@ public class MapsManager implements
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
 
-                        if (which < 3) {
+                        if (which < 4) {
                             mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
                             if (mMapTiles.get(currentMapCode) != null) {
                                 mMapTiles.get(currentMapCode).remove();
@@ -393,16 +375,22 @@ public class MapsManager implements
                             case 1:
                                 mMapTiles.set(currentMapCode,
                                         mMaps.get(currentMapCode).addTileOverlay(getTileSetting(SINICA_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASPMAP);
+                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
                                 break;
 
                             case 2:
                                 mMapTiles.set(currentMapCode,
                                         mMaps.get(currentMapCode).addTileOverlay(getTileSetting(OSM_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASPMAP);
+                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
                                 break;
 
                             case 3:
+                                mMapTiles.set(currentMapCode,
+                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(NLSC_URL_FORMAT)));
+                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
+                                break;
+
+                            case 4:
                                 Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
                                 pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
                                 pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
@@ -410,7 +398,7 @@ public class MapsManager implements
                                         REQUEST_CODE_PICK_MAPSFORGE_FILE);
                                 break;
 
-                            case 4:
+                            case 5:
                                 if (mMapAddTiles.get(currentMapCode) != null) {
                                     mMapAddTiles.get(currentMapCode).remove();
                                     mMapAddTiles.get(currentMapCode).clearTileCache();
@@ -422,7 +410,7 @@ public class MapsManager implements
                                 }
                                 break;
 
-                            case 5:
+                            case 6:
                                 mMaps.get(currentMapCode).clear();
                                 mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;
