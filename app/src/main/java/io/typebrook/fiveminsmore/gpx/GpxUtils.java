@@ -178,7 +178,7 @@ public class GpxUtils {
                 .build());
     }
 
-    // TODO A temporary method to generate gpx file
+    // TODO A temporary method to generate gpx file, need to improve
     public static void polyline2Xml(Context context, String trkName, List<Location> pts) {
         if (pts.size() == 0 || !isExternalStorageWritable())
             return;

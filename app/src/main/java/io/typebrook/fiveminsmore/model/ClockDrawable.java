@@ -38,7 +38,7 @@ public class ClockDrawable extends Drawable implements Animatable {
 
     private static final
     @ColorRes
-    int FACE_COLOR = R.color.colorClockBody;
+    int FACE_COLOR = R.color.colorLittleTransparent;
     private static final
     @ColorRes
     int RIM_COLOR = R.color.colorPrimary;

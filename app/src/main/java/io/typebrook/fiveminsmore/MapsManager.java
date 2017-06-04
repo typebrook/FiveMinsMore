@@ -200,10 +200,6 @@ public class MapsManager implements
         return mMapTiles;
     }
 
-    public ClusterManager<CustomMarker> getCurrentClusterManager() {
-        return mClusterManagers.get(currentMapCode);
-    }
-
     public ClusterManager<CustomMarker> getClusterManager(int mapCode) {
         return mClusterManagers.get(mapCode);
     }

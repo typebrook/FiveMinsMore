@@ -1,17 +1,25 @@
 package io.typebrook.fiveminsmore.model;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.typebrook.fiveminsmore.R;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
@@ -26,19 +34,16 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
         ClusterManager.OnClusterClickListener<CustomMarker> {
 
     private final IconGenerator mIconGenerator;
+    private Context mContext;
     private GoogleMap mMap;
-    private TextView mTextView;
 
-    public CustomRenderer(Context context, GoogleMap map, ClusterManager clusterManager) {
+    public CustomRenderer(Context context, GoogleMap map, ClusterManager<CustomMarker> clusterManager) {
         super(context, map, clusterManager);
+        mContext = context;
         mMap = map;
 
         // Define Custom icon
         mIconGenerator = new IconGenerator(context);
-        mTextView = new TextView(context);
-        mTextView.setGravity(Gravity.CENTER);
-        mTextView.setBackgroundColor(Color.WHITE);
-        mIconGenerator.setContentView(mTextView);
         mIconGenerator.setBackground(context.getResources().getDrawable(R.drawable.ic_waypt));
     }
 
@@ -48,7 +53,7 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
         LatLng pos2 = new LatLng(0, 0);
 
         // Always render clusters.
-        for (CustomMarker item : cluster.getItems()){
+        for (CustomMarker item : cluster.getItems()) {
             if (pos1 == pos2)
                 pos1 = item.getPosition();
             else
@@ -88,13 +93,18 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
     // For Custom icon
     @Override
     protected void onBeforeClusterItemRendered(CustomMarker item, MarkerOptions markerOptions) {
-
-        mTextView.setText(item.getTitle());
-
         // Set the info window to show their name.
+//        Bitmap icon = mIconGenerator.makeIcon();
+//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
+        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.cluster_item_text, null);
+        tv.setText(item.getTitle());
+        mIconGenerator.setContentView(tv);
         Bitmap icon = mIconGenerator.makeIcon();
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
     }
 
-
+    @Override
+    protected void onClusterItemRendered(CustomMarker clusterItem, Marker marker) {
+        super.onClusterItemRendered(clusterItem, marker);
+    }
 }
