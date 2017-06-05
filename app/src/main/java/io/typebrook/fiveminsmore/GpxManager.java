@@ -54,7 +54,7 @@ public class GpxManager {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        layoutParams.setMargins(40, 40, 40, 40);
+        layoutParams.setMargins(50, 50, 50, 50);
 
         managerView.setLayoutParams(layoutParams);
 

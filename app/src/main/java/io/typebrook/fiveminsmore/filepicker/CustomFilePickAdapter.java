@@ -37,7 +37,7 @@ public class CustomFilePickAdapter extends BaseAdapter<NormalFile, CustomFilePic
 
     @Override
     public CustomFilePickViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(mContext).inflate(R.layout.layout_item_normal_file_pick, parent, false);
+        View itemView = LayoutInflater.from(mContext).inflate(R.layout.item_normal_file_pick, parent, false);
         return new CustomFilePickViewHolder(itemView);
     }
 
@@ -62,17 +62,7 @@ public class CustomFilePickAdapter extends BaseAdapter<NormalFile, CustomFilePic
 
         holder.mTvPath.setText(convert2SdcardPath(Util.extractPathWithSeparator(file.getPath())));
 
-        if (file.getPath().endsWith("xls") || file.getPath().endsWith("xlsx")) {
-            holder.mIvIcon.setImageResource(R.drawable.ic_excel);
-        } else if (file.getPath().endsWith("doc") || file.getPath().endsWith("docx")) {
-            holder.mIvIcon.setImageResource(R.drawable.ic_word);
-        } else if (file.getPath().endsWith("ppt") || file.getPath().endsWith("pptx")) {
-            holder.mIvIcon.setImageResource(R.drawable.ic_ppt);
-        } else if (file.getPath().endsWith("pdf")) {
-            holder.mIvIcon.setImageResource(R.drawable.ic_pdf);
-        } else if (file.getPath().endsWith("txt")) {
-            holder.mIvIcon.setImageResource(R.drawable.ic_txt);
-        } else if (file.getPath().endsWith("gpx")) {
+        if (file.getPath().endsWith("gpx")) {
             holder.mIvIcon.setImageResource(R.drawable.ic_gpx_96);
         } else if (file.getPath().endsWith("kml")) {
             holder.mIvIcon.setImageResource(R.drawable.ic_kml_96);

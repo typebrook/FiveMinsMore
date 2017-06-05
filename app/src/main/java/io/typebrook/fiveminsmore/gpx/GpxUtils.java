@@ -114,7 +114,7 @@ public class GpxUtils {
         if (tracks.size() > 1) {
             TreeNode node_trks = new TreeNode(gpx_builder
                     .setType(GpxHolder.ITEM_TYPE_GPX)
-                    .setIcon(GpxHolder.ITEM_ICON_GPX)
+                    .setIcon(GpxHolder.ITEM_ICON_TRACK)
                     .setText("航跡")
                     .build());
             gpxRoot.addChild(node_trks);
@@ -127,7 +127,7 @@ public class GpxUtils {
         if (wpts.size() > 1) {
             TreeNode node_wpts = new TreeNode(gpx_builder
                     .setType(GpxHolder.ITEM_TYPE_GPX)
-                    .setIcon(GpxHolder.ITEM_ICON_GPX)
+                    .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
                     .setText("航點")
                     .build());
             gpxRoot.addChild(node_wpts);

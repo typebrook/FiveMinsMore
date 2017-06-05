@@ -221,7 +221,7 @@ public class ReadFragment extends Fragment {
 
     private void createClock() {
         // get the ClockImageView
-        clockView = (ImageView) getActivity().getLayoutInflater().inflate(R.layout.clock_view, null);
+        clockView = (ImageView) getActivity().getLayoutInflater().inflate(R.layout.view_clock, null);
         clockView.setLayoutParams(new ViewGroup.LayoutParams(400, 400));
 
         // Add into Screen

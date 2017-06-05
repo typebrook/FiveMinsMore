@@ -767,7 +767,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     // 開啟雙地圖模式
     private void importSubMap() {
-        getLayoutInflater().inflate(R.layout.sub_map, (ViewGroup) findViewById(R.id.sub_content), true);
+        getLayoutInflater().inflate(R.layout.map_sub, (ViewGroup) findViewById(R.id.sub_content), true);
         mSubMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.sub_map);
         mFragmentsNumber++;
 

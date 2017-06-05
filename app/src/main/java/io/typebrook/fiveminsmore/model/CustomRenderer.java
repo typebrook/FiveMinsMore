@@ -3,14 +3,7 @@ package io.typebrook.fiveminsmore.model;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import io.typebrook.fiveminsmore.R;
 
@@ -96,15 +89,10 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
         // Set the info window to show their name.
 //        Bitmap icon = mIconGenerator.makeIcon();
 //        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
-        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.cluster_item_text, null);
+        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.text_cluster_item, null);
         tv.setText(item.getTitle());
         mIconGenerator.setContentView(tv);
         Bitmap icon = mIconGenerator.makeIcon();
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
-    }
-
-    @Override
-    protected void onClusterItemRendered(CustomMarker clusterItem, Marker marker) {
-        super.onClusterItemRendered(clusterItem, marker);
     }
 }
