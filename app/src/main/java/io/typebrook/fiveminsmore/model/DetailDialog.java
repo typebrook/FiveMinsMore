@@ -3,6 +3,7 @@ package io.typebrook.fiveminsmore.model;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -23,18 +24,21 @@ import io.typebrook.fiveminsmore.utils.ProjFuncs;
  */
 
 public class DetailDialog extends DialogFragment implements View.OnClickListener {
-    private Context mContext;
     private String mTitle;
     private LatLng mLatLng;
 
     public void setArgs(Context context, String title, LatLng latLng) {
-        this.mContext = context;
         this.mTitle = title;
         this.mLatLng = latLng;
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle values) {
+        if (values != null){
+            mTitle = values.getString("title");
+            mLatLng = new LatLng(values.getDouble("latitude"), values.getDouble("longitude"));
+        }
+
         // See the example: https://developer.android.com/guide/topics/ui/dialogs.html?hl=zh-tw#DialogFragment
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -56,16 +60,24 @@ public class DetailDialog extends DialogFragment implements View.OnClickListener
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("title", mTitle);
+        outState.putDouble("latitude", mLatLng.latitude);
+        outState.putDouble("longitude", mLatLng.longitude);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.download_trk_file:
                 String url = "http://map.happyman.idv.tw/twmap/api/waypoints.php?x=" +
                         ProjFuncs.simpleLatLng(mLatLng.longitude) + "&y=" +
                         ProjFuncs.simpleLatLng(mLatLng.latitude) +
-                        "&r=50&detail=1#";
+                        "&r=100&detail=1#";
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
-                mContext.startActivity(i);
+                getActivity().startActivity(i);
                 break;
 
             case R.id.goto_twmap:
