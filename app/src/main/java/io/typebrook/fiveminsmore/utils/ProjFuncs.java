@@ -1,5 +1,8 @@
 package io.typebrook.fiveminsmore.utils;
 
+import android.content.Context;
+import android.view.View;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.osgeo.proj4j.CRSFactory;
@@ -7,6 +10,8 @@ import org.osgeo.proj4j.CoordinateReferenceSystem;
 import org.osgeo.proj4j.CoordinateTransform;
 import org.osgeo.proj4j.CoordinateTransformFactory;
 import org.osgeo.proj4j.ProjCoordinate;
+
+import java.util.Locale;
 
 /**
  * Created by pham on 2017/6/3.
@@ -52,5 +57,16 @@ public class ProjFuncs {
         trans.transform(p1, p2);
 
         return p2;
+    }
+
+    public static String twd2String(ProjCoordinate coor){
+        return (int) coor.x + ", " + (int) coor.y;
+    }
+
+    public static String wgs2String(LatLng latLng){
+        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
+        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
+
+        return "東經" + lon + "度，" + "北緯" + lat + "度";
     }
 }

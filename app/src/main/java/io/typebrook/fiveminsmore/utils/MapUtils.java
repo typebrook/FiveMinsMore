@@ -1,6 +1,8 @@
 package io.typebrook.fiveminsmore.utils;
 
+import android.app.Activity;
 import android.location.Location;
+import android.view.ViewGroup;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

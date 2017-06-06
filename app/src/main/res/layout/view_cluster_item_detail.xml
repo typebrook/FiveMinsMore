@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@color/gpxManager"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/projection_detail"
+        android:layout_margin="8dp"
+        android:textColor="#000000"
+        android:textSize="20dp"
+        tools:text="航點名稱" />
+
+    <LinearLayout
+        style="@style/projection_detail"
+        android:layout_margin="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="WGS84"
+            android:textColor="#000000"
+            android:textSize="18dp" />
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="經緯度" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/wgs84"
+        style="@style/projection_detail"
+        tools:text="wgs84座標" />
+
+    <LinearLayout
+        style="@style/projection_detail"
+        android:layout_margin="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="TWD97"
+            android:textColor="#000000"
+            android:textSize="18dp" />
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="二度分帶" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/twd97"
+        style="@style/projection_detail"
+        tools:text="TWD97座標" />
+
+    <LinearLayout
+        style="@style/projection_detail"
+        android:layout_margin="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="TWD67"
+            android:textColor="#000000"
+            android:textSize="18dp" />
+
+        <TextView
+            style="@style/projection_detail"
+            android:text="二度分帶" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/twd67"
+        style="@style/projection_detail"
+        tools:text="TWD67座標" />
+
+    <LinearLayout
+        style="@style/projection_detail"
+        android:layout_margin="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:text="下載航跡" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:text="地圖產生器" />
+    </LinearLayout>
+
+
+</LinearLayout>

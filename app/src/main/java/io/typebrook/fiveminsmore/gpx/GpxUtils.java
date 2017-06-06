@@ -38,6 +38,7 @@ import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
+import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static io.typebrook.fiveminsmore.Constant.DIR_GPX_FILE;
 import static io.typebrook.fiveminsmore.model.PolylilneStyle.STYLE_IN_MANAGER;
@@ -90,13 +91,11 @@ public class GpxUtils {
                 .zIndex(5);
     }
 
-    // 將航點畫在地圖上
+    // 將航點化為CustomMarker
     static CustomMarker waypt2Marker(WayPoint wpt) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-        String snippet = "北緯" + lat + "度，東經" + lon + "度";
+        String snippet = ProjFuncs.wgs2String(latLng);
 
         return new CustomMarker(latLng, name, snippet);
     }

@@ -125,13 +125,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                             if (isChecked) {
                                 value.isMarkers[mapCode] = true;
                                 manager.getClusterManager(mapCode).addItem(value.marker);
-                                manager.getClusterManager(mapCode).cluster();
                             } else if (!value.isMarkers[mapCode]) {
                                 break;
                             } else {
                                 value.isMarkers[mapCode] = false;
                                 manager.getClusterManager(mapCode).removeItem(value.marker);
-                                manager.getClusterManager(mapCode).cluster();
                             }
                             break;
                     }

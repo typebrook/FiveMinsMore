@@ -37,4 +37,11 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="projection_detail">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 </resources>

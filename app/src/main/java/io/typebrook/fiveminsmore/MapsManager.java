@@ -2,17 +2,14 @@ package io.typebrook.fiveminsmore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -20,7 +17,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -37,6 +33,7 @@ import java.util.Locale;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
+import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.res.TileList;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
@@ -51,6 +48,7 @@ import static io.typebrook.fiveminsmore.res.TileList.SINICA_URL_FORMAT;
 
 /**
  * Created by pham on 2017/4/10.
+ * This Manager manipulates the interaction with map fragment
  */
 
 public class MapsManager implements
@@ -65,34 +63,12 @@ public class MapsManager implements
     protected static final int MAP_CODE_SUB = 1;
     protected static int currentMapCode = MAP_CODE_MAIN;
 
-    // 航跡樣式
-    // static final List<PatternItem> dashedPattern = Arrays.asList(new Dash(50), new Gap(30));
-    static final PolylineOptions TRK_STYLE = new PolylineOptions()
-            .color(Color.BLUE)
-            .zIndex(5);
-
-    // 航跡點樣式
-    static final MarkerOptions TRKPTS_STYLE = new MarkerOptions()
-            .zIndex(5)
-            .anchor(0.5f, 0.5f)
-            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_trkpt));
-
-    // Boundaries of TAIWAN
-    private final LatLngBounds TAIWAN_BOUNDS =
-            new LatLngBounds(new LatLng(21.8, 119.2), new LatLng(25.5, 122));
-    // ZOOM restriction of TAIWAN
-    private final int TAIWAN_ZOOM_MIN = 7;
-    private final int TAIWAN_ZOOM_MAX = 20;
-
-    // ZOOM Level when creating map
-    private final int STARTING_ZOOM = 8;
-
     // 標示縮放大小
     private TextView mZoomNumber;
     private TextView mCrossCoor;
 
     // Context
-    private Context mContext;
+    private Activity mContext;
 
     // GoogleMap object
     private List<GoogleMap> mMaps = new ArrayList<>();
@@ -109,13 +85,13 @@ public class MapsManager implements
 
     private boolean isMapsSync = false;
 
-    MapsManager(Context context, GoogleMap map) {
+    MapsManager(Activity context, GoogleMap map) {
         mContext = context;
         mMaps.add(MAP_CODE_MAIN, map);
         mMapTiles.add(MAP_CODE_MAIN, null);
         mMapAddTiles.add(MAP_CODE_MAIN, null);
-        mZoomNumber = (TextView) ((Activity) context).findViewById(R.id.zoom_number);
-        mCrossCoor = (TextView) ((Activity) context).findViewById(R.id.tvLatLon);
+        mZoomNumber = (TextView) context.findViewById(R.id.zoom_number);
+        mCrossCoor = (TextView) context.findViewById(R.id.tvLatLon);
 
         // 註冊畫面縮放的監聽
         map.setOnCameraMoveListener(this);
@@ -219,12 +195,10 @@ public class MapsManager implements
             mMarker.remove();
             mMarker = null;
         }
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
         mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title("點選位置")
-                        .snippet("北緯" + lat + "度，東經" + lon + "度")
+                        .snippet(ProjFuncs.wgs2String(latLng))
                         .draggable(true)
 //                        .anchor(0.5f, 0.5f)
 //                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
@@ -236,16 +210,15 @@ public class MapsManager implements
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        DetailDialog markerDetail = new DetailDialog();
+        markerDetail.setArgs(marker.getTitle(), marker.getPosition());
+        markerDetail.show(((MapsActivity)mContext).getSupportFragmentManager(), "");
 
-        LatLng latLng = marker.getPosition();
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-
-        String url = "http://map.happyman.idv.tw/twmap/api/waypoints.php?x=" + lon + "&y=" + lat +
-                "&r=50&detail=1#";
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        mContext.startActivity(i);
+//        String url = "http://map.happyman.idv.tw/twmap/api/waypoints.php?x=" + lon + "&y=" + lat +
+//                "&r=50&detail=1#";
+//        Intent i = new Intent(Intent.ACTION_VIEW);
+//        i.setData(Uri.parse(url));
+//        mContext.startActivity(i);
     }
 
     @Override
@@ -260,10 +233,7 @@ public class MapsManager implements
     @Override
     public void onMarkerDragEnd(Marker marker) {
         LatLng latLng = marker.getPosition();
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-
-        marker.setSnippet("北緯" + lat + "度，東經" + lon + "度");
+        marker.setSnippet(ProjFuncs.wgs2String(latLng));
         marker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
@@ -274,7 +244,7 @@ public class MapsManager implements
         // 顯示縮放層級
         CameraPosition cameraPosition = mMaps.get(MAP_CODE_MAIN).getCameraPosition();
         float currentZoomNumber = cameraPosition.zoom;
-//        String currentZoom = Integer.toString(Math.round(currentZoomNumber));
+//        String currentZoom = Integer.twd2String(Math.round(currentZoomNumber));
         String currentZoom = "" + (int) currentZoomNumber;
         mZoomNumber.setText(currentZoom);
 

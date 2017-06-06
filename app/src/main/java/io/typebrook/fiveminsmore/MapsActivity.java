@@ -70,6 +70,7 @@ import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
+import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -211,7 +212,6 @@ public class MapsActivity extends AppCompatActivity implements
      */
     @Override
     public void onMapReady(GoogleMap map) {
-
         mMap = map;
         mMapsManager = new MapsManager(this, map);
         mGpxManager = new GpxManager(this);
@@ -322,9 +322,6 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_help:
-                Toast.makeText(this,
-                        getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) + "5MinsMore",
-                        Toast.LENGTH_LONG).show();
                 break;
         }
     }
@@ -767,7 +764,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     // 開啟雙地圖模式
     private void importSubMap() {
-        getLayoutInflater().inflate(R.layout.map_sub, (ViewGroup) findViewById(R.id.sub_content), true);
+        getLayoutInflater().inflate(R.layout.fragment_sub_map, (ViewGroup) findViewById(R.id.sub_content), true);
         mSubMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.sub_map);
         mFragmentsNumber++;
 

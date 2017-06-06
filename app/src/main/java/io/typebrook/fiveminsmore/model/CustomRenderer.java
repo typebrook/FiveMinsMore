@@ -12,7 +12,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
@@ -87,9 +86,7 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
     @Override
     protected void onBeforeClusterItemRendered(CustomMarker item, MarkerOptions markerOptions) {
         // Set the info window to show their name.
-//        Bitmap icon = mIconGenerator.makeIcon();
-//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
-        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.text_cluster_item, null);
+        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.view_cluster_item, null);
         tv.setText(item.getTitle());
         mIconGenerator.setContentView(tv);
         Bitmap icon = mIconGenerator.makeIcon();
