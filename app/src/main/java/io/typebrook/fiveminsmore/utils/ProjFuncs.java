@@ -63,10 +63,14 @@ public class ProjFuncs {
         return (int) coor.x + ", " + (int) coor.y;
     }
 
-    public static String wgs2String(LatLng latLng){
-        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
+    public static String latLng2String(LatLng latLng){
+        String lat = simpleLatLng(latLng.latitude);
+        String lon = simpleLatLng(latLng.longitude);
 
         return "東經" + lon + "度，" + "北緯" + lat + "度";
+    }
+
+    public static String simpleLatLng(Double num){
+        return String.format(Locale.getDefault(), "%.6f", num);
     }
 }

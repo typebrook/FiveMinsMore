@@ -198,7 +198,7 @@ public class MapsManager implements
         mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title("點選位置")
-                        .snippet(ProjFuncs.wgs2String(latLng))
+                        .snippet(ProjFuncs.latLng2String(latLng))
                         .draggable(true)
 //                        .anchor(0.5f, 0.5f)
 //                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
@@ -211,14 +211,8 @@ public class MapsManager implements
     @Override
     public void onInfoWindowClick(Marker marker) {
         DetailDialog markerDetail = new DetailDialog();
-        markerDetail.setArgs(marker.getTitle(), marker.getPosition());
+        markerDetail.setArgs(mContext, marker.getTitle(), marker.getPosition());
         markerDetail.show(((MapsActivity)mContext).getSupportFragmentManager(), "");
-
-//        String url = "http://map.happyman.idv.tw/twmap/api/waypoints.php?x=" + lon + "&y=" + lat +
-//                "&r=50&detail=1#";
-//        Intent i = new Intent(Intent.ACTION_VIEW);
-//        i.setData(Uri.parse(url));
-//        mContext.startActivity(i);
     }
 
     @Override
@@ -233,7 +227,7 @@ public class MapsManager implements
     @Override
     public void onMarkerDragEnd(Marker marker) {
         LatLng latLng = marker.getPosition();
-        marker.setSnippet(ProjFuncs.wgs2String(latLng));
+        marker.setSnippet(ProjFuncs.latLng2String(latLng));
         marker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
@@ -248,13 +242,9 @@ public class MapsManager implements
         String currentZoom = "" + (int) currentZoomNumber;
         mZoomNumber.setText(currentZoom);
 
-        // 顯示準心座標
+        // TODO 顯示準心座標，之後要有切換不同座標系統的功能
         LatLng latLng = cameraPosition.target;
-        int coorX = (int) ProjFuncs.latlon2twd67(latLng).x;
-        int coorY = (int) ProjFuncs.latlon2twd67(latLng).y;
-//        String lat = String.format(Locale.getDefault(), "%.6f", latLng.latitude);
-//        String lon = String.format(Locale.getDefault(), "%.6f", latLng.longitude);
-        mCrossCoor.setText(coorX + ", " + coorY);
+        mCrossCoor.setText(ProjFuncs.twd2String(ProjFuncs.latlon2twd67(latLng)));
 
         // 次要地圖，若同步，則隨主要地圖移動畫面，若非同步，使用Polygon顯示主要地圖的範圍
         if (mMaps.size() > 1) {

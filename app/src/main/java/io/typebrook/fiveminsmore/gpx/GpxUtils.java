@@ -95,7 +95,7 @@ public class GpxUtils {
     static CustomMarker waypt2Marker(WayPoint wpt) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
-        String snippet = ProjFuncs.wgs2String(latLng);
+        String snippet = ProjFuncs.latLng2String(latLng);
 
         return new CustomMarker(latLng, name, snippet);
     }
