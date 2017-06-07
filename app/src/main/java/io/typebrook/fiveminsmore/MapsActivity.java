@@ -10,12 +10,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -24,7 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -69,13 +66,14 @@ import java.util.List;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
-import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
+import jsqlite.Database;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -324,6 +322,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_help:
+                new PoiSearchTask(this, "Restaurants").
+                        execute(mMap.getProjection().getVisibleRegion().latLngBounds);
                 break;
         }
     }
@@ -513,6 +513,10 @@ public class MapsActivity extends AppCompatActivity implements
         if (errorCode == ConnectionResult.SERVICE_MISSING) {
             Toast.makeText(this, R.string.google_play_service_missing, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public MapsManager getmMapsManager(){
+        return mMapsManager;
     }
 
     // Check for permission to access Location

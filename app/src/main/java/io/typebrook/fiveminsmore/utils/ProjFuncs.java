@@ -70,6 +70,13 @@ public class ProjFuncs {
         return "東經" + lon + "度，" + "北緯" + lat + "度";
     }
 
+    public static String latLng2String(Double latitude, Double longitude){
+        String lat = simpleLatLng(latitude);
+        String lon = simpleLatLng(longitude);
+
+        return "東經" + lon + "度，" + "北緯" + lat + "度";
+    }
+
     public static String simpleLatLng(Double num){
         return String.format(Locale.getDefault(), "%.6f", num);
     }

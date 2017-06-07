@@ -39,7 +39,7 @@ public class CoorTileProvider implements TileProvider {
 
     @Override
     public Tile getTile(int x, int y, int zoom) {
-        Bitmap coorTile = drawTileCoords(x, y, zoom);
+        Bitmap coorTile = drawTileCoors(x, y, zoom);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         coorTile.compress(Bitmap.CompressFormat.PNG, 0, stream);
         byte[] bitmapData = stream.toByteArray();
@@ -47,7 +47,7 @@ public class CoorTileProvider implements TileProvider {
                 (int) (TILE_SIZE_DP * mScaleFactor), bitmapData);
     }
 
-    private Bitmap drawTileCoords(int x, int y, int zoom) {
+    private Bitmap drawTileCoors(int x, int y, int zoom) {
         // Synchronize copying the bitmap to avoid a race condition in some devices.
         Bitmap copy = null;
         synchronized (mBorderTile) {
