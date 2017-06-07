@@ -118,27 +118,26 @@ public class MapsManager implements
     }
 
     // Add SubMap for contrast
-    public void enableSubMap(GoogleMap map) {
-        mMaps.add(MAP_CODE_SUB, map);
+    public void enableSubMap(GoogleMap subMap) {
+        mMaps.add(MAP_CODE_SUB, subMap);
         mMapTiles.add(MAP_CODE_SUB, null);
         mMapAddTiles.add(MAP_CODE_SUB, null);
 
+        subMap.setMapType(MAP_TYPE_HYBRID);
+        subMap.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
         onCameraMove();
 
-        map.setMapType(MAP_TYPE_HYBRID);
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
-
         // 在Activity和Map物件註冊ClusterManager
-        mClusterManagers.add(MAP_CODE_SUB, new ClusterManager<CustomMarker>(mContext, map));
+        mClusterManagers.add(MAP_CODE_SUB, new ClusterManager<CustomMarker>(mContext, subMap));
         // The Rule about Cluster Managing
         mClusterManagers.get(MAP_CODE_SUB).setRenderer(
-                new CustomRenderer(mContext, map, mClusterManagers.get(MAP_CODE_SUB)));
+                new CustomRenderer(mContext, subMap, mClusterManagers.get(MAP_CODE_SUB)));
         mClusterManagers.get(MAP_CODE_SUB).setOnClusterClickListener(
                 (CustomRenderer) mClusterManagers.get(MAP_CODE_SUB).getRenderer());
         // Click on marker to open infoWindow
-        map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
+        subMap.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
         // Click on Cluster to zoom to Markers
-        map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_SUB));
+        subMap.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_SUB));
     }
 
     public void disableSubMap() {
@@ -150,8 +149,10 @@ public class MapsManager implements
         mMapAddTiles.remove(MAP_CODE_SUB);
         mClusterManagers.remove(MAP_CODE_SUB);
 
-        boundaryMainPolygon.remove();
-        boundaryMainPolygon = null;
+        if (boundaryMainPolygon != null) {
+            boundaryMainPolygon.remove();
+            boundaryMainPolygon = null;
+        }
     }
 
     public void setCurrentMap(int code) {
@@ -214,7 +215,7 @@ public class MapsManager implements
     public void onInfoWindowClick(Marker marker) {
         DetailDialog markerDetail = new DetailDialog();
         markerDetail.setArgs(mContext, marker.getTitle(), marker.getPosition());
-        markerDetail.show(((MapsActivity)mContext).getSupportFragmentManager(), "");
+        markerDetail.show(((MapsActivity) mContext).getSupportFragmentManager(), "");
     }
 
     @Override
@@ -285,6 +286,7 @@ public class MapsManager implements
             boundaryMainPolygon.remove();
             boundaryMainPolygon = null;
         }
+        onCameraMove();
     }
 
     // Set the TileOverlay
@@ -380,7 +382,7 @@ public class MapsManager implements
                                     mMapAddTiles.set(currentMapCode, null);
                                 } else {
                                     mMapAddTiles.set(currentMapCode, mMaps.get(currentMapCode).addTileOverlay(
-                                                    new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
+                                            new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
                                     mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
                                 }
                         }
