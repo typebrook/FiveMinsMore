@@ -43,4 +43,11 @@ public class Constant {
     // Interval for tracking
     static final int TIME_INTERVAL_FOR_TRACKING = 5;
     static int DISTANCE_INTERVAL_FOR_TRKPTS = 10;
+
+    // Default Categories for POI
+    public static final String[] POI_SEARCH_LIST = {
+            "Natural",
+            "Places",
+            "Tourism"
+    };
 }

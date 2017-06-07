@@ -87,6 +87,8 @@ public class MapsManager implements
 
     private boolean isMapsSync = false;
 
+    public List<CustomMarker> poiMarkers = new ArrayList<>();
+
     MapsManager(Activity context, GoogleMap map) {
         mContext = context;
         mMaps.add(MAP_CODE_MAIN, map);

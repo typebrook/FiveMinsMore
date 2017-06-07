@@ -42,21 +42,6 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
 
     @Override
     protected boolean shouldRenderAsCluster(Cluster<CustomMarker> cluster) {
-        LatLng pos1 = new LatLng(0, 0);
-        LatLng pos2 = new LatLng(0, 0);
-
-        // Always render clusters.
-        for (CustomMarker item : cluster.getItems()) {
-            if (pos1 == pos2)
-                pos1 = item.getPosition();
-            else
-                pos2 = item.getPosition();
-        }
-
-        if (SphericalUtil.computeDistanceBetween(pos1, pos2) > 20 && cluster.getSize() == 2){
-            return false;
-        }
-
         return cluster.getSize() > 1;
     }
 

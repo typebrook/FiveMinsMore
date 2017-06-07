@@ -70,6 +70,7 @@ import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
+import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -322,8 +323,45 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_help:
-                new PoiSearchTask(this, "Restaurants").
-                        execute(mMap.getProjection().getVisibleRegion().latLngBounds);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                builder.setTitle("POI搜尋");
+                String warning = "請輸入欲查詢文字，將在Natural/Places/Tourism等分類搜尋";
+                builder.setMessage(warning);
+
+                final EditText input = new EditText(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setNegativeButton("離開", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.setNeutralButton("清除興趣點", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        for (CustomMarker marker : mMapsManager.poiMarkers){
+                            mMapsManager.getClusterManager(0).removeItem(marker);
+                        }
+                        mMapsManager.getClusterManager(0).cluster();
+                    }
+                });
+                builder.setPositiveButton("搜尋", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new PoiSearchTask(getBaseContext(), mMapsManager,
+                                null, "%" + input.getText() + "%", 1000)
+                                .execute(mMap.getProjection().getVisibleRegion().latLngBounds);
+                    }
+                });
+
+                builder.show();
                 break;
         }
     }
@@ -515,7 +553,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-    public MapsManager getmMapsManager(){
+    public MapsManager getmMapsManager() {
         return mMapsManager;
     }
 
