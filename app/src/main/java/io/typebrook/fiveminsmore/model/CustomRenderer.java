@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
@@ -52,9 +53,9 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
                 pos2 = item.getPosition();
         }
 
-//        if (SphericalUtil.computeDistanceBetween(pos1, pos2) > 20 && cluster.getSize() == 2){
-//            return false;
-//        }
+        if (SphericalUtil.computeDistanceBetween(pos1, pos2) > 20 && cluster.getSize() == 2){
+            return false;
+        }
 
         return cluster.getSize() > 1;
     }

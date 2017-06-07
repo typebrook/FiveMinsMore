@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -186,6 +188,9 @@ public class MapsActivity extends AppCompatActivity implements
         // Add center cross into main map
         mCrossSet.add(MAP_CODE_MAIN, (ImageView) findViewById(R.id.cross));
 
+        //
+        mActionBar = getSupportActionBar();
+
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
         // 檢查是否紀錄航跡中
         isTracking = prefs.getBoolean("isTracking", false);
@@ -201,9 +206,6 @@ public class MapsActivity extends AppCompatActivity implements
                 prefs.getFloat("cameraLon", (float) TAIWAN_CENTER.longitude));
         Float lastZoom = prefs.getFloat("cameraZoom", STARTING_ZOOM);
         lastCameraPosition = new CameraPosition(lastTarget, lastZoom, 0, 0);
-
-        // Test
-        mActionBar = getSupportActionBar();
     }
 
     /**

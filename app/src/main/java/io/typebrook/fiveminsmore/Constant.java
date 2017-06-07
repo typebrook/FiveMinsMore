@@ -36,8 +36,9 @@ public class Constant {
     public static final String DEFAULT_THEME_PATH =
             Environment.getExternalStorageDirectory().getPath() + "/GTs/mapthemes/MOI_OSM.xml";
 
-    // Z-Index for different basemap
+    // Z-Index for different overlay or tiles
     public static final int ZINDEX_BASEMAP = -10;
+    public static final int ZINDEX_ADDTILE = 1;
 
     // Interval for tracking
     static final int TIME_INTERVAL_FOR_TRACKING = 5;

@@ -13,7 +13,8 @@ public class TileList {
             "正射影像圖",
             "離線地圖",
             "HappyMan",
-            "clear"};
+            "clear",
+            "Tile Grid"};
 
     // onlineMaps
     public static final String SINICA_URL_FORMAT = "http://gis.sinica.edu.tw/tileserver/file-exists.php?img=TM25K_2001-jpg-%d-%d-%d";

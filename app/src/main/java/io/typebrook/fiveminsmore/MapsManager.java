@@ -34,11 +34,13 @@ import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
 import io.typebrook.fiveminsmore.model.DetailDialog;
+import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;
 import io.typebrook.fiveminsmore.res.TileList;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_ADDTILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
 import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_SUFFIX;
@@ -350,7 +352,7 @@ public class MapsManager implements
                                 Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
                                 pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
                                 pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
-                                ((Activity) mContext).startActivityForResult(pickOfflineMapIntent,
+                                mContext.startActivityForResult(pickOfflineMapIntent,
                                         REQUEST_CODE_PICK_MAPSFORGE_FILE);
                                 break;
 
@@ -362,7 +364,7 @@ public class MapsManager implements
                                 } else {
                                     mMapAddTiles.set(currentMapCode,
                                             mMaps.get(currentMapCode).addTileOverlay(getTileSetting(HappyMan2_URL_FORMAT)));
-                                    mMapAddTiles.get(currentMapCode).setZIndex(-1);
+                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
                                 }
                                 break;
 
@@ -370,6 +372,17 @@ public class MapsManager implements
                                 mMaps.get(currentMapCode).clear();
                                 mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
                                 break;
+
+                            case 7:
+                                if (mMapAddTiles.get(currentMapCode) != null) {
+                                    mMapAddTiles.get(currentMapCode).remove();
+                                    mMapAddTiles.get(currentMapCode).clearTileCache();
+                                    mMapAddTiles.set(currentMapCode, null);
+                                } else {
+                                    mMapAddTiles.set(currentMapCode, mMaps.get(currentMapCode).addTileOverlay(
+                                                    new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
+                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
+                                }
                         }
                     }
                 }).show();
