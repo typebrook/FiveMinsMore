@@ -55,7 +55,7 @@ public class TrackingService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
         notificationBuilder.setContentTitle("紀錄航跡中")
                 .setContentText("" + date)
-                .setSmallIcon(R.drawable.ic_double_peek_24dp)
+                .setSmallIcon(R.drawable.ic_five_mins_more)
                 .setOngoing(true)
                 .setContentIntent(contentIntent);
         startForeground(ID_NOTIFICATION , notificationBuilder.build());

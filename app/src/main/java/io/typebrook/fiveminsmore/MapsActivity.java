@@ -417,19 +417,20 @@ public class MapsActivity extends AppCompatActivity implements
 
             // 閱讀模式
             case R.id.action_read:
-                if (CheckedMenuItem != null && item.getItemId() != CheckedMenuItem.getItemId())
-                    onOptionsItemSelected(CheckedMenuItem);
-
-                if (item.isChecked()) {
-                    if (mGpxManager.getGpxTree().getChildren().isEmpty()) {
-                        item.setChecked(false);
-                        break;
-                    }
-                    importReadFragment();
-                    CheckedMenuItem = item;
-                } else {
-                    removeReadFragment();
-                }
+                // TODO 先將閱讀模式停用
+//                if (CheckedMenuItem != null && item.getItemId() != CheckedMenuItem.getItemId())
+//                    onOptionsItemSelected(CheckedMenuItem);
+//
+//                if (item.isChecked()) {
+//                    if (mGpxManager.getGpxTree().getChildren().isEmpty()) {
+//                        item.setChecked(false);
+//                        break;
+//                    }
+//                    importReadFragment();
+//                    CheckedMenuItem = item;
+//                } else {
+//                    removeReadFragment();
+//                }
                 break;
 
             case R.id.gps:
