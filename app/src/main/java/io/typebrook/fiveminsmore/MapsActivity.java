@@ -328,7 +328,7 @@ public class MapsActivity extends AppCompatActivity implements
 
             case R.id.btn_search:
                 if (mPoiFile == null)
-                    PoiSearchTask.choosePoiFile(this);
+                    PoiSearchTask.pickPoiFile(this);
                 else
                     PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
         }
