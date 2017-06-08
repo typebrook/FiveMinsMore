@@ -70,7 +70,6 @@ import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
-import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -79,6 +78,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
+import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_POI_FILE;
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
 import static io.typebrook.fiveminsmore.Constant.TIME_INTERVAL_FOR_TRACKING;
@@ -151,6 +151,9 @@ public class MapsActivity extends AppCompatActivity implements
     KmlLayer kmlLayer;
     CameraPosition lastCameraPosition;
 
+    // File stores POIs
+    private String mPoiFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,9 +189,10 @@ public class MapsActivity extends AppCompatActivity implements
         // Add center cross into main map
         mCrossSet.add(MAP_CODE_MAIN, (ImageView) findViewById(R.id.cross));
 
-        //
+        // 取得ActionBar
         mActionBar = getSupportActionBar();
 
+        // 還原各項設定
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
         // 檢查是否紀錄航跡中
         isTracking = prefs.getBoolean("isTracking", false);
@@ -204,6 +208,9 @@ public class MapsActivity extends AppCompatActivity implements
                 prefs.getFloat("cameraLon", (float) TAIWAN_CENTER.longitude));
         Float lastZoom = prefs.getFloat("cameraZoom", STARTING_ZOOM);
         lastCameraPosition = new CameraPosition(lastTarget, lastZoom, 0, 0);
+
+        // 取得POI檔案
+        mPoiFile = prefs.getString("poiFIle", null);
     }
 
     /**
@@ -321,8 +328,10 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_search:
-                PoiSearchTask.searchInterface(this, mMapsManager);
-                break;
+                if (mPoiFile == null)
+                    PoiSearchTask.choosePoiFile(this);
+                else
+                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
         }
     }
 
@@ -363,6 +372,14 @@ public class MapsActivity extends AppCompatActivity implements
                 } catch (Exception e) {
                     Log.d(TAG, e.toString());
                 }
+                break;
+
+            case REQUEST_CODE_PICK_POI_FILE:
+                mPoiFile = fileList.get(0).getPath();
+                if (mPoiFile != null)
+                    onClick(findViewById(R.id.btn_search));
+                else
+                    Toast.makeText(this, "無法開啟檔案", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -460,6 +477,7 @@ public class MapsActivity extends AppCompatActivity implements
         editor.putFloat("cameraLat", (float) mMap.getCameraPosition().target.latitude);
         editor.putFloat("cameraLon", (float) mMap.getCameraPosition().target.longitude);
         editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
+        editor.putString("poiFIle", mPoiFile);
         editor.apply(); //important, otherwise it wouldn't save.
 
     }
