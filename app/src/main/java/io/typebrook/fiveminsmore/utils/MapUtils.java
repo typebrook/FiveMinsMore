@@ -62,4 +62,8 @@ public class MapUtils {
         }
         return latLngs;
     }
+
+    public static LatLngBounds getMapBounds(GoogleMap map){
+        return map.getProjection().getVisibleRegion().latLngBounds;
+    }
 }

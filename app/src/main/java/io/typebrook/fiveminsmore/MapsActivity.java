@@ -74,7 +74,6 @@ import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
-import jsqlite.Database;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -172,7 +171,7 @@ public class MapsActivity extends AppCompatActivity implements
         mTrackingBtn = (Button) findViewById(R.id.btn_tracking);
         mPickTilesBtn = (Button) findViewById(R.id.btn_pick_tiles);
         mGpxManagerBtn = (Button) findViewById(R.id.btn_gpx_files_list);
-        mHelpBtn = (Button) findViewById(R.id.btn_help);
+        mHelpBtn = (Button) findViewById(R.id.btn_search);
 
         mBtnsSet.add(mPickTilesBtn);
         mBtnsSet.add(mTrackingBtn);
@@ -314,7 +313,6 @@ public class MapsActivity extends AppCompatActivity implements
                     mMapsManager.setCurrentMap(MAP_CODE_MAIN);
                 else
                     mMapsManager.setCurrentMap(MAP_CODE_SUB);
-
                 break;
 
             case R.id.btn_sync:
@@ -322,46 +320,8 @@ public class MapsActivity extends AppCompatActivity implements
                 v.setSelected(!v.isSelected());
                 break;
 
-            case R.id.btn_help:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-                builder.setTitle("POI搜尋");
-                String warning = "請輸入欲查詢文字，將在Natural/Places/Tourism等分類搜尋";
-                builder.setMessage(warning);
-
-                final EditText input = new EditText(this);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                builder.setView(input);
-
-                // Set up the buttons
-                builder.setNegativeButton("離開", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.setNeutralButton("清除興趣點", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        for (CustomMarker marker : mMapsManager.poiMarkers){
-                            mMapsManager.getClusterManager(0).removeItem(marker);
-                        }
-                        mMapsManager.getClusterManager(0).cluster();
-                    }
-                });
-                builder.setPositiveButton("搜尋", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        new PoiSearchTask(getBaseContext(), mMapsManager,
-                                null, "%" + input.getText() + "%", 1000)
-                                .execute(mMap.getProjection().getVisibleRegion().latLngBounds);
-                    }
-                });
-
-                builder.show();
+            case R.id.btn_search:
+                PoiSearchTask.searchInterface(this, mMapsManager);
                 break;
         }
     }
@@ -466,7 +426,7 @@ public class MapsActivity extends AppCompatActivity implements
                 for (ImageView cross : mCrossSet)
                     cross.setVisibility(showCross ? View.VISIBLE : View.INVISIBLE);
 
-                View tvLatLon = findViewById(R.id.tvLatLon);
+                View tvLatLon = findViewById(R.id.tvCoord);
                 tvLatLon.setVisibility(showCross ? View.VISIBLE : View.INVISIBLE);
                 break;
 
@@ -553,7 +513,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-    public MapsManager getmMapsManager() {
+    public MapsManager getMapsManager() {
         return mMapsManager;
     }
 

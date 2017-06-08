@@ -36,6 +36,7 @@ import io.typebrook.fiveminsmore.model.CustomRenderer;
 import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;
 import io.typebrook.fiveminsmore.res.TileList;
+import io.typebrook.fiveminsmore.utils.MapUtils;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
@@ -95,7 +96,7 @@ public class MapsManager implements
         mMapTiles.add(MAP_CODE_MAIN, null);
         mMapAddTiles.add(MAP_CODE_MAIN, null);
         mZoomNumber = (TextView) context.findViewById(R.id.zoom_number);
-        mCrossCoor = (TextView) context.findViewById(R.id.tvLatLon);
+        mCrossCoor = (TextView) context.findViewById(R.id.tvCoord);
 
         // 註冊畫面縮放的監聽
         map.setOnCameraMoveListener(this);
@@ -257,7 +258,7 @@ public class MapsManager implements
                 mMaps.get(MAP_CODE_SUB).moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
             } else {
-                LatLngBounds latLngBounds = mMaps.get(MAP_CODE_MAIN).getProjection().getVisibleRegion().latLngBounds;
+                LatLngBounds latLngBounds = MapUtils.getMapBounds(mMaps.get(MAP_CODE_MAIN));
                 if (boundaryMainPolygon == null) {
                     boundaryMain = new PolygonOptions()
                             .addAll(getBounds(latLngBounds))
@@ -268,7 +269,6 @@ public class MapsManager implements
                     boundaryMainPolygon.setPoints(getBounds(latLngBounds));
                 }
             }
-
         }
     }
 

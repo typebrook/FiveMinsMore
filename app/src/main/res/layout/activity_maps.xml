@@ -85,14 +85,14 @@
             android:paddingTop="8.5dp" />
 
         <Button
-            android:id="@+id/btn_help"
+            android:id="@+id/btn_search"
             style="@style/button_map"
-            android:drawableTop="@drawable/ic_help_black_24dp"
+            android:drawableTop="@drawable/ic_search_black_24dp"
             android:paddingTop="8.5dp" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tvLatLon"
+        android:id="@+id/tvCoord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -101,5 +101,5 @@
         android:background="#80FFFFFF"
         android:gravity="center"
         android:padding="5dp"
-        tools:text="lat, lon" />
+        tools:text="lat 12.345, lon 67.890" />
 </RelativeLayout>
