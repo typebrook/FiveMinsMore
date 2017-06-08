@@ -161,7 +161,6 @@ public class MapsActivity extends AppCompatActivity implements
         // 取得地圖物件
         setContentView(R.layout.activity_maps);
         mLayoutContainer = (ViewGroup) findViewById(R.id.layout_container);
-        // Obtain the MapFragment and get notified when the map is ready to be used.
         mMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
 

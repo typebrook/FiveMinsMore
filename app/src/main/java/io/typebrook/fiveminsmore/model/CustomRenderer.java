@@ -3,6 +3,7 @@ package io.typebrook.fiveminsmore.model;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.TextView;
 
 import io.typebrook.fiveminsmore.R;

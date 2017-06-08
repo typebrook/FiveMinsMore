@@ -1,8 +1,6 @@
 package io.typebrook.fiveminsmore.utils;
 
-import android.app.Activity;
 import android.location.Location;
-import android.view.ViewGroup;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,12 +9,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.List;
 
 import io.typebrook.fiveminsmore.model.CustomMarker;
 
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
+import static io.typebrook.fiveminsmore.Constant.TAIWAN_BOUNDARY;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_ZOOM_MAX;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_ZOOM_MIN;
@@ -31,6 +29,7 @@ public class MapUtils {
     public static void setTaiwanBoundaries(GoogleMap map) {
         map.setMinZoomPreference(TAIWAN_ZOOM_MIN);
         map.setMaxZoomPreference(TAIWAN_ZOOM_MAX);
+        map.setLatLngBoundsForCameraTarget(TAIWAN_BOUNDARY);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(TAIWAN_CENTER, STARTING_ZOOM));
     }
 

@@ -215,19 +215,19 @@ public class MapsManager implements
     }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
-        DetailDialog markerDetail = new DetailDialog();
-        markerDetail.setArgs(mContext, marker.getTitle(), marker.getPosition());
-        markerDetail.show(((MapsActivity) mContext).getSupportFragmentManager(), "");
-    }
-
-    @Override
     public void onMarkerDragStart(Marker marker) {
         marker.hideInfoWindow();
     }
 
     @Override
     public void onMarkerDrag(Marker marker) {
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        DetailDialog markerDetail = new DetailDialog();
+        markerDetail.setArgs(mContext, marker.getTitle(), marker.getPosition());
+        markerDetail.show(((MapsActivity) mContext).getSupportFragmentManager(), "");
     }
 
     @Override

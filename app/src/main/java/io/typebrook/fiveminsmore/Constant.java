@@ -18,8 +18,10 @@ public class Constant {
     public static final File DIR_EXTERNAL = new File(Environment.getExternalStorageDirectory() + "/5MinsMore");
     public static final File DIR_GPX_FILE = new File(DIR_EXTERNAL.getPath() + "/gpx");
 
-    // Boundaries of TAIWAN
+    // Center and Boundaries of TAIWAN
     public static final LatLng TAIWAN_CENTER = new LatLng(23.76, 120.96);
+    public static final LatLngBounds TAIWAN_BOUNDARY = new LatLngBounds(
+            new LatLng(20, 119), new LatLng(26.5, 123));
 
     // ZOOM restriction of TAIWAN
     public static final int TAIWAN_ZOOM_MIN = 7;
