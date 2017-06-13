@@ -125,7 +125,6 @@ public class MapsActivity extends AppCompatActivity implements
     // 紀錄現在航跡
     private List<Location> mMyTrkpts = new ArrayList<>();
     private Polyline mMyTrackOnMap;
-    private boolean isTracking = false;
 
     // 按鈕群組
     private List<View> mBtnsSet = new ArrayList<>();
@@ -194,8 +193,8 @@ public class MapsActivity extends AppCompatActivity implements
         // 還原各項設定
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
         // 檢查是否紀錄航跡中
-        isTracking = prefs.getBoolean("isTracking", false);
-        if (isTracking) {
+        mTrackingBtn.setSelected(prefs.getBoolean("isTracking", false));
+        if (mTrackingBtn.isSelected()) {
             // bind TrackingService
             Intent bindIntent = new Intent(this, TrackingService.class);
             bindService(bindIntent, this, BIND_AUTO_CREATE);
@@ -267,7 +266,6 @@ public class MapsActivity extends AppCompatActivity implements
                     mActionBar.hide();
                 else
                     mActionBar.show();
-
                 break;
 
             case R.id.btn_pick_tiles:
@@ -275,17 +273,22 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_tracking:
-                isTracking = !isTracking;
-
-                if (isTracking) {
+                if (!mTrackingBtn.isSelected()) {
                     // 檢查GPS設定
-                    checkBeforeStartTracking();
+                    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                            .addLocationRequest(mLocationRequest);
+
+                    PendingResult<LocationSettingsResult> result =
+                            LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                                    builder.build());
+
+                    result.setResultCallback(this);
                 } else {
                     // 移除FusedLocationApi
                     removeLocationUpdates();
                     // Save to GPX file
                     saveToGpxFile();
-
+                    // 改變按鈕顏色
                     mTrackingBtn.setSelected(false);
                 }
                 break;
@@ -473,7 +476,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("isTracking", isTracking);
+        editor.putBoolean("isTracking", mTrackingBtn.isSelected());
         editor.putFloat("cameraLat", (float) mMap.getCameraPosition().target.latitude);
         editor.putFloat("cameraLon", (float) mMap.getCameraPosition().target.longitude);
         editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
@@ -695,6 +698,9 @@ public class MapsActivity extends AppCompatActivity implements
 
     // 開始紀錄航跡
     private void startTracking() {
+        // 將按鈕變紅
+        mTrackingBtn.setSelected(true);
+
         // 檢查飛航模式
         askAirPlaneMode();
 
@@ -705,50 +711,75 @@ public class MapsActivity extends AppCompatActivity implements
         requestLocationUpdates();
     }
 
-    // 收到目前的定位設定
+    // 收到目前的定位設定，若未開啟定位，則提醒使用者
     @Override
     public void onResult(@NonNull LocationSettingsResult result) {
         final LocationSettingsStates states = result.getLocationSettingsStates();
         if (!states.isGpsUsable() || states.isNetworkLocationUsable()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-            builder.setTitle("提醒一下");
-
-            String warning = "要開始紀錄航跡了!" + "\n\n若接下來的路徑上沒有基地台，建議定位模式使用「僅用GPS」，可以更節約電量。";
             if (!states.isLocationUsable()) {
-                builder.setTitle("哎呀糟糕了");
-                warning = "紀錄航跡需要開啟定位功能，您目前還沒有把該功能啟用。" + "\n\nPS: " + warning;
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setCancelable(false);
-            } else {
-                builder.setNeutralButton("這樣就好", new DialogInterface.OnClickListener() {
+                builder.setTitle("哎呀糟糕了");
+                String warning = "紀錄航跡需要開啟定位功能，您目前還沒有把該功能啟用。";
+                builder.setMessage(warning);
+
+                builder.setPositiveButton("馬上設定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        startTracking();
+                        Intent GpsConfigIntent = new Intent(
+                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(GpsConfigIntent);
                     }
                 });
+
+                builder.setNegativeButton("離開", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mTrackingBtn.setSelected(false);
+                    }
+                });
+
+                builder.setCancelable(false);
+                builder.show();
+            } else {
+                askLocationProvider();
             }
-            builder.setMessage(warning);
-
-            builder.setPositiveButton("馬上設定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent GpsConfigIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(GpsConfigIntent);
-                    startTracking();
-                }
-            });
-
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    isTracking = false;
-                }
-            });
-
-            builder.show();
         }
+    }
+
+    private void askLocationProvider() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("提醒一下");
+
+        String warning = "要開始紀錄航跡了!\n\n若接下來的路徑上沒有基地台，建議定位模式使用「僅用GPS」，可以更節約電量。";
+        builder.setMessage(warning);
+
+        builder.setNeutralButton("這樣就好", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                startTracking();
+            }
+        });
+
+        builder.setPositiveButton("馬上設定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent GpsConfigIntent = new Intent(
+                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(GpsConfigIntent);
+                startTracking();
+            }
+        });
+
+        builder.setNegativeButton("離開", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mTrackingBtn.setSelected(false);
+            }
+        });
+        builder.show();
     }
 
     // Ask whether set Airplane Mode
@@ -902,16 +933,5 @@ public class MapsActivity extends AppCompatActivity implements
     public void getServiceData(Location location) {
         mCurrentLocation = location;
         updateTrackPts(false);
-    }
-
-    private void checkBeforeStartTracking() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-                        builder.build());
-
-        result.setResultCallback(this);
     }
 }
