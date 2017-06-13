@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.clustering.ClusterManager;
 import com.unnamed.b.atv.model.TreeNode;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
@@ -64,6 +65,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             public void onClick(View v) {
                 nodeSelector.setChecked(false);
                 getTreeView().removeNode(node);
+                manager.clusterTheMarkers();
             }
         });
 

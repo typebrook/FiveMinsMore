@@ -100,7 +100,7 @@ public class TrackingService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(getBaseContext(), "service destroyed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getBaseContext(), "結束紀錄航跡", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 

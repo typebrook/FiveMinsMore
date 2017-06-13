@@ -646,7 +646,6 @@ public class MapsActivity extends AppCompatActivity implements
         java.util.Calendar mCal = java.util.Calendar.getInstance();
         CharSequence timeString = DateFormat.format("yyyy-MM-dd_kk-mm-ss", mCal.getTime());
         input.setText(timeString);
-        final String trkName = input.getText().toString();
         builder.setView(input);
 
         // Set up the buttons
@@ -659,11 +658,13 @@ public class MapsActivity extends AppCompatActivity implements
         builder.setPositiveButton("儲存為GPX檔", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                final String trkName = input.getText().toString();
                 GpxUtils.polyline2Xml(getBaseContext(), trkName, mMyTrkpts);
+
+                // 將航跡加入GpxManager
+                mGpxManager.add(GpxUtils.locs2TreeNode(trkName, mMyTrkpts), mMapsManager);
             }
         });
-        // 將航跡加入GpxManager
-        mGpxManager.add(GpxUtils.locs2TreeNode(trkName, mMyTrkpts), mMapsManager);
 
         builder.setCancelable(false);
         builder.show();

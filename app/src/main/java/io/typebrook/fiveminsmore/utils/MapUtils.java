@@ -34,6 +34,9 @@ public class MapUtils {
     }
 
     public static void zoomToPolyline(GoogleMap map, Polyline p) {
+        if (p.getPoints().isEmpty())
+            return;
+
         LatLngBounds.Builder builder = LatLngBounds.builder();
 
         for (LatLng latLng : p.getPoints()) {

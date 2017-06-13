@@ -186,6 +186,21 @@ public class MapsManager implements
         return mClusterManagers.get(mapCode);
     }
 
+    public void clusterTheMarkers(){
+        for (ClusterManager<CustomMarker> manager : mClusterManagers)
+            manager.cluster();
+    }
+
+    public List<LatLng> getBounds(LatLngBounds b) {
+        List<LatLng> list = new ArrayList<>();
+        list.add(b.northeast);
+        list.add(new LatLng(b.northeast.latitude, b.southwest.longitude));
+        list.add(b.southwest);
+        list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
+
+        return list;
+    }
+
     @Override
     public void onMapClick(LatLng latLng) {
         if (mMarker != null) {
@@ -270,16 +285,6 @@ public class MapsManager implements
                 }
             }
         }
-    }
-
-    public List<LatLng> getBounds(LatLngBounds b) {
-        List<LatLng> list = new ArrayList<>();
-        list.add(b.northeast);
-        list.add(new LatLng(b.northeast.latitude, b.southwest.longitude));
-        list.add(b.southwest);
-        list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
-
-        return list;
     }
 
     void changeSyncMaps() {
