@@ -28,17 +28,17 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
         ClusterManager.OnClusterClickListener<CustomMarker> {
 
     private final IconGenerator mIconGenerator;
-    private Context mContext;
+    private Activity mActivity;
     private GoogleMap mMap;
 
-    public CustomRenderer(Context context, GoogleMap map, ClusterManager<CustomMarker> clusterManager) {
-        super(context, map, clusterManager);
-        mContext = context;
+    public CustomRenderer(Activity activity, GoogleMap map, ClusterManager<CustomMarker> clusterManager) {
+        super(activity, map, clusterManager);
+        mActivity = activity;
         mMap = map;
 
         // Define Custom icon
-        mIconGenerator = new IconGenerator(context);
-        mIconGenerator.setBackground(context.getResources().getDrawable(R.drawable.ic_waypt));
+        mIconGenerator = new IconGenerator(activity);
+        mIconGenerator.setBackground(activity.getResources().getDrawable(R.drawable.ic_waypt));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class CustomRenderer extends DefaultClusterRenderer<CustomMarker> impleme
     @Override
     protected void onBeforeClusterItemRendered(CustomMarker item, MarkerOptions markerOptions) {
         // Set the info window to show their name.
-        TextView tv = (TextView) ((Activity) mContext).getLayoutInflater().inflate(R.layout.view_cluster_item, null);
+        TextView tv = (TextView) mActivity.getLayoutInflater().inflate(R.layout.view_cluster_item, null);
         tv.setText(item.getTitle());
         mIconGenerator.setContentView(tv);
         Bitmap icon = mIconGenerator.makeIcon();

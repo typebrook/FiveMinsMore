@@ -30,6 +30,7 @@ public class CoorTileProvider implements TileProvider {
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setStrokeWidth(5f);
         borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setColor(Color.WHITE);
         mBorderTile = Bitmap.createBitmap((int) (TILE_SIZE_DP * mScaleFactor),
                 (int) (TILE_SIZE_DP * mScaleFactor), android.graphics.Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mBorderTile);
