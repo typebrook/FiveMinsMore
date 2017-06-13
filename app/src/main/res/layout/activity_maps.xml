@@ -34,12 +34,20 @@
                 tools:context="io.typebrook.fiveminsmore.MapsActivity" />
 
 
+            <Button
+                android:id="@+id/btn_switch"
+                style="@style/button_map"
+                android:layout_above="@+id/zoom_number"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="9.8dp"
+                android:text="隱藏" />
+
             <TextView
                 android:id="@+id/zoom_number"
                 style="@style/button_map"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginBottom="92dp"
+                android:layout_marginBottom="91.5dp"
                 android:layout_marginRight="9.8dp"
                 android:textSize="20sp"
                 tools:text="10" />
@@ -60,11 +68,6 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="9.8dp"
         android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btn_switch"
-            style="@style/button_map"
-            android:text="隱藏" />
 
         <Button
             android:id="@+id/btn_tracking"
