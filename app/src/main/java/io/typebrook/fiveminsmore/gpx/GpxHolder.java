@@ -107,6 +107,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 for (int mapCode = 0; mapCode < manager.getMapsNum(); mapCode++) {
                     switch (value.type) {
                         case ITEM_TYPE_GPX:
+                            manager.getClusterManager(mapCode).cluster();
                             break;
                         case ITEM_TYPE_TRACK:
                             if (isChecked) {
@@ -219,7 +220,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 return new GpxTreeItem(this);
             }
         }
-
     }
 
     public static final int ITEM_TYPE_GPX = 1;
