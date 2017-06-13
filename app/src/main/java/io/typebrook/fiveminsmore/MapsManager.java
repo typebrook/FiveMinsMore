@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -59,7 +61,8 @@ public class MapsManager implements
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMarkerDragListener,
-        GoogleMap.OnCameraMoveListener {
+        GoogleMap.OnCameraMoveListener,
+        GoogleMap.OnPoiClickListener {
     private static final String TAG = "MapsManager";
 
     protected static final int MAP_CODE_MAIN = 0;
@@ -118,6 +121,8 @@ public class MapsManager implements
         map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_MAIN));
         // Click on Cluster to zoom to Markers
         map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_MAIN));
+        // Test for poi
+        map.setOnPoiClickListener(this);
     }
 
     // Add SubMap for contrast
@@ -186,7 +191,7 @@ public class MapsManager implements
         return mClusterManagers.get(mapCode);
     }
 
-    public void clusterTheMarkers(){
+    public void clusterTheMarkers() {
         for (ClusterManager<CustomMarker> manager : mClusterManagers)
             manager.cluster();
     }
@@ -199,6 +204,20 @@ public class MapsManager implements
         list.add(new LatLng(b.southwest.latitude, b.northeast.longitude));
 
         return list;
+    }
+
+    public void addTempMarker(String title, LatLng latLng){
+        mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(title == null ? "點選位置" : title)
+                        .snippet(ProjFuncs.latLng2String(latLng))
+                        .draggable(true)
+//                        .anchor(0.5f, 0.5f)
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
+        );
+
+        mMarker.showInfoWindow();
+        mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -215,18 +234,9 @@ public class MapsManager implements
         if (mMarker != null) {
             mMarker.remove();
             mMarker = null;
+        } else{
+            addTempMarker(null, latLng);
         }
-        mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("點選位置")
-                        .snippet(ProjFuncs.latLng2String(latLng))
-                        .draggable(true)
-//                        .anchor(0.5f, 0.5f)
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
-        );
-
-        mMarker.showInfoWindow();
-        mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -285,6 +295,11 @@ public class MapsManager implements
                 }
             }
         }
+    }
+
+    @Override
+    public void onPoiClick(PointOfInterest poi) {
+        addTempMarker(poi.name, poi.latLng);
     }
 
     void changeSyncMaps() {
