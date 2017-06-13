@@ -133,7 +133,7 @@ public class MapsActivity extends AppCompatActivity implements
     private Button mTrackingBtn;
     private Button mPickTilesBtn;
     private Button mGpxManagerBtn;
-    private Button mHelpBtn;
+    private Button mPoiSearchBtn;
     private ImageButton mTopMapBtn;
     private ImageButton mBottomMapBtn;
     // 準心十字
@@ -172,12 +172,12 @@ public class MapsActivity extends AppCompatActivity implements
         mTrackingBtn = (Button) findViewById(R.id.btn_tracking);
         mPickTilesBtn = (Button) findViewById(R.id.btn_pick_tiles);
         mGpxManagerBtn = (Button) findViewById(R.id.btn_gpx_files_list);
-        mHelpBtn = (Button) findViewById(R.id.btn_search);
+        mPoiSearchBtn = (Button) findViewById(R.id.btn_search);
 
         mBtnsSet.add(mPickTilesBtn);
         mBtnsSet.add(mTrackingBtn);
         mBtnsSet.add(mGpxManagerBtn);
-        mBtnsSet.add(mHelpBtn);
+        mBtnsSet.add(mPoiSearchBtn);
 
         mSwitchBtn.setOnClickListener(this);
         for (View btn : mBtnsSet) {
@@ -331,7 +331,7 @@ public class MapsActivity extends AppCompatActivity implements
 
             case R.id.btn_search:
                 if (mPoiFile == null)
-                    PoiSearchTask.pickPoiFile(this);
+                    PoiSearchTask.suggestToPickPoiFile(this);
                 else
                     PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
         }
@@ -378,10 +378,10 @@ public class MapsActivity extends AppCompatActivity implements
 
             case REQUEST_CODE_PICK_POI_FILE:
                 mPoiFile = fileList.get(0).getPath();
-                if (mPoiFile != null)
-                    onClick(findViewById(R.id.btn_search));
-                else
+                if (mPoiFile == null)
                     Toast.makeText(this, "無法開啟檔案", Toast.LENGTH_SHORT).show();
+                else
+                    onClick(mPoiSearchBtn);
                 break;
         }
     }
