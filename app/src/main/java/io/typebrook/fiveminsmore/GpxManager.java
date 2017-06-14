@@ -16,6 +16,10 @@ import com.unnamed.b.atv.view.AndroidTreeView;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 
@@ -80,9 +84,7 @@ public class GpxManager {
 
     public void add(File file, MapsManager manager) {
         try {
-            Gpx gpx = GpxUtils.parseGpx(new FileInputStream(file));
-
-            TreeNode gpxRoot = GpxUtils.gpxFile2TreeNode(file.getName(), gpx);
+            TreeNode gpxRoot = GpxUtils.gpxFile2TreeNode(file);
             gpxRoot.setViewHolder(new GpxHolder(mContext, manager));
 
             treeView.addNode(root, gpxRoot);
@@ -111,5 +113,13 @@ public class GpxManager {
 
     public TreeNode getGpxTree() {
         return root;
+    }
+
+    public Set<String> getGpxList() {
+        Set<String> list = new TreeSet<>();
+        for (TreeNode node : root.getChildren()){
+            list.add(((GpxHolder.GpxTreeItem)node.getValue()).gpxPath);
+        }
+        return list;
     }
 }

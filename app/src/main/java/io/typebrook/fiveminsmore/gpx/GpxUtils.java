@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,42 +101,49 @@ public class GpxUtils {
         return new CustomMarker(latLng, name, snippet);
     }
 
-    public static TreeNode gpxFile2TreeNode(String filename, Gpx gpx) {
-        GpxHolder.GpxTreeItem.Builder gpx_builder = new GpxHolder.GpxTreeItem.Builder();
-        TreeNode gpxRoot = new TreeNode(gpx_builder
-                .setType(GpxHolder.ITEM_TYPE_GPX)
-                .setIcon(GpxHolder.ITEM_ICON_GPX)
-                .setText(filename)
-                .setGpx(gpx)
-                .build());
-
-        List<Track> tracks = gpx.getTracks();
-        if (tracks.size() > 1) {
-            TreeNode node_trks = new TreeNode(gpx_builder
+    public static TreeNode gpxFile2TreeNode(File gpxFile) {
+        try {
+            Gpx gpx = GpxUtils.parseGpx(new FileInputStream(gpxFile));
+            GpxHolder.GpxTreeItem.Builder gpx_builder = new GpxHolder.GpxTreeItem.Builder();
+            TreeNode gpxRoot = new TreeNode(gpx_builder
                     .setType(GpxHolder.ITEM_TYPE_GPX)
-                    .setIcon(GpxHolder.ITEM_ICON_TRACK)
-                    .setText("航跡")
+                    .setIcon(GpxHolder.ITEM_ICON_GPX)
+                    .setName(gpxFile.getName())
+                    .setPath(gpxFile.getPath())
+                    .setGpx(gpx)
                     .build());
-            gpxRoot.addChild(node_trks);
-            addTrks2Node(node_trks, tracks);
-        } else {
-            addTrks2Node(gpxRoot, tracks);
-        }
 
-        List<WayPoint> wpts = gpx.getWayPoints();
-        if (wpts.size() > 1) {
-            TreeNode node_wpts = new TreeNode(gpx_builder
-                    .setType(GpxHolder.ITEM_TYPE_WAYPOINTS)
-                    .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
-                    .setText("航點")
-                    .build());
-            gpxRoot.addChild(node_wpts);
-            addWpts2Node(node_wpts, wpts);
-        } else {
-            addWpts2Node(gpxRoot, wpts);
-        }
+            List<Track> tracks = gpx.getTracks();
+            if (tracks.size() > 1) {
+                TreeNode node_trks = new TreeNode(gpx_builder
+                        .setType(GpxHolder.ITEM_TYPE_GPX)
+                        .setIcon(GpxHolder.ITEM_ICON_TRACK)
+                        .setName("航跡")
+                        .build());
+                gpxRoot.addChild(node_trks);
+                addTrks2Node(node_trks, tracks);
+            } else {
+                addTrks2Node(gpxRoot, tracks);
+            }
 
-        return gpxRoot;
+            List<WayPoint> wpts = gpx.getWayPoints();
+            if (wpts.size() > 1) {
+                TreeNode node_wpts = new TreeNode(gpx_builder
+                        .setType(GpxHolder.ITEM_TYPE_WAYPOINTS)
+                        .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
+                        .setName("航點")
+                        .build());
+                gpxRoot.addChild(node_wpts);
+                addWpts2Node(node_wpts, wpts);
+            } else {
+                addWpts2Node(gpxRoot, wpts);
+            }
+
+            return gpxRoot;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static void addTrks2Node(TreeNode node, List<Track> trks) {
@@ -144,7 +152,7 @@ public class GpxUtils {
             TreeNode trkNode = new TreeNode(trk_builder
                     .setType(GpxHolder.ITEM_TYPE_TRACK)
                     .setIcon(GpxHolder.ITEM_ICON_TRACK)
-                    .setText(trk.getTrackName())
+                    .setName(trk.getTrackName())
                     .setTrkOpts(GpxUtils.trk2TrkOpts(trk))
                     .build());
             node.addChildren(trkNode);
@@ -157,7 +165,7 @@ public class GpxUtils {
             TreeNode wptNode = new TreeNode(wpt_builder
                     .setType(GpxHolder.ITEM_TYPE_WAYPOINT)
                     .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
-                    .setText(wpt.getName())
+                    .setName(wpt.getName())
                     .setMarker(wpt)
                     .build());
             node.addChildren(wptNode);
@@ -172,7 +180,7 @@ public class GpxUtils {
         return new TreeNode(trk_builder
                 .setType(GpxHolder.ITEM_TYPE_TRACK)
                 .setIcon(GpxHolder.ITEM_ICON_TRACK)
-                .setText(trkName)
+                .setName(trkName)
                 .setTrkOpts(opts)
                 .build());
     }

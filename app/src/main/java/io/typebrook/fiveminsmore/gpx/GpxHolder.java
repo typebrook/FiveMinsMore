@@ -7,16 +7,16 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.clustering.ClusterManager;
 import com.unnamed.b.atv.model.TreeNode;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
-import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.MapsActivity;
 import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
@@ -50,7 +50,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         iconView.setImageResource(value.icon);
 
         TextView textView = (TextView) view.findViewById(R.id.tree_item_text);
-        textView.setText(value.text);
+        textView.setText(value.gpxName);
 
         arrowView = (PrintView) view.findViewById(R.id.arrow_icon);
         if (node.isLeaf()) {
@@ -154,10 +154,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     public static class GpxTreeItem {
         public int type;
         public int icon;
-        public String text;
+        public String gpxName;
 
         // attribute for GPX
         public Gpx gpx;
+        public String gpxPath;
 
         // attribute for WayPoint
         public CustomMarker marker;
@@ -170,8 +171,9 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public GpxTreeItem(Builder builder) {
             type = builder.type;
             icon = builder.icon;
-            text = builder.text;
+            gpxName = builder.gpxName;
             gpx = builder.gpx;
+            gpxPath = builder.gpxPath;
             marker = builder.marker;
             trkOpts = builder.trkOpts;
         }
@@ -179,8 +181,9 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public static class Builder {
             private int type;
             private int icon;
-            private String text;
+            private String gpxName;
             private Gpx gpx;
+            private String gpxPath;
             private CustomMarker marker;
             private PolylineOptions trkOpts;
 
@@ -194,8 +197,13 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 return this;
             }
 
-            public Builder setText(String text) {
-                this.text = text;
+            public Builder setName(String gpxName) {
+                this.gpxName = gpxName;
+                return this;
+            }
+
+            public Builder setPath(String gpxPath) {
+                this.gpxPath = gpxPath;
                 return this;
             }
 

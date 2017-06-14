@@ -55,6 +55,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.data.kml.KmlLayer;
+import com.unnamed.b.atv.model.TreeNode;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
@@ -62,21 +63,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
-import io.typebrook.fiveminsmore.model.ScaleBar;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -157,7 +155,7 @@ public class MapsActivity extends AppCompatActivity implements
     // File stores POIs
     private String mPoiFile;
     // GPX files we opened
-    private Set<String> mGpxFiles = new TreeSet<>();
+    private Set<String> mGpxFileList = new TreeSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,7 +215,7 @@ public class MapsActivity extends AppCompatActivity implements
         mPoiFile = prefs.getString("poiFile", null);
 
         // 取得已開啟的GPX檔案
-        mGpxFiles = prefs.getStringSet("gpxFiles", mGpxFiles);
+        mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
     }
 
     /**
@@ -247,8 +245,8 @@ public class MapsActivity extends AppCompatActivity implements
         mMapsManager.onCameraMove();
 
         // 開啟上次的GPX檔案
-        if (!mGpxFiles.isEmpty()){
-            for (String filePath : mGpxFiles){
+        if (!mGpxFileList.isEmpty()) {
+            for (String filePath : mGpxFileList) {
                 File file = new File(filePath);
                 mGpxManager.add(file, mMapsManager);
             }
@@ -347,10 +345,11 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_search:
-                if (mPoiFile == null)
-                    PoiSearchTask.suggestToPickPoiFile(this);
-                else
-                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
+//                if (mPoiFile == null)
+//                    PoiSearchTask.suggestToPickPoiFile(this);
+//                else
+//                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
+                showGpxList();
         }
     }
 
@@ -367,7 +366,6 @@ public class MapsActivity extends AppCompatActivity implements
         switch (requestCode) {
             case REQUEST_CODE_PICK_GPX_FILE:
                 for (NormalFile fileData : fileList) {
-                    mGpxFiles.add(fileData.getPath());
                     File file = new File(fileData.getPath());
                     mGpxManager.add(file, mMapsManager);
                 }
@@ -499,7 +497,7 @@ public class MapsActivity extends AppCompatActivity implements
         editor.putFloat("cameraLon", (float) mMap.getCameraPosition().target.longitude);
         editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
         editor.putString("poiFile", mPoiFile);
-        editor.putStringSet("gpxFiles", mGpxFiles);
+        editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
         editor.apply(); //important, otherwise it wouldn't save.
     }
 
@@ -657,6 +655,7 @@ public class MapsActivity extends AppCompatActivity implements
         stopService(mServiceIntent);
     }
 
+    // 將紀錄的航跡儲存為檔案
     private void saveToGpxFile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("請輸入航跡名稱");
@@ -689,6 +688,13 @@ public class MapsActivity extends AppCompatActivity implements
 
         builder.setCancelable(false);
         builder.show();
+    }
+
+    public void showGpxList() {
+        Log.d(TAG, "GpxList num:" + mGpxFileList.size());
+        for (String path : mGpxFileList) {
+            Log.d(TAG, path);
+        }
     }
 
     // 更新螢幕上的航跡

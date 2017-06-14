@@ -16,7 +16,7 @@
     <string name="setting_cross">顯示/隱藏中心點</string>
     <string name="about">關於</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder gpxName -->
     <string name="gpx_manager_default_text">尚未匯入任何航跡及航點</string>
 
     <!--icon for tree view-->
