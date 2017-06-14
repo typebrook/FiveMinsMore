@@ -62,7 +62,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
@@ -73,6 +76,7 @@ import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
+import io.typebrook.fiveminsmore.model.ScaleBar;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
@@ -152,6 +156,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     // File stores POIs
     private String mPoiFile;
+    // GPX files we opened
+    private Set<String> mGpxFiles = new TreeSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,7 +214,10 @@ public class MapsActivity extends AppCompatActivity implements
         lastCameraPosition = new CameraPosition(lastTarget, lastZoom, 0, 0);
 
         // 取得POI檔案
-        mPoiFile = prefs.getString("poiFIle", null);
+        mPoiFile = prefs.getString("poiFile", null);
+
+        // 取得已開啟的GPX檔案
+        mGpxFiles = prefs.getStringSet("gpxFiles", mGpxFiles);
     }
 
     /**
@@ -236,6 +245,14 @@ public class MapsActivity extends AppCompatActivity implements
         else
             map.moveCamera(CameraUpdateFactory.newCameraPosition(lastCameraPosition));
         mMapsManager.onCameraMove();
+
+        // 開啟上次的GPX檔案
+        if (!mGpxFiles.isEmpty()){
+            for (String filePath : mGpxFiles){
+                File file = new File(filePath);
+                mGpxManager.add(file, mMapsManager);
+            }
+        }
 
         // TODO add blue dot beam to indicate user direction
     }
@@ -350,6 +367,7 @@ public class MapsActivity extends AppCompatActivity implements
         switch (requestCode) {
             case REQUEST_CODE_PICK_GPX_FILE:
                 for (NormalFile fileData : fileList) {
+                    mGpxFiles.add(fileData.getPath());
                     File file = new File(fileData.getPath());
                     mGpxManager.add(file, mMapsManager);
                 }
@@ -480,9 +498,9 @@ public class MapsActivity extends AppCompatActivity implements
         editor.putFloat("cameraLat", (float) mMap.getCameraPosition().target.latitude);
         editor.putFloat("cameraLon", (float) mMap.getCameraPosition().target.longitude);
         editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
-        editor.putString("poiFIle", mPoiFile);
+        editor.putString("poiFile", mPoiFile);
+        editor.putStringSet("gpxFiles", mGpxFiles);
         editor.apply(); //important, otherwise it wouldn't save.
-
     }
 
     @Override

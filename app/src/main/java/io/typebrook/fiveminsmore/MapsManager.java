@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
 import io.typebrook.fiveminsmore.model.DetailDialog;
+import io.typebrook.fiveminsmore.model.ScaleBar;
 import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;
 import io.typebrook.fiveminsmore.res.TileList;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -62,6 +64,7 @@ public class MapsManager implements
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnCameraMoveListener,
+        GoogleMap.OnCameraIdleListener,
         GoogleMap.OnPoiClickListener {
     private static final String TAG = "MapsManager";
 
@@ -82,16 +85,21 @@ public class MapsManager implements
     private List<TileOverlay> mMapAddTiles = new ArrayList<>();
     private List<ClusterManager<CustomMarker>> mClusterManagers = new ArrayList<>();
 
-    // Temporary marker
-    private Marker mMarker;
-
     // Boundary of Main map
     private PolygonOptions boundaryMain;
     private Polygon boundaryMainPolygon;
 
+    // Temporary marker
+    private Marker mTempMarker;
+
+    // whether subMap's camera is sync
     private boolean isMapsSync = false;
 
+    // markers from PoiSearchTask
     public List<CustomMarker> poiMarkers = new ArrayList<>();
+
+    // Container of ScaleBar
+    ScaleBar mScaleBar;
 
     MapsManager(Activity context, GoogleMap map) {
         mContext = context;
@@ -100,6 +108,11 @@ public class MapsManager implements
         mMapAddTiles.add(MAP_CODE_MAIN, null);
         mZoomNumber = (TextView) context.findViewById(R.id.zoom_number);
         mCrossCoor = (TextView) context.findViewById(R.id.tvCoord);
+        RelativeLayout container = (RelativeLayout) context.findViewById(R.id.layout_container);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(800, 800);
+        mScaleBar = new ScaleBar(mContext, getMap(MAP_CODE_MAIN));
+        mScaleBar.setLayoutParams(params);
+        container.addView(mScaleBar);
 
         // 註冊畫面縮放的監聽
         map.setOnCameraMoveListener(this);
@@ -109,6 +122,7 @@ public class MapsManager implements
         map.setOnMapLongClickListener(this);
         map.setOnInfoWindowClickListener(this);
         map.setOnMarkerDragListener(this);
+        map.setOnCameraIdleListener(this);
 
         // 在Activity和Map物件註冊ClusterManager
         mClusterManagers.add(MAP_CODE_MAIN, new ClusterManager<CustomMarker>(mContext, map));
@@ -119,9 +133,7 @@ public class MapsManager implements
                 (CustomRenderer) mClusterManagers.get(MAP_CODE_MAIN).getRenderer());
         // Click on marker to open infoWindow
         map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_MAIN));
-        // Click on Cluster to zoom to Markers
-        map.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_MAIN));
-        // Test for poi
+        // POI in Google map
         map.setOnPoiClickListener(this);
     }
 
@@ -145,7 +157,7 @@ public class MapsManager implements
         // Click on marker to open infoWindow
         subMap.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
         // Click on Cluster to zoom to Markers
-        subMap.setOnCameraIdleListener(mClusterManagers.get(MAP_CODE_SUB));
+        subMap.setOnCameraIdleListener(this);
     }
 
     public void disableSubMap() {
@@ -187,8 +199,8 @@ public class MapsManager implements
         return mMapTiles;
     }
 
-    public ClusterManager<CustomMarker> getClusterManager(int mapCode) {
-        return mClusterManagers.get(mapCode);
+    public List<ClusterManager<CustomMarker>> getClusterManagers() {
+        return mClusterManagers;
     }
 
     public void clusterTheMarkers() {
@@ -207,7 +219,7 @@ public class MapsManager implements
     }
 
     public void addTempMarker(String title, LatLng latLng){
-        mMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
+        mTempMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(title == null ? "點選位置" : title)
                         .snippet(ProjFuncs.latLng2String(latLng))
@@ -216,24 +228,24 @@ public class MapsManager implements
 //                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
         );
 
-        mMarker.showInfoWindow();
+        mTempMarker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-        if (mMarker != null) {
-            mMarker.remove();
-            mMarker = null;
+        if (mTempMarker != null) {
+            mTempMarker.remove();
+            mTempMarker = null;
         }
     }
 
     // 長按就加人waypoint，使用CustomMarker
     @Override
     public void onMapLongClick(LatLng latLng) {
-        if (mMarker != null) {
-            mMarker.remove();
-            mMarker = null;
+        if (mTempMarker != null) {
+            mTempMarker.remove();
+            mTempMarker = null;
         } else{
             addTempMarker(null, latLng);
         }
@@ -265,7 +277,6 @@ public class MapsManager implements
 
     @Override
     public void onCameraMove() {
-
         // 顯示縮放層級
         CameraPosition cameraPosition = mMaps.get(MAP_CODE_MAIN).getCameraPosition();
         float currentZoomNumber = cameraPosition.zoom;
@@ -276,6 +287,9 @@ public class MapsManager implements
         // TODO 顯示準心座標，之後要有切換不同座標系統的功能
         LatLng latLng = cameraPosition.target;
         mCrossCoor.setText(ProjFuncs.twd2String(ProjFuncs.latlon2twd67(latLng)));
+
+        // 改變比例尺
+        adjustScaleBar();
 
         // 次要地圖，若同步，則隨主要地圖移動畫面，若非同步，使用Polygon顯示主要地圖的範圍
         if (mMaps.size() > 1) {
@@ -298,7 +312,21 @@ public class MapsManager implements
     }
 
     @Override
+    public void onCameraIdle() {
+        Log.d(TAG, "onCameraIdle");
+        adjustScaleBar();
+        for (ClusterManager<CustomMarker> cm : getClusterManagers()){
+            cm.cluster();
+        }
+    }
+
+    @Override
     public void onPoiClick(PointOfInterest poi) {
+        if (mTempMarker != null) {
+            mTempMarker.remove();
+            mTempMarker = null;
+        }
+
         addTempMarker(poi.name, poi.latLng);
     }
 
@@ -309,6 +337,10 @@ public class MapsManager implements
             boundaryMainPolygon = null;
         }
         onCameraMove();
+    }
+
+    public void adjustScaleBar(){
+        mScaleBar.invalidate();
     }
 
     // Set the TileOverlay

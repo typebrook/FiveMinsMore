@@ -125,7 +125,7 @@ public class GpxUtils {
         List<WayPoint> wpts = gpx.getWayPoints();
         if (wpts.size() > 1) {
             TreeNode node_wpts = new TreeNode(gpx_builder
-                    .setType(GpxHolder.ITEM_TYPE_GPX)
+                    .setType(GpxHolder.ITEM_TYPE_WAYPOINTS)
                     .setIcon(GpxHolder.ITEM_ICON_WAYPOINT)
                     .setText("航點")
                     .build());

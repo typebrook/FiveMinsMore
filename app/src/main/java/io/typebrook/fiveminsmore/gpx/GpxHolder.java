@@ -106,9 +106,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
                 for (int mapCode = 0; mapCode < manager.getMapsNum(); mapCode++) {
                     switch (value.type) {
-                        case ITEM_TYPE_GPX:
-                            manager.getClusterManager(mapCode).cluster();
-                            break;
                         case ITEM_TYPE_TRACK:
                             if (isChecked) {
                                 value.polylines[mapCode] = manager.getMap(mapCode)
@@ -127,16 +124,17 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                         case ITEM_TYPE_WAYPOINT:
                             if (isChecked) {
                                 value.isMarkers[mapCode] = true;
-                                manager.getClusterManager(mapCode).addItem(value.marker);
+                                manager.getClusterManagers().get(mapCode).addItem(value.marker);
                             } else if (!value.isMarkers[mapCode]) {
                                 break;
                             } else {
                                 value.isMarkers[mapCode] = false;
-                                manager.getClusterManager(mapCode).removeItem(value.marker);
+                                manager.getClusterManagers().get(mapCode).removeItem(value.marker);
                             }
                             break;
                     }
                 }
+                manager.clusterTheMarkers();
             }
         };
     }
@@ -225,6 +223,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     public static final int ITEM_TYPE_GPX = 1;
     public static final int ITEM_TYPE_TRACK = 2;
     public static final int ITEM_TYPE_WAYPOINT = 3;
+    public static final int ITEM_TYPE_WAYPOINTS = 4;
     public static final int ITEM_ICON_GPX = R.drawable.ic_folder_black_24dp;
     public static final int ITEM_ICON_WAYPOINT = R.drawable.ic_place_black_24dp;
     public static final int ITEM_ICON_TRACK = R.drawable.ic_timeline_black_24dp;
