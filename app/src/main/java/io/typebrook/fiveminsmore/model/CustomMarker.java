@@ -66,7 +66,7 @@ public class CustomMarker implements ClusterItem {
     public void setDateTime(DateTime time){
         mTime = time;
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MMMM-dd日 a HH:mm")
-                .withZone((DateTimeZone.forOffsetHours(8)));
+                .withZone(DateTimeZone.forOffsetHours(8));
         mSnippet = "時間: " + time.toString(fmt) + "\n" + mSnippet;
     }
 

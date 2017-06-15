@@ -1,6 +1,7 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +18,15 @@ import com.unnamed.b.atv.model.TreeNode;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.Constant;
 import io.typebrook.fiveminsmore.MapsActivity;
 import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
+
+import static io.typebrook.fiveminsmore.Constant.CHOSEN_TRACK_COLOR;
+import static io.typebrook.fiveminsmore.Constant.DEFAULT_TRACK_COLOR;
 
 /**
  * Created by pham on 2017/4/30.
@@ -32,6 +37,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     private PrintView arrowView;
     private CheckBox nodeSelector;
     private MapsManager manager;
+    public static Polyline lastClickedPolyline;
 
     public GpxHolder(Context context) {
         super(context);
@@ -83,8 +89,13 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             public void onClick(View v) {
                 switch (value.type) {
                     case ITEM_TYPE_TRACK:
-                        MapUtils.zoomToPolyline(manager.getCurrentMap(),
-                                value.polylines[0]);
+                        Polyline polyline = value.polylines[0];
+                        MapUtils.zoomToPolyline(manager.getCurrentMap(), polyline);
+
+                        value.polylines[0].setColor(CHOSEN_TRACK_COLOR);
+                        if (lastClickedPolyline != null)
+                            lastClickedPolyline.setColor(DEFAULT_TRACK_COLOR);
+                        lastClickedPolyline = polyline;
                         break;
                     case ITEM_TYPE_WAYPOINT:
                         MapUtils.zoomToMarker(manager.getCurrentMap(),

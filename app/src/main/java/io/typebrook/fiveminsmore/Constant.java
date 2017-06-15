@@ -1,5 +1,6 @@
 package io.typebrook.fiveminsmore;
 
+import android.graphics.Color;
 import android.os.Environment;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -53,4 +54,8 @@ public class Constant {
             "Places",
             "Tourism"
     };
+
+    // Color of Track
+    public static final int DEFAULT_TRACK_COLOR = Color.RED;
+    public static final int CHOSEN_TRACK_COLOR = Color.YELLOW;
 }

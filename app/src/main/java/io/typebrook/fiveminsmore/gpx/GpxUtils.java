@@ -36,6 +36,7 @@ import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.TrackPoint;
 import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.Constant;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -82,7 +83,7 @@ public class GpxUtils {
             pos.add(latLng);
         }
 
-        return pos.color(Color.RED)
+        return pos.color(Constant.DEFAULT_TRACK_COLOR)
                 .startCap(new CustomCap(BitmapDescriptorFactory.fromResource(
                         R.drawable.ic_start_point_24dp), 10))
                 .endCap(new CustomCap(BitmapDescriptorFactory.fromResource(
