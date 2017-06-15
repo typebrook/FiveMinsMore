@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
@@ -27,9 +28,9 @@ public class DetailDialog extends DialogFragment implements View.OnClickListener
     private String mTitle;
     private LatLng mLatLng;
 
-    public void setArgs(Context context, String title, LatLng latLng) {
-        this.mTitle = title;
-        this.mLatLng = latLng;
+    public void setArgs(Context context, Marker marker) {
+        this.mTitle = marker.getTitle();
+        this.mLatLng = marker.getPosition();
     }
 
     @Override
