@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EmptyStackException;
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class CustomMarker implements ClusterItem {
     private final LatLng mPosition;
     private String mTitle;
     private String mSnippet;
+    private Date mtime;
+    private int melevation;
 
     public CustomMarker(LatLng latLng) {
         mPosition = latLng;

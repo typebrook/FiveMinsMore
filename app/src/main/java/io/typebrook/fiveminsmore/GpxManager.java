@@ -71,10 +71,10 @@ public class GpxManager {
         container.addView(managerView, container.getChildCount());
     }
 
-    void renewDialog() {
-        treeView.selectAll(true);
+    void refreshDialog() {
         treeView.expandAll();
         treeView.collapseAll();
+        treeView.selectAll(true);
     }
 
     void removeDialog() {

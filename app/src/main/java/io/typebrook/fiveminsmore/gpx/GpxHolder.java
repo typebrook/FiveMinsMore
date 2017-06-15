@@ -1,6 +1,7 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -65,7 +66,8 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             public void onClick(View v) {
                 nodeSelector.setChecked(false);
                 getTreeView().removeNode(node);
-                manager.clusterTheMarkers();
+                if (value.type == ITEM_TYPE_WAYPOINT || value.type == ITEM_TYPE_WAYPOINTS)
+                    manager.clusterTheMarkers();
             }
         });
 
@@ -88,7 +90,6 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                         MapUtils.zoomToMarker(manager.getCurrentMap(),
                                 value.marker);
                         break;
-
                 }
             }
         };
@@ -100,10 +101,12 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 node.setSelected(isChecked);
+
+                // 將子節點設為相同狀態
                 for (TreeNode n : node.getChildren()) {
                     getTreeView().selectNode(n, isChecked);
                 }
-
+                Log.d(TAG, "type = " + value.type);
                 for (int mapCode = 0; mapCode < manager.getMapsNum(); mapCode++) {
                     switch (value.type) {
                         case ITEM_TYPE_TRACK:

@@ -34,7 +34,7 @@ public class MapUtils {
     }
 
     public static void zoomToPolyline(GoogleMap map, Polyline p) {
-        if (p.getPoints().isEmpty())
+        if (p == null || p.getPoints().isEmpty())
             return;
 
         LatLngBounds.Builder builder = LatLngBounds.builder();
@@ -43,7 +43,12 @@ public class MapUtils {
             builder.include(latLng);
         }
         final LatLngBounds bounds = builder.build();
+
+        try{
         map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static void zoomToMarker(GoogleMap map, CustomMarker m) {

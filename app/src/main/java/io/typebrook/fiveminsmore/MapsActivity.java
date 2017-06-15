@@ -55,7 +55,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.data.kml.KmlLayer;
-import com.unnamed.b.atv.model.TreeNode;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
@@ -250,6 +249,7 @@ public class MapsActivity extends AppCompatActivity implements
                 File file = new File(filePath);
                 mGpxManager.add(file, mMapsManager);
             }
+            mGpxManager.refreshDialog();
         }
 
         // TODO add blue dot beam to indicate user direction
@@ -369,7 +369,7 @@ public class MapsActivity extends AppCompatActivity implements
                     File file = new File(fileData.getPath());
                     mGpxManager.add(file, mMapsManager);
                 }
-                mGpxManager.renewDialog();
+                mGpxManager.refreshDialog();
                 break;
 
             case REQUEST_CODE_PICK_MAPSFORGE_FILE:
