@@ -17,11 +17,15 @@
 package io.typebrook.fiveminsmore.model;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterItem;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.tz.FixedDateTimeZone;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EmptyStackException;
 import java.util.List;
 
@@ -29,8 +33,8 @@ public class CustomMarker implements ClusterItem {
     private final LatLng mPosition;
     private String mTitle;
     private String mSnippet;
-    private Date mtime;
-    private int melevation;
+    private DateTime mTime;
+    private int mElevation;
 
     public CustomMarker(LatLng latLng) {
         mPosition = latLng;
@@ -57,6 +61,18 @@ public class CustomMarker implements ClusterItem {
     @Override
     public String getSnippet() {
         return mSnippet;
+    }
+
+    public void setDateTime(DateTime time){
+        mTime = time;
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MMMM-dd日 a HH:mm")
+                .withZone((DateTimeZone.forOffsetHours(8)));
+        mSnippet = "時間: " + time.toString(fmt) + "\n" + mSnippet;
+    }
+
+    public void setElevation(int ele){
+        mElevation = ele;
+        mSnippet = "高度: " + ele + "m\n" + mSnippet;
     }
 
     public static List<LatLng> toLatLng(List<CustomMarker> markers) {

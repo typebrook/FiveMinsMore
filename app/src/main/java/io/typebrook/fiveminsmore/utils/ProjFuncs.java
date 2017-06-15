@@ -60,7 +60,13 @@ public class ProjFuncs {
     }
 
     public static String twd2String(ProjCoordinate coor){
-        return (int) coor.x + ", " + (int) coor.y;
+        String x = (int) coor.x + "";
+        x = x.substring(0, x.length() - 3) + "-" + x.substring(x.length() - 3);
+
+        String y = (int) coor.y + "";
+        y = y.substring(0, y.length() - 3) + "-" + y.substring(x.length() - 3);
+
+        return x + ", " + y;
     }
 
     public static String latLng2String(LatLng latLng){

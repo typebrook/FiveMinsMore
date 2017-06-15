@@ -82,8 +82,7 @@ public class GpxUtils {
             pos.add(latLng);
         }
 
-        return pos
-                .color(Color.RED)
+        return pos.color(Color.RED)
                 .startCap(new CustomCap(BitmapDescriptorFactory.fromResource(
                         R.drawable.ic_start_point_24dp), 10))
                 .endCap(new CustomCap(BitmapDescriptorFactory.fromResource(
@@ -98,7 +97,13 @@ public class GpxUtils {
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
         String snippet = ProjFuncs.latLng2String(latLng);
 
-        return new CustomMarker(latLng, name, snippet);
+        CustomMarker marker = new CustomMarker(latLng, name, snippet);
+        if (wpt.getTime() != null)
+            marker.setDateTime(wpt.getTime());
+        if (wpt.getElevation() != null)
+            marker.setElevation(wpt.getElevation().intValue());
+
+        return marker;
     }
 
     public static TreeNode gpxFile2TreeNode(File gpxFile) {

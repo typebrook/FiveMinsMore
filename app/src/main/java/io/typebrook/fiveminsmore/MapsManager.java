@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import io.typebrook.fiveminsmore.InfoWindow.CustomAdapter;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.model.CustomMarker;
 import io.typebrook.fiveminsmore.model.CustomRenderer;
@@ -135,6 +136,9 @@ public class MapsManager implements
         map.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_MAIN));
         // POI in Google map
         map.setOnPoiClickListener(this);
+
+        // Test for new info window
+        map.setInfoWindowAdapter(new CustomAdapter(mContext));
     }
 
     // Add SubMap for contrast
@@ -158,6 +162,9 @@ public class MapsManager implements
         subMap.setOnMarkerClickListener(mClusterManagers.get(MAP_CODE_SUB));
         // Click on Cluster to zoom to Markers
         subMap.setOnCameraIdleListener(this);
+
+        // Test for new info window
+        subMap.setInfoWindowAdapter(new CustomAdapter(mContext));
     }
 
     public void disableSubMap() {
@@ -263,7 +270,7 @@ public class MapsManager implements
     @Override
     public void onInfoWindowClick(Marker marker) {
         DetailDialog markerDetail = new DetailDialog();
-        markerDetail.setArgs(mContext, marker.getTitle(), marker.getPosition());
+        markerDetail.setArgs(mContext, marker);
         markerDetail.show(((MapsActivity) mContext).getSupportFragmentManager(), "");
     }
 
