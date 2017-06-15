@@ -43,6 +43,8 @@ public class Constant {
     // Z-Index for different overlay or tiles
     public static final int ZINDEX_BASEMAP = -10;
     public static final int ZINDEX_ADDTILE = 1;
+    public static final int ZINDEX_POLYLINE = 5;
+    public static final int ZINDEX_POLYLINE_CHOSEN = 6;
 
     // Interval for tracking
     static final int TIME_INTERVAL_FOR_TRACKING = 5;

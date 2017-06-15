@@ -2,15 +2,11 @@ package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CustomCap;
-import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.jamesmurty.utils.XMLBuilder2;
@@ -36,14 +32,12 @@ import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.TrackPoint;
 import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.Constant;
-import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.model.PolylilneStyle;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static io.typebrook.fiveminsmore.Constant.DIR_GPX_FILE;
-import static io.typebrook.fiveminsmore.model.PolylilneStyle.STYLE_IN_MANAGER;
 
 /**
  * Created by pham on 2017/4/9.
@@ -76,20 +70,14 @@ public class GpxUtils {
             trkPts.addAll(seg.getTrackPoints());
         }
 
-        PolylineOptions pos = new PolylineOptions();
+        PolylineOptions pos = PolylilneStyle.getDefaultStyle();
 
         for (TrackPoint trkPt : trkPts) {
             LatLng latLng = new LatLng(trkPt.getLatitude(), trkPt.getLongitude());
             pos.add(latLng);
         }
 
-        return pos.color(Constant.DEFAULT_TRACK_COLOR)
-                .startCap(new CustomCap(BitmapDescriptorFactory.fromResource(
-                        R.drawable.ic_start_point_24dp), 10))
-                .endCap(new CustomCap(BitmapDescriptorFactory.fromResource(
-                        R.drawable.ic_arrowhead_white), 5))
-                .jointType(JointType.ROUND)
-                .zIndex(5);
+        return pos;
     }
 
     // 將航點化為CustomMarker
@@ -181,7 +169,7 @@ public class GpxUtils {
     public static TreeNode locs2TreeNode(String trkName, List<Location> locs) {
         GpxHolder.GpxTreeItem.Builder trk_builder = new GpxHolder.GpxTreeItem.Builder();
 
-        PolylineOptions opts = STYLE_IN_MANAGER.addAll(MapUtils.locs2LatLngs(locs));
+        PolylineOptions opts = PolylilneStyle.getDefaultStyle().addAll(MapUtils.locs2LatLngs(locs));
 
         return new TreeNode(trk_builder
                 .setType(GpxHolder.ITEM_TYPE_TRACK)

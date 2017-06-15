@@ -1,7 +1,6 @@
 package io.typebrook.fiveminsmore.gpx;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
@@ -18,8 +16,6 @@ import com.unnamed.b.atv.model.TreeNode;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.Constant;
-import io.typebrook.fiveminsmore.MapsActivity;
 import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
 import io.typebrook.fiveminsmore.model.CustomMarker;
@@ -27,6 +23,8 @@ import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static io.typebrook.fiveminsmore.Constant.CHOSEN_TRACK_COLOR;
 import static io.typebrook.fiveminsmore.Constant.DEFAULT_TRACK_COLOR;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_POLYLINE;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_POLYLINE_CHOSEN;
 
 /**
  * Created by pham on 2017/4/30.
@@ -93,8 +91,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                         MapUtils.zoomToPolyline(manager.getCurrentMap(), polyline);
 
                         value.polylines[0].setColor(CHOSEN_TRACK_COLOR);
-                        if (lastClickedPolyline != null)
+                        value.polylines[0].setZIndex(ZINDEX_POLYLINE_CHOSEN);
+                        if (lastClickedPolyline != null){
                             lastClickedPolyline.setColor(DEFAULT_TRACK_COLOR);
+                            lastClickedPolyline.setZIndex(ZINDEX_POLYLINE);
+                        }
                         lastClickedPolyline = polyline;
                         break;
                     case ITEM_TYPE_WAYPOINT:

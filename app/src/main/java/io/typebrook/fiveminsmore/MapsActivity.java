@@ -71,6 +71,7 @@ import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
+import io.typebrook.fiveminsmore.model.PolylilneStyle;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -86,7 +87,6 @@ import static io.typebrook.fiveminsmore.Constant.TIME_INTERVAL_FOR_TRACKING;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
-import static io.typebrook.fiveminsmore.model.PolylilneStyle.STYLE_WHILE_TRACKING;
 import static io.typebrook.fiveminsmore.model.TrackPointsStyle.TRKPTS_STYLE;
 
 /*
@@ -610,7 +610,7 @@ public class MapsActivity extends AppCompatActivity implements
         mMyTrkpts = trackingBinder.getTrkpts();
 
         // Tracking where you passed
-        mMyTrackOnMap = mMap.addPolyline(STYLE_WHILE_TRACKING);
+        mMyTrackOnMap = mMap.addPolyline(PolylilneStyle.getTrackingStyle());
 
         // 更新地圖上的航跡
         updateTrackPts(true);
