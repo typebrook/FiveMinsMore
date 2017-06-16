@@ -3,8 +3,10 @@ package io.typebrook.fiveminsmore;
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,9 +24,9 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.typebrook.fiveminsmore.InfoWindow.CustomAdapter;
 import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 import io.typebrook.fiveminsmore.Cluster.CustomRenderer;
+import io.typebrook.fiveminsmore.InfoWindow.CustomAdapter;
 import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.model.ScaleBar;
 import io.typebrook.fiveminsmore.utils.MapUtils;
@@ -61,7 +63,8 @@ public class MapsManager implements
     // GoogleMap object
     private List<GoogleMap> mMaps = new ArrayList<>();
     private List<TileOverlay> mMapTiles = new ArrayList<>();
-    private List<TileOverlay> mMapAddTiles = new ArrayList<>();
+    private Pair<List<TileOverlay>, List<TileOverlay>> mMapAddTiles =
+            new Pair(new ArrayList<>(), new ArrayList<>());
     private List<ClusterManager<CustomMarker>> mClusterManagers = new ArrayList<>();
 
     // Boundary of Main map
@@ -86,7 +89,6 @@ public class MapsManager implements
         // 地圖
         mMaps.add(MAP_CODE_MAIN, map);
         mMapTiles.add(MAP_CODE_MAIN, null);
-        mMapAddTiles.add(MAP_CODE_MAIN, null);
 
         mZoomNumber = (TextView) context.findViewById(R.id.zoom_number);
 
@@ -131,7 +133,6 @@ public class MapsManager implements
     public void enableSubMap(GoogleMap subMap) {
         mMaps.add(MAP_CODE_SUB, subMap);
         mMapTiles.add(MAP_CODE_SUB, null);
-        mMapAddTiles.add(MAP_CODE_SUB, null);
 
         subMap.setMapType(MAP_TYPE_HYBRID);
         subMap.moveCamera(CameraUpdateFactory.newCameraPosition(mMaps.get(MAP_CODE_MAIN).getCameraPosition()));
@@ -159,7 +160,6 @@ public class MapsManager implements
 
         mMaps.remove(MAP_CODE_SUB);
         mMapTiles.remove(MAP_CODE_SUB);
-        mMapAddTiles.remove(MAP_CODE_SUB);
         mClusterManagers.remove(MAP_CODE_SUB);
 
         if (boundaryMainPolygon != null) {
@@ -188,8 +188,31 @@ public class MapsManager implements
         return mMaps.size();
     }
 
-    public List<TileOverlay> getMapTiles() {
-        return mMapTiles;
+    public TileOverlay getCurrentMapTile() {
+        return mMapTiles.get(currentMapCode);
+    }
+
+    public void setCurrentMapTile(TileOverlay tilevoerlay) {
+        mMapTiles.set(currentMapCode, tilevoerlay);
+    }
+
+    public void addMapAddTiles(TileOverlay layer) {
+        if (currentMapCode == MAP_CODE_MAIN)
+            mMapAddTiles.first.add(layer);
+        else if (currentMapCode == MAP_CODE_SUB)
+            mMapAddTiles.second.add(layer);
+    }
+
+    public void clearCurrentMapAddTiles() {
+        List<TileOverlay> addTiles;
+        if (currentMapCode == MAP_CODE_MAIN)
+            addTiles = mMapAddTiles.first;
+        else
+            addTiles = mMapAddTiles.second;
+
+        for (TileOverlay layer : addTiles)
+            layer.remove();
+        addTiles.clear();
     }
 
     public List<ClusterManager<CustomMarker>> getClusterManagers() {
@@ -211,7 +234,7 @@ public class MapsManager implements
         return list;
     }
 
-    public void addTempMarker(String title, LatLng latLng){
+    public void addTempMarker(String title, LatLng latLng) {
         mTempMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(title == null ? "點選位置" : title)
@@ -239,7 +262,7 @@ public class MapsManager implements
         if (mTempMarker != null) {
             mTempMarker.remove();
             mTempMarker = null;
-        } else{
+        } else {
             addTempMarker(null, latLng);
         }
     }
@@ -308,7 +331,7 @@ public class MapsManager implements
     public void onCameraIdle() {
         Log.d(TAG, "onCameraIdle");
         adjustScaleBar();
-        for (ClusterManager<CustomMarker> cm : getClusterManagers()){
+        for (ClusterManager<CustomMarker> cm : getClusterManagers()) {
             cm.cluster();
         }
     }
@@ -332,88 +355,7 @@ public class MapsManager implements
         onCameraMove();
     }
 
-    public void adjustScaleBar(){
+    public void adjustScaleBar() {
         mScaleBar.invalidate();
     }
-
-//    void setTileOverlay() {
-//        CharSequence[] onlineMaps = TileList.ONLINE_MAPS;
-//
-//        new AlertDialog.Builder(mContext)
-//                .setTitle("線上圖資")
-//                .setItems(onlineMaps, new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int which) {
-//
-//                        if (which < 4) {
-//                            mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
-//                            if (mMapTiles.get(currentMapCode) != null) {
-//                                mMapTiles.get(currentMapCode).remove();
-//                                mMapTiles.get(currentMapCode).clearTileCache();
-//                                mMapTiles.set(currentMapCode, null);
-//                            }
-//                        }
-//
-//                        switch (which) {
-//                            case 0:
-//                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
-//                                break;
-//
-//                            case 1:
-//                                mMapTiles.set(currentMapCode,
-//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_SINICA)));
-//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-//                                break;
-//
-//                            case 2:
-//                                mMapTiles.set(currentMapCode,
-//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_OSM)));
-//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-//                                break;
-//
-//                            case 3:
-//                                mMapTiles.set(currentMapCode,
-//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_NLSC)));
-//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-//                                break;
-//
-//                            case 4:
-//                                Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
-//                                pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
-//                                pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
-//                                mContext.startActivityForResult(pickOfflineMapIntent,
-//                                        REQUEST_CODE_PICK_MAPSFORGE_FILE);
-//                                break;
-//
-//                            case 5:
-//                                if (mMapAddTiles.get(currentMapCode) != null) {
-//                                    mMapAddTiles.get(currentMapCode).remove();
-//                                    mMapAddTiles.get(currentMapCode).clearTileCache();
-//                                    mMapAddTiles.set(currentMapCode, null);
-//                                } else {
-//                                    mMapAddTiles.set(currentMapCode,
-//                                            mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_HAPPYMAN)));
-//                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
-//                                }
-//                                break;
-//
-//                            case 6:
-//                                mMaps.get(currentMapCode).clear();
-//                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
-//                                break;
-//
-//                            case 7:
-//                                if (mMapAddTiles.get(currentMapCode) != null) {
-//                                    mMapAddTiles.get(currentMapCode).remove();
-//                                    mMapAddTiles.get(currentMapCode).clearTileCache();
-//                                    mMapAddTiles.set(currentMapCode, null);
-//                                } else {
-//                                    mMapAddTiles.set(currentMapCode, mMaps.get(currentMapCode).addTileOverlay(
-//                                            new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
-//                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
-//                                }
-//                        }
-//                    }
-//                }).show();
-//    }
 }

@@ -388,9 +388,9 @@ public class MapsActivity extends AppCompatActivity implements
                 MapsForgeTilesProvider p = new MapsForgeTilesProvider(getApplication(),
                         new File(fileList.get(0).getPath()));
 
-                mMapsManager.getMapTiles().set(mMapsManager.getCurrentMapCode(),
-                        mMapsManager.getCurrentMap().addTileOverlay(new TileOverlayOptions().tileProvider(p)));
-                mMapsManager.getMapTiles().get(mMapsManager.getCurrentMapCode()).setZIndex(ZINDEX_BASEMAP);
+                mMapsManager.setCurrentMapTile(mMapsManager.getCurrentMap()
+                        .addTileOverlay(new TileOverlayOptions().tileProvider(p)));
+                mMapsManager.getCurrentMapTile().setZIndex(ZINDEX_BASEMAP);
                 mMapsManager.getCurrentMap().setMapType(GoogleMap.MAP_TYPE_NONE);
                 break;
 
