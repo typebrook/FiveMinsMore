@@ -1,9 +1,6 @@
 package io.typebrook.fiveminsmore;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.RelativeLayout;
@@ -20,38 +17,20 @@ import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.TileOverlay;
-import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
-import com.google.android.gms.maps.model.UrlTileProvider;
 import com.google.maps.android.clustering.ClusterManager;
-import com.vincent.filepicker.Constant;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import io.typebrook.fiveminsmore.InfoWindow.CustomAdapter;
-import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 import io.typebrook.fiveminsmore.Cluster.CustomRenderer;
 import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.model.ScaleBar;
-import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;
-import io.typebrook.fiveminsmore.res.TileList;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
-import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
-import static io.typebrook.fiveminsmore.Constant.ZINDEX_ADDTILE;
-import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
-import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_HAPPYMAN;
-import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_SUFFIX;
-import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_NLSC;
-import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_OSM;
-import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_SINICA;
 
 /**
  * Created by pham on 2017/4/10.

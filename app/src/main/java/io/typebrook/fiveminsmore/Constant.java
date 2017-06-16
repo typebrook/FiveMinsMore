@@ -35,6 +35,13 @@ public class Constant {
     public static final int COOR_WGS84_DMS = 1;
     public static final int COOR_TWD97 = 2;
     public static final int COOR_TWD67 = 3;
+    // Coordinate Presentation
+    public static final CharSequence[] COOR_METHODS = {
+            "經緯度(度)",
+            "經緯度(度分秒)",
+            "TWD97(二度分帶)",
+            "TWD67(二度分帶)"
+    };
 
     // Code for filepicker package
     public static final int REQUEST_CODE_PICK_GPX_FILE = 0x500;
