@@ -13,7 +13,7 @@ import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_D;
  */
 
 public class CoorSysList {
-    public static int current_coor_sys = COOR_WGS84_D;
+    public static int coorSetting = COOR_WGS84_D;
 
     // Coordinate Presentation
     private static final CharSequence[] COOR_METHODS = {
@@ -29,7 +29,7 @@ public class CoorSysList {
                 .setItems(COOR_METHODS, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        current_coor_sys = which;
+                        coorSetting = which;
                         ((MapsActivity) context).getMapsManager().onCameraMove();
                         dialog.cancel();
                     }

@@ -74,10 +74,12 @@ import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.model.PolylilneStyle;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
+import io.typebrook.fiveminsmore.res.CoorSysList;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_D;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
@@ -218,6 +220,9 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 取得已開啟的GPX檔案
         mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
+
+        // 還原座標表示設定
+        CoorSysList.coorSetting = prefs.getInt("coorSetting", COOR_WGS84_D);
     }
 
     /**
@@ -503,6 +508,7 @@ public class MapsActivity extends AppCompatActivity implements
         editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
         editor.putString("poiFile", mPoiFile);
         editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
+        editor.putInt("coorSetting", CoorSysList.coorSetting);
         editor.apply(); //important, otherwise it wouldn't save.
     }
 

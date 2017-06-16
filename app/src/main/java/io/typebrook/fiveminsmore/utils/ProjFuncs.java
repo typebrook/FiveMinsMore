@@ -111,7 +111,7 @@ public class ProjFuncs {
     }
 
     public static String showCurrentCoor(LatLng latLng) {
-        switch (CoorSysList.current_coor_sys) {
+        switch (CoorSysList.coorSetting) {
             case COOR_WGS84_D:
                 return latLng2DString(latLng);
 
