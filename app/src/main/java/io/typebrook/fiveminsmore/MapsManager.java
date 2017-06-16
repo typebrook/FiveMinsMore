@@ -47,11 +47,11 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_ADDTILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
-import static io.typebrook.fiveminsmore.res.TileList.HappyMan2_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_HAPPYMAN;
 import static io.typebrook.fiveminsmore.res.TileList.MAPSFORGE_SUFFIX;
-import static io.typebrook.fiveminsmore.res.TileList.NLSC_URL_FORMAT;
-import static io.typebrook.fiveminsmore.res.TileList.OSM_URL_FORMAT;
-import static io.typebrook.fiveminsmore.res.TileList.SINICA_URL_FORMAT;
+import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_NLSC;
+import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_OSM;
+import static io.typebrook.fiveminsmore.res.TileList.URL_FORMAT_SINICA;
 
 /**
  * Created by pham on 2017/4/10.
@@ -236,7 +236,7 @@ public class MapsManager implements
         mTempMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(title == null ? "點選位置" : title)
-                        .snippet(ProjFuncs.latLng2DString(latLng))
+                        .snippet(ProjFuncs.latLng2DString(latLng, false))
                         .draggable(true)
 //                        .anchor(0.5f, 0.5f)
 //                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
@@ -284,7 +284,7 @@ public class MapsManager implements
     @Override
     public void onMarkerDragEnd(Marker marker) {
         LatLng latLng = marker.getPosition();
-        marker.setSnippet(ProjFuncs.latLng2DString(latLng));
+        marker.setSnippet(ProjFuncs.latLng2DString(latLng, false));
         marker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
@@ -300,7 +300,7 @@ public class MapsManager implements
 
 
         LatLng latLng = cameraPosition.target;
-        mCrossCoor.setText(ProjFuncs.showCurrentCoor(latLng));
+        mCrossCoor.setText(ProjFuncs.getCurrentCoor(latLng, true));
 
         // 改變比例尺
         adjustScaleBar();
@@ -357,104 +357,84 @@ public class MapsManager implements
         mScaleBar.invalidate();
     }
 
-    // Set the TileOverlay
-    private static TileOverlayOptions getTileSetting(final String tileUrl) {
-        TileProvider provider = new UrlTileProvider(1024, 1024) {
-            @Override
-            public synchronized URL getTileUrl(int x, int y, int zoom) {
-                String s = String.format(Locale.US, tileUrl, zoom, x, y);
-                Log.i(TAG, "tile url: " + s);
-                URL url;
-                try {
-                    url = new URL(s);
-                } catch (MalformedURLException e) {
-                    throw new AssertionError(e);
-                }
-                return url;
-            }
-        };
-
-        return new TileOverlayOptions().tileProvider(provider);
-    }
-
-    void setTileOverlay() {
-        CharSequence[] onlineMaps = TileList.onlineMaps;
-
-        new AlertDialog.Builder(mContext)
-                .setTitle("線上圖資")
-                .setItems(onlineMaps, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-
-                        if (which < 4) {
-                            mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
-                            if (mMapTiles.get(currentMapCode) != null) {
-                                mMapTiles.get(currentMapCode).remove();
-                                mMapTiles.get(currentMapCode).clearTileCache();
-                                mMapTiles.set(currentMapCode, null);
-                            }
-                        }
-
-                        switch (which) {
-                            case 0:
-                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
-                                break;
-
-                            case 1:
-                                mMapTiles.set(currentMapCode,
-                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(SINICA_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-                                break;
-
-                            case 2:
-                                mMapTiles.set(currentMapCode,
-                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(OSM_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-                                break;
-
-                            case 3:
-                                mMapTiles.set(currentMapCode,
-                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(NLSC_URL_FORMAT)));
-                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
-                                break;
-
-                            case 4:
-                                Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
-                                pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
-                                pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
-                                mContext.startActivityForResult(pickOfflineMapIntent,
-                                        REQUEST_CODE_PICK_MAPSFORGE_FILE);
-                                break;
-
-                            case 5:
-                                if (mMapAddTiles.get(currentMapCode) != null) {
-                                    mMapAddTiles.get(currentMapCode).remove();
-                                    mMapAddTiles.get(currentMapCode).clearTileCache();
-                                    mMapAddTiles.set(currentMapCode, null);
-                                } else {
-                                    mMapAddTiles.set(currentMapCode,
-                                            mMaps.get(currentMapCode).addTileOverlay(getTileSetting(HappyMan2_URL_FORMAT)));
-                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
-                                }
-                                break;
-
-                            case 6:
-                                mMaps.get(currentMapCode).clear();
-                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
-                                break;
-
-                            case 7:
-                                if (mMapAddTiles.get(currentMapCode) != null) {
-                                    mMapAddTiles.get(currentMapCode).remove();
-                                    mMapAddTiles.get(currentMapCode).clearTileCache();
-                                    mMapAddTiles.set(currentMapCode, null);
-                                } else {
-                                    mMapAddTiles.set(currentMapCode, mMaps.get(currentMapCode).addTileOverlay(
-                                            new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
-                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
-                                }
-                        }
-                    }
-                }).show();
-    }
+//    void setTileOverlay() {
+//        CharSequence[] onlineMaps = TileList.ONLINE_MAPS;
+//
+//        new AlertDialog.Builder(mContext)
+//                .setTitle("線上圖資")
+//                .setItems(onlineMaps, new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int which) {
+//
+//                        if (which < 4) {
+//                            mMaps.get(currentMapCode).setMapType(GoogleMap.MAP_TYPE_NONE);
+//                            if (mMapTiles.get(currentMapCode) != null) {
+//                                mMapTiles.get(currentMapCode).remove();
+//                                mMapTiles.get(currentMapCode).clearTileCache();
+//                                mMapTiles.set(currentMapCode, null);
+//                            }
+//                        }
+//
+//                        switch (which) {
+//                            case 0:
+//                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
+//                                break;
+//
+//                            case 1:
+//                                mMapTiles.set(currentMapCode,
+//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_SINICA)));
+//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
+//                                break;
+//
+//                            case 2:
+//                                mMapTiles.set(currentMapCode,
+//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_OSM)));
+//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
+//                                break;
+//
+//                            case 3:
+//                                mMapTiles.set(currentMapCode,
+//                                        mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_NLSC)));
+//                                mMapTiles.get(currentMapCode).setZIndex(ZINDEX_BASEMAP);
+//                                break;
+//
+//                            case 4:
+//                                Intent pickOfflineMapIntent = new Intent(mContext, CustomFilePickActivity.class);
+//                                pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
+//                                pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
+//                                mContext.startActivityForResult(pickOfflineMapIntent,
+//                                        REQUEST_CODE_PICK_MAPSFORGE_FILE);
+//                                break;
+//
+//                            case 5:
+//                                if (mMapAddTiles.get(currentMapCode) != null) {
+//                                    mMapAddTiles.get(currentMapCode).remove();
+//                                    mMapAddTiles.get(currentMapCode).clearTileCache();
+//                                    mMapAddTiles.set(currentMapCode, null);
+//                                } else {
+//                                    mMapAddTiles.set(currentMapCode,
+//                                            mMaps.get(currentMapCode).addTileOverlay(getTileSetting(URL_FORMAT_HAPPYMAN)));
+//                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
+//                                }
+//                                break;
+//
+//                            case 6:
+//                                mMaps.get(currentMapCode).clear();
+//                                mMaps.get(currentMapCode).setMapType(MAP_TYPE_HYBRID);
+//                                break;
+//
+//                            case 7:
+//                                if (mMapAddTiles.get(currentMapCode) != null) {
+//                                    mMapAddTiles.get(currentMapCode).remove();
+//                                    mMapAddTiles.get(currentMapCode).clearTileCache();
+//                                    mMapAddTiles.set(currentMapCode, null);
+//                                } else {
+//                                    mMapAddTiles.set(currentMapCode, mMaps.get(currentMapCode).addTileOverlay(
+//                                            new TileOverlayOptions().tileProvider(new CoorTileProvider(mContext))));
+//                                    mMapAddTiles.get(currentMapCode).setZIndex(ZINDEX_ADDTILE);
+//                                }
+//                        }
+//                    }
+//                }).show();
+//    }
 }

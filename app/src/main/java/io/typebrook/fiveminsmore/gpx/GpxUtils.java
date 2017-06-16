@@ -84,7 +84,7 @@ public class GpxUtils {
     static CustomMarker waypt2Marker(WayPoint wpt) {
         String name = wpt.getName();
         LatLng latLng = new LatLng(wpt.getLatitude(), wpt.getLongitude());
-        String snippet = ProjFuncs.latLng2DString(latLng);
+        String snippet = ProjFuncs.latLng2DString(latLng, false);
 
         CustomMarker marker = new CustomMarker(latLng, name, snippet);
         if (wpt.getTime() != null)

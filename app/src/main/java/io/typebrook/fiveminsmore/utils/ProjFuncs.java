@@ -73,26 +73,28 @@ public class ProjFuncs {
         return x + ", " + y;
     }
 
-    public static String latLng2DString(LatLng latLng) {
-        return latLng2DString(latLng.latitude, latLng.longitude);
+    public static String latLng2DString(LatLng latLng, Boolean newLine) {
+        return latLng2DString(latLng.latitude, latLng.longitude, newLine);
     }
 
-    public static String latLng2DString(Double latitude, Double longitude) {
+    public static String latLng2DString(Double latitude, Double longitude, Boolean newLine) {
         String lat = simpleLatLng(latitude);
         String lon = simpleLatLng(longitude);
 
-        return "北緯 " + lat + "\n" + "東經 " + lon;
+        return newLine ? "北緯 " + lat + "度" + "\n" + "東經 " + lon + "度" :
+                "北緯 " + lat + "度" + "，" + "東經 " + lon + "度";
     }
 
-    public static String latLng2DmsString(LatLng latLng) {
-        return latLng2DmsString(latLng.latitude, latLng.longitude);
+    public static String latLng2DmsString(LatLng latLng, Boolean newLine) {
+        return latLng2DmsString(latLng.latitude, latLng.longitude, newLine);
     }
 
-    public static String latLng2DmsString(Double latitude, Double longitude) {
+    public static String latLng2DmsString(Double latitude, Double longitude, Boolean newLine) {
         String lat = Degree2Dms(latitude);
         String lon = Degree2Dms(longitude);
 
-        return "北緯 " + lat + "\n" + "東經 " + lon;
+        return newLine ? "北緯 " + lat + "\n" + "東經 " + lon :
+                "北緯 " + lat + "，" + "東經 " + lon;
     }
 
     // Degree to Degree/Minute/Second format
@@ -110,13 +112,13 @@ public class ProjFuncs {
         return String.format(Locale.getDefault(), "%.6f", num);
     }
 
-    public static String showCurrentCoor(LatLng latLng) {
+    public static String getCurrentCoor(LatLng latLng, Boolean newLine) {
         switch (CoorSysList.coorSetting) {
             case COOR_WGS84_D:
-                return latLng2DString(latLng);
+                return latLng2DString(latLng, newLine);
 
             case COOR_WGS84_DMS:
-                return latLng2DmsString(latLng);
+                return latLng2DmsString(latLng, newLine);
 
             case COOR_TWD97:
                 return twd2String(latlon2twd97(latLng));
@@ -125,7 +127,7 @@ public class ProjFuncs {
                 return twd2String(latlon2twd67(latLng));
 
             default:
-                return latLng2DString(latLng);
+                return latLng2DString(latLng, newLine);
         }
     }
 }

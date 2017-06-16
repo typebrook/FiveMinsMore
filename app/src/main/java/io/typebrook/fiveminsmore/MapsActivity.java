@@ -76,6 +76,7 @@ import io.typebrook.fiveminsmore.model.PolylilneStyle;
 import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.CoorSysList;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
+import io.typebrook.fiveminsmore.res.TileList;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -291,7 +292,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_pick_tiles:
-                mMapsManager.setTileOverlay();
+                TileList.chooseTileType(this);
+//                mMapsManager.setTileOverlay();
                 break;
 
             case R.id.btn_tracking:
