@@ -30,6 +30,12 @@ public class Constant {
     // ZOOM Level when creating map
     public static final int STARTING_ZOOM = 7;
 
+    // 座標系表示方式
+    public static final int COOR_WGS84_D = 0;
+    public static final int COOR_WGS84_DMS = 1;
+    public static final int COOR_TWD97 = 2;
+    public static final int COOR_TWD67 = 3;
+
     // Code for filepicker package
     public static final int REQUEST_CODE_PICK_GPX_FILE = 0x500;
     public static final int REQUEST_CODE_PICK_MAPSFORGE_FILE = 0x600;
@@ -60,4 +66,5 @@ public class Constant {
     // Color of Track
     public static final int DEFAULT_TRACK_COLOR = Color.RED;
     public static final int CHOSEN_TRACK_COLOR = Color.YELLOW;
+
 }

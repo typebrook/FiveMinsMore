@@ -103,11 +103,19 @@ public class MapsManager implements
 
     MapsManager(Activity context, GoogleMap map) {
         mContext = context;
+
+        // 地圖
         mMaps.add(MAP_CODE_MAIN, map);
         mMapTiles.add(MAP_CODE_MAIN, null);
         mMapAddTiles.add(MAP_CODE_MAIN, null);
+
         mZoomNumber = (TextView) context.findViewById(R.id.zoom_number);
+
+        // 顯示準心座標
         mCrossCoor = (TextView) context.findViewById(R.id.tvCoord);
+        mCrossCoor.setOnClickListener((MapsActivity) mContext);
+
+        // 加入比例尺
         RelativeLayout container = (RelativeLayout) context.findViewById(R.id.layout_container);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(800, 800);
         mScaleBar = new ScaleBar(mContext, getMap(MAP_CODE_MAIN));
@@ -228,7 +236,7 @@ public class MapsManager implements
         mTempMarker = mMaps.get(MAP_CODE_MAIN).addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(title == null ? "點選位置" : title)
-                        .snippet(ProjFuncs.latLng2String(latLng))
+                        .snippet(ProjFuncs.latLng2DString(latLng))
                         .draggable(true)
 //                        .anchor(0.5f, 0.5f)
 //                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
@@ -276,7 +284,7 @@ public class MapsManager implements
     @Override
     public void onMarkerDragEnd(Marker marker) {
         LatLng latLng = marker.getPosition();
-        marker.setSnippet(ProjFuncs.latLng2String(latLng));
+        marker.setSnippet(ProjFuncs.latLng2DString(latLng));
         marker.showInfoWindow();
         mMaps.get(MAP_CODE_MAIN).animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
@@ -290,9 +298,9 @@ public class MapsManager implements
         String currentZoom = "" + (int) currentZoomNumber;
         mZoomNumber.setText(currentZoom);
 
-        // TODO 顯示準心座標，之後要有切換不同座標系統的功能
+
         LatLng latLng = cameraPosition.target;
-        mCrossCoor.setText(ProjFuncs.twd2String(ProjFuncs.latlon2twd67(latLng)));
+        mCrossCoor.setText(ProjFuncs.showCurrentCoor(latLng));
 
         // 改變比例尺
         adjustScaleBar();

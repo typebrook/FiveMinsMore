@@ -1,8 +1,5 @@
 package io.typebrook.fiveminsmore.utils;
 
-import android.content.Context;
-import android.view.View;
-
 import com.google.android.gms.maps.model.LatLng;
 
 import org.osgeo.proj4j.CRSFactory;
@@ -12,6 +9,13 @@ import org.osgeo.proj4j.CoordinateTransformFactory;
 import org.osgeo.proj4j.ProjCoordinate;
 
 import java.util.Locale;
+
+import io.typebrook.fiveminsmore.res.CoorSysList;
+
+import static io.typebrook.fiveminsmore.Constant.COOR_TWD67;
+import static io.typebrook.fiveminsmore.Constant.COOR_TWD97;
+import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_D;
+import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_DMS;
 
 /**
  * Created by pham on 2017/6/3.
@@ -59,7 +63,7 @@ public class ProjFuncs {
         return p2;
     }
 
-    public static String twd2String(ProjCoordinate coor){
+    public static String twd2String(ProjCoordinate coor) {
         String x = (int) coor.x + "";
         x = x.substring(0, x.length() - 3) + "-" + x.substring(x.length() - 3);
 
@@ -69,21 +73,59 @@ public class ProjFuncs {
         return x + ", " + y;
     }
 
-    public static String latLng2String(LatLng latLng){
-        String lat = simpleLatLng(latLng.latitude);
-        String lon = simpleLatLng(latLng.longitude);
-
-        return "東經" + lon + "度，" + "北緯" + lat + "度";
+    public static String latLng2DString(LatLng latLng) {
+        return latLng2DString(latLng.latitude, latLng.longitude);
     }
 
-    public static String latLng2String(Double latitude, Double longitude){
+    public static String latLng2DString(Double latitude, Double longitude) {
         String lat = simpleLatLng(latitude);
         String lon = simpleLatLng(longitude);
 
-        return "東經" + lon + "度，" + "北緯" + lat + "度";
+        return "北緯 " + lat + "\n" + "東經 " + lon;
     }
 
-    public static String simpleLatLng(Double num){
+    public static String latLng2DmsString(LatLng latLng) {
+        return latLng2DmsString(latLng.latitude, latLng.longitude);
+    }
+
+    public static String latLng2DmsString(Double latitude, Double longitude) {
+        String lat = Degree2Dms(latitude);
+        String lon = Degree2Dms(longitude);
+
+        return "北緯 " + lat + "\n" + "東經 " + lon;
+    }
+
+    // Degree to Degree/Minute/Second format
+    private static String Degree2Dms(Double d) {
+        int dValue = d.intValue();
+        int mValue = Double.valueOf((d - dValue) * 60).intValue();
+        float minute2Degree = ((float) mValue) / 60;
+        Double sValue = (d - dValue - minute2Degree) * 3600;
+
+        return dValue + "度" + mValue + "分" +
+                String.format(Locale.getDefault(), "%.1f", sValue) + "秒";
+    }
+
+    public static String simpleLatLng(Double num) {
         return String.format(Locale.getDefault(), "%.6f", num);
+    }
+
+    public static String showCurrentCoor(LatLng latLng) {
+        switch (CoorSysList.current_coor_sys) {
+            case COOR_WGS84_D:
+                return latLng2DString(latLng);
+
+            case COOR_WGS84_DMS:
+                return latLng2DmsString(latLng);
+
+            case COOR_TWD97:
+                return twd2String(latlon2twd97(latLng));
+
+            case COOR_TWD67:
+                return twd2String(latlon2twd67(latLng));
+
+            default:
+                return latLng2DString(latLng);
+        }
     }
 }

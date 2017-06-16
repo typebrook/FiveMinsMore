@@ -68,6 +68,7 @@ import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
+import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
@@ -88,6 +89,7 @@ import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
 import static io.typebrook.fiveminsmore.model.TrackPointsStyle.TRKPTS_STYLE;
+import static io.typebrook.fiveminsmore.res.CoorSysList.setCoorSys;
 
 /*
 * The Main Activity contains Google Map Fragment
@@ -149,6 +151,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     // TODO need to add corresponding functions
     KmlLayer kmlLayer;
+
     CameraPosition lastCameraPosition;
 
     // File stores POIs
@@ -259,7 +262,6 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
             // Hide all things except map
             case R.id.btn_switch:
                 v.setSelected(!v.isSelected());
@@ -345,11 +347,14 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_search:
-//                if (mPoiFile == null)
-//                    PoiSearchTask.suggestToPickPoiFile(this);
-//                else
-//                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
-                showGpxList();
+                if (mPoiFile == null)
+                    PoiSearchTask.suggestToPickPoiFile(this);
+                else
+                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
+                break;
+
+            case R.id.tvCoord:
+                setCoorSys(this);
         }
     }
 
@@ -655,6 +660,13 @@ public class MapsActivity extends AppCompatActivity implements
         stopService(mServiceIntent);
     }
 
+    // 持續取得TackingService的資料
+    @Override
+    public void getServiceData(Location location) {
+        mCurrentLocation = location;
+        updateTrackPts(false);
+    }
+
     // 將紀錄的航跡儲存為檔案
     private void saveToGpxFile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -688,13 +700,6 @@ public class MapsActivity extends AppCompatActivity implements
 
         builder.setCancelable(false);
         builder.show();
-    }
-
-    public void showGpxList() {
-        Log.d(TAG, "GpxList num:" + mGpxFileList.size());
-        for (String path : mGpxFileList) {
-            Log.d(TAG, path);
-        }
     }
 
     // 更新螢幕上的航跡
@@ -951,11 +956,5 @@ public class MapsActivity extends AppCompatActivity implements
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(MATCH_PARENT, 0);
         params.weight = f;
         findViewById(R.id.sub_content).setLayoutParams(params);
-    }
-
-    @Override
-    public void getServiceData(Location location) {
-        mCurrentLocation = location;
-        updateTrackPts(false);
     }
 }

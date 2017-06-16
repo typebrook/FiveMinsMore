@@ -102,7 +102,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
         android:background="#80FFFFFF"
-        android:gravity="center"
         android:padding="5dp"
         tools:text="lat 12.345, lon 67.890" />
 </RelativeLayout>
