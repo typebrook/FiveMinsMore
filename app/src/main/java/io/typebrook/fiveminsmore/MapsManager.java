@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,8 +34,8 @@ import java.util.Locale;
 
 import io.typebrook.fiveminsmore.InfoWindow.CustomAdapter;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
-import io.typebrook.fiveminsmore.model.CustomMarker;
-import io.typebrook.fiveminsmore.model.CustomRenderer;
+import io.typebrook.fiveminsmore.Cluster.CustomMarker;
+import io.typebrook.fiveminsmore.Cluster.CustomRenderer;
 import io.typebrook.fiveminsmore.model.DetailDialog;
 import io.typebrook.fiveminsmore.model.ScaleBar;
 import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;

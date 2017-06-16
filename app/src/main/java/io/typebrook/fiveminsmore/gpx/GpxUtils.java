@@ -32,7 +32,7 @@ import io.ticofab.androidgpxparser.parser.domain.Track;
 import io.ticofab.androidgpxparser.parser.domain.TrackPoint;
 import io.ticofab.androidgpxparser.parser.domain.TrackSegment;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 import io.typebrook.fiveminsmore.model.PolylilneStyle;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 import io.typebrook.fiveminsmore.utils.ProjFuncs;

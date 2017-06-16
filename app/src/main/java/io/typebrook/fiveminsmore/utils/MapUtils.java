@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.Polyline;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_BOUNDARY;

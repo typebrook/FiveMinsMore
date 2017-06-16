@@ -23,7 +23,7 @@ public class TileList {
     public static final String HappyMan2_URL_FORMAT =
             "http://rs.happyman.idv.tw/map/gpxtrack/%d/%d/%d.png";
     public static final String NLSC_URL_FORMAT =
-            "http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSIO" +
+            "http://wmts.nlsc.gov.tw/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSIO" +
             "N=1.0.0&LAYER=PHOTO2&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX=" +
             "EPSG:3857:%d&TILECOL=%d&TILEROW=%d&FORMAT=image/png";
 

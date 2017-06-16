@@ -1,20 +1,17 @@
-package io.typebrook.fiveminsmore.model;
+package io.typebrook.fiveminsmore.Cluster;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.widget.TextView;
 
+import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 import io.typebrook.fiveminsmore.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;

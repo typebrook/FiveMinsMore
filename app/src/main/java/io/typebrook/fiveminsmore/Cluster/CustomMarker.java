@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.typebrook.fiveminsmore.model;
+package io.typebrook.fiveminsmore.Cluster;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
@@ -23,7 +23,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.tz.FixedDateTimeZone;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;

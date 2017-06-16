@@ -18,7 +18,7 @@ import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
 import io.typebrook.fiveminsmore.MapsManager;
 import io.typebrook.fiveminsmore.R;
-import io.typebrook.fiveminsmore.model.CustomMarker;
+import io.typebrook.fiveminsmore.Cluster.CustomMarker;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static io.typebrook.fiveminsmore.Constant.CHOSEN_TRACK_COLOR;
