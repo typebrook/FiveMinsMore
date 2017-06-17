@@ -219,6 +219,11 @@ public class MapsActivity extends AppCompatActivity implements
         // 取得POI檔案
         mPoiFile = prefs.getString("poiFile", null);
 
+        // 取得離線地圖檔案
+        mMapFile = prefs.getString("mapFile", null);
+        if (mMapFile != null)
+            setMapFile(this);
+
         // 取得已開啟的GPX檔案
         mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
 
@@ -499,11 +504,14 @@ public class MapsActivity extends AppCompatActivity implements
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("isTracking", mTrackingBtn.isSelected());
-        CameraPosition cameraPosition = mMap.getCameraPosition();
-        editor.putFloat("cameraLat", (float) cameraPosition.target.latitude);
-        editor.putFloat("cameraLon", (float) cameraPosition.target.longitude);
-        editor.putFloat("cameraZoom", cameraPosition.zoom);
+        if (mMap != null) {
+            CameraPosition cameraPosition = mMap.getCameraPosition();
+            editor.putFloat("cameraLat", (float) cameraPosition.target.latitude);
+            editor.putFloat("cameraLon", (float) cameraPosition.target.longitude);
+            editor.putFloat("cameraZoom", cameraPosition.zoom);
+        }
         editor.putString("poiFile", mPoiFile);
+        editor.putString("mapFile", mMapFile);
         editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
         editor.putInt("coorSetting", CoorSysList.coorSetting);
         editor.apply(); //important, otherwise it wouldn't save.
