@@ -1,4 +1,4 @@
-package io.typebrook.fiveminsmore.Poi;
+package io.typebrook.fiveminsmore.poi;
 
 /**
  * Created by pham on 2017/6/13.

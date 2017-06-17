@@ -6,7 +6,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -192,8 +191,8 @@ public class MapsManager implements
         return mMapTiles.get(currentMapCode);
     }
 
-    public void setCurrentMapTile(TileOverlay tilevoerlay) {
-        mMapTiles.set(currentMapCode, tilevoerlay);
+    public void setCurrentMapTile(TileOverlay tileOverlay) {
+        mMapTiles.set(currentMapCode, tileOverlay);
     }
 
     public void addMapAddTiles(TileOverlay layer) {

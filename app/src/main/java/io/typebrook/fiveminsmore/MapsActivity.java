@@ -53,7 +53,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.filter.entity.NormalFile;
@@ -68,15 +67,14 @@ import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.Poi.PoiSearchTask;
+import io.typebrook.fiveminsmore.poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.model.PolylilneStyle;
-import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 import io.typebrook.fiveminsmore.res.CoorSysList;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
-import io.typebrook.fiveminsmore.res.TileUtils;
+import io.typebrook.fiveminsmore.utils.TileUtils;
 import io.typebrook.fiveminsmore.utils.MapUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -88,11 +86,11 @@ import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_POI_FILE;
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
 import static io.typebrook.fiveminsmore.Constant.TIME_INTERVAL_FOR_TRACKING;
-import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_SUB;
 import static io.typebrook.fiveminsmore.model.TrackPointsStyle.TRKPTS_STYLE;
 import static io.typebrook.fiveminsmore.res.CoorSysList.setCoorSys;
+import static io.typebrook.fiveminsmore.utils.TileUtils.setMapFile;
 
 /*
 * The Main Activity contains Google Map Fragment
@@ -158,7 +156,9 @@ public class MapsActivity extends AppCompatActivity implements
     CameraPosition lastCameraPosition;
 
     // File stores POIs
-    private String mPoiFile;
+    public static String mPoiFile;
+    // File of Mapsforge
+    public static String mMapFile;
     // GPX files we opened
     private Set<String> mGpxFileList = new TreeSet<>();
 
@@ -293,7 +293,6 @@ public class MapsActivity extends AppCompatActivity implements
 
             case R.id.btn_pick_tiles:
                 TileUtils.chooseTileType(this);
-//                mMapsManager.setTileOverlay();
                 break;
 
             case R.id.btn_tracking:
@@ -385,13 +384,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case REQUEST_CODE_PICK_MAPSFORGE_FILE:
-                MapsForgeTilesProvider p = new MapsForgeTilesProvider(getApplication(),
-                        new File(fileList.get(0).getPath()));
-
-                mMapsManager.setCurrentMapTile(mMapsManager.getCurrentMap()
-                        .addTileOverlay(new TileOverlayOptions().tileProvider(p)));
-                mMapsManager.getCurrentMapTile().setZIndex(ZINDEX_BASEMAP);
-                mMapsManager.getCurrentMap().setMapType(GoogleMap.MAP_TYPE_NONE);
+                mMapFile = fileList.get(0).getPath();
+                setMapFile(this);
                 break;
 
             case REQUEST_CODE_PICK_KML_FILE:
@@ -505,9 +499,10 @@ public class MapsActivity extends AppCompatActivity implements
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("isTracking", mTrackingBtn.isSelected());
-        editor.putFloat("cameraLat", (float) mMap.getCameraPosition().target.latitude);
-        editor.putFloat("cameraLon", (float) mMap.getCameraPosition().target.longitude);
-        editor.putFloat("cameraZoom", mMap.getCameraPosition().zoom);
+        CameraPosition cameraPosition = mMap.getCameraPosition();
+        editor.putFloat("cameraLat", (float) cameraPosition.target.latitude);
+        editor.putFloat("cameraLon", (float) cameraPosition.target.longitude);
+        editor.putFloat("cameraZoom", cameraPosition.zoom);
         editor.putString("poiFile", mPoiFile);
         editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
         editor.putInt("coorSetting", CoorSysList.coorSetting);

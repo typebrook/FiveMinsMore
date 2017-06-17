@@ -1,26 +1,40 @@
-package io.typebrook.fiveminsmore.res;
+package io.typebrook.fiveminsmore.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
+import com.vincent.filepicker.Constant;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
 import io.typebrook.fiveminsmore.MapsActivity;
 import io.typebrook.fiveminsmore.MapsManager;
+import io.typebrook.fiveminsmore.R;
+import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.offlinetile.CoorTileProvider;
+import io.typebrook.fiveminsmore.offlinetile.MapsForgeTilesProvider;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
+import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
+import static io.typebrook.fiveminsmore.Constant.ZINDEX_ADDTILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
+import static io.typebrook.fiveminsmore.MapsActivity.mMapFile;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_HAPPYMAN;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_NLSC_PHOTO2;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_NLSC_TOWN;
@@ -55,12 +69,14 @@ public class TileUtils {
 
     private static final CharSequence[] ONLINE_TILES = {
             "Google衛星街道混合圖",
+            "Google道路地圖",
             "2001-經建三版地形圖",
             "1916-日治蕃地地形圖-1:50,000",
             "正射影像圖",
             "OpenStreetMap"};
 
     private static final CharSequence[] URL_ONLINE_TILES = {
+            null,
             null,
             URL_FORMAT_SINICA_TM25K_2001,
             URL_FORMAT_SINICA_JM50K_1916,
@@ -70,13 +86,14 @@ public class TileUtils {
     private static final CharSequence[] ADDITION_TILES = {
             "地圖產生器-航跡航點",
             "圖磚範圍",
-            "縣市界",
-          "清空"};
+            "鄉鎮界",
+            "清空"};
 
     private static final CharSequence[] URL_ADDITIONAL_TILES = {
             URL_FORMAT_HAPPYMAN,
             null,
-            URL_FORMAT_NLSC_TOWN};
+            URL_FORMAT_NLSC_TOWN,
+            null};
 
     public static void chooseTileType(final Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -86,13 +103,15 @@ public class TileUtils {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case TYPE_ONLINE:
-                                chooseOnlineTile(context);
+                                pickOnlineTile(context);
+                                break;
+
+                            case TYPE_OFFLINE:
+                                pickOfflineMap(context);
                                 break;
 
                             case TYPE_ADDITIONAL:
-                                chooseAdditionalTile(context);
-
-                            default:
+                                pickAdditionalTile(context);
                         }
                     }
                 });
@@ -100,7 +119,7 @@ public class TileUtils {
     }
 
     // 選取線上底圖
-    public static void chooseOnlineTile(final Context context) {
+    public static void pickOnlineTile(final Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("選擇線上底圖")
                 .setItems(ONLINE_TILES, new DialogInterface.OnClickListener() {
@@ -113,22 +132,64 @@ public class TileUtils {
                         if (lastTile != null)
                             lastTile.remove();
 
-                        if (which == 0)
-                            map.setMapType(MAP_TYPE_HYBRID);
-                        else {
-                            TileOverlay newTile = map.addTileOverlay(
-                                    getTileSetting(URL_ONLINE_TILES[which].toString()));
-                            newTile.setZIndex(ZINDEX_BASEMAP);
-                            manager.setCurrentMapTile(newTile);
-                            map.setMapType(MAP_TYPE_NONE);
+                        switch (which) {
+                            case 0:
+                                map.setMapType(MAP_TYPE_HYBRID);
+                                break;
+
+                            case 1:
+                                map.setMapType(MAP_TYPE_NORMAL);
+                                break;
+
+                            default:
+                                TileOverlay newTile = map.addTileOverlay(
+                                        getTileSetting(URL_ONLINE_TILES[which].toString()));
+                                newTile.setZIndex(ZINDEX_BASEMAP);
+                                manager.setCurrentMapTile(newTile);
+                                map.setMapType(MAP_TYPE_NONE);
                         }
                     }
                 });
         builder.show();
     }
 
+    public static void pickOfflineMap(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View pickOfflineMapView =
+                ((Activity) context).getLayoutInflater().inflate(R.layout.view_offline_map, null);
+        builder.setView(pickOfflineMapView);
+        builder.setTitle("離線底圖");
+
+        // 目前使用的*.map檔案
+        final TextView currentPoiFile = (TextView) pickOfflineMapView
+                .findViewById(R.id.current_offline_map_file);
+        currentPoiFile.setText(mMapFile != null ? mMapFile : "");
+
+        // 選擇*.map檔案
+        final Button pickMapFile = (Button) pickOfflineMapView
+                .findViewById(R.id.pick_offline_map_file);
+
+        builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (mMapFile != null)
+                    setMapFile((MapsActivity) context);
+            }
+        });
+
+        final AlertDialog dialog = builder.show();
+
+        pickMapFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+                pickMapFile(context);
+            }
+        });
+    }
+
     // 選取線上疊加圖層
-    public static void chooseAdditionalTile(final Context context) {
+    public static void pickAdditionalTile(final Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("選擇疊加圖層")
                 .setItems(ADDITION_TILES, new DialogInterface.OnClickListener() {
@@ -148,14 +209,15 @@ public class TileUtils {
                                                 new CoorTileProvider(context))));
                                 break;
 
-                            case 2:
-                                manager.addMapAddTiles(map.addTileOverlay(
-                                        getTileSetting(URL_ADDITIONAL_TILES[which].toString())));
-                                break;
-
-                            case 3:
+                            case 4:
                                 manager.clearCurrentMapAddTiles();
                                 break;
+
+                            default:
+                                TileOverlay tileOverlay = map.addTileOverlay(
+                                        getTileSetting(URL_ADDITIONAL_TILES[which].toString()));
+                                tileOverlay.setZIndex(ZINDEX_ADDTILE);
+                                manager.addMapAddTiles(tileOverlay);
                         }
                     }
                 });
@@ -183,4 +245,23 @@ public class TileUtils {
 
     // mapsforge suffix
     public static final String MAPSFORGE_SUFFIX = ".map";
+
+    public static void pickMapFile(Context context) {
+        Intent pickOfflineMapIntent = new Intent(context, CustomFilePickActivity.class);
+        pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
+        pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
+        ((Activity) context).startActivityForResult(pickOfflineMapIntent,
+                REQUEST_CODE_PICK_MAPSFORGE_FILE);
+    }
+
+    public static void setMapFile(MapsActivity context){
+        MapsForgeTilesProvider p = new MapsForgeTilesProvider(
+                context.getApplication(), new File(mMapFile));
+
+        MapsManager manager = context.getMapsManager();
+        manager.setCurrentMapTile(
+                manager.getCurrentMap().addTileOverlay(new TileOverlayOptions().tileProvider(p)));
+        manager.getCurrentMapTile().setZIndex(ZINDEX_BASEMAP);
+        manager.getCurrentMap().setMapType(GoogleMap.MAP_TYPE_NONE);
+    }
 }
