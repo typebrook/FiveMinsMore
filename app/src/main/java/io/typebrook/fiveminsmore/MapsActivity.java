@@ -221,8 +221,6 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 取得離線地圖檔案
         mMapFile = prefs.getString("mapFile", null);
-        if (mMapFile != null)
-            setMapFile(this);
 
         // 取得已開啟的GPX檔案
         mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
@@ -265,6 +263,10 @@ public class MapsActivity extends AppCompatActivity implements
             }
             mGpxManager.refreshDialog();
         }
+
+        // 開啟離線底圖(如果有的話)
+        if (mMapFile != null)
+            setMapFile(this);
 
         // TODO add blue dot beam to indicate user direction
     }
