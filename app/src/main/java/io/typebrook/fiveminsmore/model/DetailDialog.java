@@ -31,6 +31,7 @@ public class DetailDialog extends DialogFragment implements View.OnClickListener
         this.mLatLng = marker.getPosition();
     }
 
+    // 顯示marker詳細資訊
     @Override
     public Dialog onCreateDialog(Bundle values) {
         if (values != null){

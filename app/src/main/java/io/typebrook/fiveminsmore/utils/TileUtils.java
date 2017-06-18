@@ -199,18 +199,13 @@ public class TileUtils {
                         MapsManager manager = ((MapsActivity) context).getMapsManager();
                         GoogleMap map = manager.getCurrentMap();
                         switch (which) {
-                            case 0:
-                                manager.addMapAddTiles(map.addTileOverlay(
-                                        getTileSetting(URL_ADDITIONAL_TILES[which].toString())));
-                                break;
-
                             case 1:
                                 manager.addMapAddTiles(map.addTileOverlay(
                                         new TileOverlayOptions().tileProvider(
                                                 new CoorTileProvider(context))));
                                 break;
 
-                            case 4:
+                            case 3:
                                 manager.clearCurrentMapAddTiles();
                                 break;
 
