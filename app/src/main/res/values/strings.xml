@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FiveMinsMore</string>
+    <string name="app_name">再5分鐘就到了</string>
     <string name="title_activity_maps">再5分鐘</string>
 
     <string name="title_activity_file_pick">File Pick</string>

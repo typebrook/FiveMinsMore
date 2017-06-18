@@ -203,7 +203,6 @@ public class GpxUtils {
             trkseg.e("trkpt").a("lat", lat).a("lon", lon)
                     .e("ele").t(String.format(Locale.getDefault(), "%.0f", pt.getAltitude())).up()
                     .e("time").t(new DateTime(pt.getTime()).toString());
-            Log.d(TAG, new DateTime(pt.getTime()).toString());
         }
 
         // 若外部資料夾不存在，就建立新的

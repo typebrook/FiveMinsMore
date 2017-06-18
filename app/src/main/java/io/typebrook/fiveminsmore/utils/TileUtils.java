@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
@@ -91,7 +92,8 @@ public class TileUtils {
 
     private static final CharSequence[] ADDITION_TILES = {
             "地圖產生器-航跡航點",
-            "圖磚範圍",
+            "圖磚範圍(黑)",
+            "圖磚範圍(白)",
             "鄉鎮界",
             "清空"};
 
@@ -222,10 +224,16 @@ public class TileUtils {
                             case 1:
                                 manager.addMapAddTiles(map.addTileOverlay(
                                         new TileOverlayOptions().tileProvider(
-                                                new CoorTileProvider(context))));
+                                                new CoorTileProvider(context, Color.BLACK))));
                                 break;
 
-                            case 3:
+                            case 2:
+                                manager.addMapAddTiles(map.addTileOverlay(
+                                        new TileOverlayOptions().tileProvider(
+                                                new CoorTileProvider(context, Color.WHITE))));
+                                break;
+
+                            case 4:
                                 manager.clearCurrentMapAddTiles();
                                 break;
 

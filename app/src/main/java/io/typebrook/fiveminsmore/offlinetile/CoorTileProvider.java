@@ -23,14 +23,17 @@ public class CoorTileProvider implements TileProvider {
 
     private final Bitmap mBorderTile;
 
-    public CoorTileProvider(Context context) {
+    private int mColor;
+
+    public CoorTileProvider(Context context, int color) {
             /* Scale factor based on density, with a 0.8 multiplier to increase tile generation
              * speed */
         mScaleFactor = context.getResources().getDisplayMetrics().density * 0.8f;
+        mColor = color;
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setStrokeWidth(5f);
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setColor(Color.WHITE);
+        borderPaint.setColor(mColor);
         mBorderTile = Bitmap.createBitmap((int) (TILE_SIZE_DP * mScaleFactor),
                 (int) (TILE_SIZE_DP * mScaleFactor), android.graphics.Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mBorderTile);
@@ -61,7 +64,7 @@ public class CoorTileProvider implements TileProvider {
         Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
         mTextPaint.setTextSize(18 * mScaleFactor);
-        mTextPaint.setColor(Color.WHITE);
+        mTextPaint.setColor(mColor);
 
         canvas.drawText(tileCoords, TILE_SIZE_DP * mScaleFactor / 2,
                 TILE_SIZE_DP * mScaleFactor / 2, mTextPaint);

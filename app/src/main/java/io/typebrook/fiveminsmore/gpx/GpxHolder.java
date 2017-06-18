@@ -36,11 +36,19 @@ import static io.typebrook.fiveminsmore.Constant.ZINDEX_POLYLINE_CHOSEN;
  */
 
 public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem> {
+    public static final int ITEM_TYPE_GPX = 1;
+    public static final int ITEM_TYPE_TRACK = 2;
+    public static final int ITEM_TYPE_WAYPOINT = 3;
+    public static final int ITEM_TYPE_WAYPOINTS = 4;
+    public static final int ITEM_TYPE_KML = 5;
+    public static final int ITEM_ICON_GPX = R.drawable.ic_folder_black_24dp;
+    public static final int ITEM_ICON_WAYPOINT = R.drawable.ic_place_black_24dp;
+    public static final int ITEM_ICON_TRACK = R.drawable.ic_timeline_black_24dp;
     private static final String TAG = "GpxHolder";
+    public static Polyline lastClickedPolyline;
     private PrintView arrowView;
     private CheckBox nodeSelector;
     private MapsManager manager;
-    public static Polyline lastClickedPolyline;
 
     public GpxHolder(Context context) {
         super(context);
@@ -169,9 +177,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 }
                 manager.clusterTheMarkers();
             }
-        }
-
-                ;
+        };
     }
 
     // 展開後讓箭頭向下
@@ -272,14 +278,5 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             }
         }
     }
-
-    public static final int ITEM_TYPE_GPX = 1;
-    public static final int ITEM_TYPE_TRACK = 2;
-    public static final int ITEM_TYPE_WAYPOINT = 3;
-    public static final int ITEM_TYPE_WAYPOINTS = 4;
-    public static final int ITEM_TYPE_KML = 5;
-    public static final int ITEM_ICON_GPX = R.drawable.ic_folder_black_24dp;
-    public static final int ITEM_ICON_WAYPOINT = R.drawable.ic_place_black_24dp;
-    public static final int ITEM_ICON_TRACK = R.drawable.ic_timeline_black_24dp;
 
 }
