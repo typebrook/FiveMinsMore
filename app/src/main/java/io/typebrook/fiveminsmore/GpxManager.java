@@ -11,17 +11,15 @@ import android.widget.RelativeLayout;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
 
+import com.google.maps.android.data.kml.KmlLayer;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
 import java.util.Set;
 import java.util.TreeSet;
-
-import io.ticofab.androidgpxparser.parser.domain.Gpx;
 
 /**
  * Created by pham on 2017/4/30.
@@ -82,7 +80,7 @@ public class GpxManager {
         ((ViewGroup) mContext.findViewById(R.id.layout_container)).removeView(managerView);
     }
 
-    public void add(File file, MapsManager manager) {
+    public void addGpxFile(File file, MapsManager manager) {
         try {
             TreeNode gpxRoot = GpxUtils.gpxFile2TreeNode(file);
             gpxRoot.setViewHolder(new GpxHolder(mContext, manager));
@@ -101,7 +99,28 @@ public class GpxManager {
         }
     }
 
-    public void add(TreeNode node, MapsManager manager) {
+    public void addKmlFile(File file, MapsManager manager) {
+        try {
+            // TODO temporary method to deal with kml file
+            GpxHolder.GpxTreeItem.Builder kml_builder = new GpxHolder.GpxTreeItem.Builder();
+            InputStream kmlStream = new FileInputStream(file);
+            TreeNode kmlRoot = new TreeNode(kml_builder
+                    .setType(GpxHolder.ITEM_TYPE_KML)
+                    .setIcon(GpxHolder.ITEM_ICON_GPX)
+                    .setName(file.getName())
+                    .setPath(file.getPath())
+                    .setKmllayer(new KmlLayer(manager.getCurrentMap(), kmlStream, mContext))
+                    .build());
+            kmlRoot.setViewHolder(new GpxHolder(mContext, manager));
+
+            treeView.addNode(root, kmlRoot);
+
+        } catch (Exception e) {
+            Log.d(TAG, "Fail to load GPX file " + file.getName());
+        }
+    }
+
+    public void addGpxFile(TreeNode node, MapsManager manager) {
         node.setViewHolder(new GpxHolder(mContext, manager));
         treeView.addNode(root, node);
 
@@ -118,7 +137,7 @@ public class GpxManager {
     public Set<String> getGpxList() {
         Set<String> list = new TreeSet<>();
         for (TreeNode node : root.getChildren()){
-            list.add(((GpxHolder.GpxTreeItem)node.getValue()).gpxPath);
+            list.add(((GpxHolder.GpxTreeItem)node.getValue()).path);
         }
         return list;
     }

@@ -34,11 +34,13 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE;
+import static io.typebrook.fiveminsmore.Constant.SUFFIX_MAPSFORGE;
+import static io.typebrook.fiveminsmore.Constant.SUFFIX_THEME;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_ADDTILE;
 import static io.typebrook.fiveminsmore.Constant.ZINDEX_BASEMAP;
 import static io.typebrook.fiveminsmore.MapsActivity.currentDialog;
 import static io.typebrook.fiveminsmore.MapsActivity.mapFile;
-import static io.typebrook.fiveminsmore.MapsActivity.mThemeFile;
+import static io.typebrook.fiveminsmore.MapsActivity.themeFile;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_HAPPYMAN;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_NLSC_PHOTO2;
 import static io.typebrook.fiveminsmore.res.WmtsTile.URL_FORMAT_NLSC_TOWN;
@@ -172,7 +174,7 @@ public class TileUtils {
         // 目前使用的風格檔案
         final TextView currentThemeFile = (TextView) pickOfflineMapView
                 .findViewById(R.id.current_theme_file);
-        currentThemeFile.setText(mThemeFile != null ? new File(mThemeFile).getName() : "");
+        currentThemeFile.setText(themeFile != null ? new File(themeFile).getName() : "");
 
         // 選擇*.map檔案
         final Button pickMapFile = (Button) pickOfflineMapView
@@ -185,7 +187,7 @@ public class TileUtils {
         builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (mapFile != null && mThemeFile != null)
+                if (mapFile != null && themeFile != null)
                     setMapFile((MapsActivity) context);
             }
         });
@@ -257,14 +259,10 @@ public class TileUtils {
         return new TileOverlayOptions().tileProvider(provider);
     }
 
-    // mapsforge suffix
-    private static final String MAPSFORGE_SUFFIX = ".map";
-    private static final String MAPSFORGE_THEME_SUFFIX = ".xml";
-
     public static void pickMapFile(Context context) {
         Intent pickOfflineMapIntent = new Intent(context, CustomFilePickActivity.class);
         pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
-        pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_SUFFIX});
+        pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{SUFFIX_MAPSFORGE});
         ((Activity) context).startActivityForResult(pickOfflineMapIntent,
                 REQUEST_CODE_PICK_MAPSFORGE_FILE);
     }
@@ -272,7 +270,7 @@ public class TileUtils {
     public static void pickThemeFile(Context context) {
         Intent pickOfflineMapIntent = new Intent(context, CustomFilePickActivity.class);
         pickOfflineMapIntent.putExtra(Constant.MAX_NUMBER, 1);
-        pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{MAPSFORGE_THEME_SUFFIX});
+        pickOfflineMapIntent.putExtra(CustomFilePickActivity.SUFFIX, new String[]{SUFFIX_THEME});
         ((Activity) context).startActivityForResult(pickOfflineMapIntent,
                 REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE);
     }
@@ -281,7 +279,7 @@ public class TileUtils {
         MapsForgeTilesProvider provider;
         try {
              provider = new MapsForgeTilesProvider(
-                     context.getApplication(), new File(mapFile), new File(mThemeFile));
+                     context.getApplication(), new File(mapFile), new File(themeFile));
         } catch (Exception e) {
             mapFile = null;
             e.printStackTrace();

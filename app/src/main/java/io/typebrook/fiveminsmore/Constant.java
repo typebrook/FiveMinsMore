@@ -10,7 +10,7 @@ import java.io.File;
 
 /**
  * Created by pham on 2017/5/3.
- *
+ * <p>
  * Constant
  */
 
@@ -18,6 +18,13 @@ public class Constant {
     // Paths of this APP
     public static final File DIR_EXTERNAL = new File(Environment.getExternalStorageDirectory() + "/5MinsMore");
     public static final File DIR_GPX_FILE = new File(DIR_EXTERNAL.getPath() + "/gpx");
+
+
+    // mapsforge suffix
+    public static final String SUFFIX_MAPSFORGE = "map";
+    public static final String SUFFIX_THEME = "xml";
+    public static final String SUFFIX_GPX = "gpx";
+    public static final String SUFFIX_KML = "kml";
 
     // Center and Boundaries of TAIWAN
     public static final LatLng TAIWAN_CENTER = new LatLng(23.76, 120.96);
@@ -47,7 +54,7 @@ public class Constant {
     public static final int REQUEST_CODE_PICK_GPX_FILE = 0x500;
     public static final int REQUEST_CODE_PICK_MAPSFORGE_FILE = 0x600;
     public static final int REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE = 0x700;
-    public static final int REQUEST_CODE_PICK_KML_FILE = 0x800;
+    //    public static final int REQUEST_CODE_PICK_KML_FILE = 0x800;
     public static final int REQUEST_CODE_PICK_POI_FILE = 0x900;
 
     // TODO need to delete

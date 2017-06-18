@@ -12,7 +12,12 @@ import android.widget.TextView;
 import com.github.johnkil.print.PrintView;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.data.Feature;
+import com.google.maps.android.data.Geometry;
+import com.google.maps.android.data.kml.KmlLayer;
 import com.unnamed.b.atv.model.TreeNode;
+
+import java.util.Map;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
@@ -92,7 +97,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
 
                         value.polylines[0].setColor(CHOSEN_TRACK_COLOR);
                         value.polylines[0].setZIndex(ZINDEX_POLYLINE_CHOSEN);
-                        if (lastClickedPolyline != null){
+                        if (lastClickedPolyline != null) {
                             lastClickedPolyline.setColor(DEFAULT_TRACK_COLOR);
                             lastClickedPolyline.setZIndex(ZINDEX_POLYLINE);
                         }
@@ -147,11 +152,26 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                                 manager.getClusterManagers().get(mapCode).removeItem(value.marker);
                             }
                             break;
+
+                        case ITEM_TYPE_KML:
+                            if (value.kmllayer == null)
+                                break;
+                            if (isChecked) {
+                                try {
+                                    value.kmllayer.addLayerToMap();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                value.kmllayer.removeLayerFromMap();
+                            }
                     }
                 }
                 manager.clusterTheMarkers();
             }
-        };
+        }
+
+                ;
     }
 
     // 展開後讓箭頭向下
@@ -170,10 +190,10 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public int type;
         public int icon;
         public String gpxName;
+        public String path;
 
         // attribute for GPX
         public Gpx gpx;
-        public String gpxPath;
 
         // attribute for WayPoint
         public CustomMarker marker;
@@ -183,14 +203,18 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
         public PolylineOptions trkOpts;
         public Polyline[] polylines = {null, null};
 
+        // attribute for kml
+        public KmlLayer kmllayer;
+
         public GpxTreeItem(Builder builder) {
             type = builder.type;
             icon = builder.icon;
             gpxName = builder.gpxName;
             gpx = builder.gpx;
-            gpxPath = builder.gpxPath;
+            path = builder.gpxPath;
             marker = builder.marker;
             trkOpts = builder.trkOpts;
+            kmllayer = builder.kmllayer;
         }
 
         public static class Builder {
@@ -201,6 +225,11 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
             private String gpxPath;
             private CustomMarker marker;
             private PolylineOptions trkOpts;
+            private KmlLayer kmllayer;
+
+            public GpxTreeItem build() {
+                return new GpxTreeItem(this);
+            }
 
             public Builder setType(int type) {
                 this.type = type;
@@ -237,8 +266,9 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
                 return this;
             }
 
-            public GpxTreeItem build() {
-                return new GpxTreeItem(this);
+            public Builder setKmllayer(KmlLayer layer) {
+                this.kmllayer = layer;
+                return this;
             }
         }
     }
@@ -247,6 +277,7 @@ public class GpxHolder extends TreeNode.BaseNodeViewHolder<GpxHolder.GpxTreeItem
     public static final int ITEM_TYPE_TRACK = 2;
     public static final int ITEM_TYPE_WAYPOINT = 3;
     public static final int ITEM_TYPE_WAYPOINTS = 4;
+    public static final int ITEM_TYPE_KML = 5;
     public static final int ITEM_ICON_GPX = R.drawable.ic_folder_black_24dp;
     public static final int ITEM_ICON_WAYPOINT = R.drawable.ic_place_black_24dp;
     public static final int ITEM_ICON_TRACK = R.drawable.ic_timeline_black_24dp;

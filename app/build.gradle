@@ -47,6 +47,7 @@ dependencies {
     compile 'org.mapsforge:spatialite-android:0.8.0:natives-x86'
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     compile 'org.osmdroid:osmdroid-mapsforge:5.6.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'org.osgeo', name: 'proj4j', version: '0.1.0'
 
     testCompile 'junit:junit:4.12'

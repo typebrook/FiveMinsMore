@@ -54,9 +54,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.maps.android.data.Feature;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.filter.entity.NormalFile;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,24 +71,24 @@ import java.util.TreeSet;
 
 import io.ticofab.androidgpxparser.parser.domain.Gpx;
 import io.ticofab.androidgpxparser.parser.domain.WayPoint;
-import io.typebrook.fiveminsmore.poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.filepicker.CustomFilePickActivity;
 import io.typebrook.fiveminsmore.gpx.GpxHolder;
 import io.typebrook.fiveminsmore.gpx.GpxUtils;
 import io.typebrook.fiveminsmore.model.PolylilneStyle;
+import io.typebrook.fiveminsmore.poi.PoiSearchTask;
 import io.typebrook.fiveminsmore.res.CoorSysList;
 import io.typebrook.fiveminsmore.res.OtherAppPaths;
-import io.typebrook.fiveminsmore.utils.TileUtils;
 import io.typebrook.fiveminsmore.utils.MapUtils;
+import io.typebrook.fiveminsmore.utils.TileUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_D;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
-import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_POI_FILE;
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
+import static io.typebrook.fiveminsmore.Constant.SUFFIX_GPX;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
 import static io.typebrook.fiveminsmore.Constant.TIME_INTERVAL_FOR_TRACKING;
 import static io.typebrook.fiveminsmore.MapsManager.MAP_CODE_MAIN;
@@ -152,7 +155,7 @@ public class MapsActivity extends AppCompatActivity implements
     private int mFragmentsNumber = 0;
     private MenuItem CheckedMenuItem;
 
-    // TODO need to add corresponding functions
+    // TODO need to addGpxFile corresponding functions
     KmlLayer kmlLayer;
 
     CameraPosition lastCameraPosition;
@@ -163,7 +166,7 @@ public class MapsActivity extends AppCompatActivity implements
     public static String poiFile;
     // File of Mapsforge
     public static String mapFile;
-    public static String mThemeFile;
+    public static String themeFile;
     // GPX files we opened
     private Set<String> mGpxFileList = new TreeSet<>();
 
@@ -226,6 +229,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         // 取得離線地圖檔案
         mapFile = prefs.getString("mapFile", null);
+        themeFile = prefs.getString("themeFile", null);
 
         // 取得已開啟的GPX檔案
         mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
@@ -264,19 +268,19 @@ public class MapsActivity extends AppCompatActivity implements
         if (!mGpxFileList.isEmpty()) {
             for (String filePath : mGpxFileList) {
                 File file = new File(filePath);
-                mGpxManager.add(file, mMapsManager);
+                mGpxManager.addGpxFile(file, mMapsManager);
             }
             mGpxManager.refreshDialog();
         }
 
         // 開啟離線底圖(如果有的話)
         if (mapFile != null && new File(mapFile).exists()
-                && mThemeFile != null && new File(mThemeFile).exists())
+                && themeFile != null && new File(themeFile).exists())
             setMapFile(this);
         else
             mapFile = null;
 
-        // TODO add blue dot beam to indicate user direction
+        // TODO addGpxFile blue dot beam to indicate user direction
     }
 
     // Button functions on map
@@ -390,14 +394,6 @@ public class MapsActivity extends AppCompatActivity implements
             return;
 
         switch (requestCode) {
-            case REQUEST_CODE_PICK_GPX_FILE:
-                for (NormalFile fileData : fileList) {
-                    File file = new File(fileData.getPath());
-                    mGpxManager.add(file, mMapsManager);
-                }
-                mGpxManager.refreshDialog();
-                break;
-
             case REQUEST_CODE_PICK_MAPSFORGE_FILE:
                 mapFile = fileList.get(0).getPath();
 
@@ -408,23 +404,36 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE:
-                mThemeFile = fileList.get(0).getPath();
+                themeFile = fileList.get(0).getPath();
 
                 final TextView currentThemeFile =
                         (TextView) currentDialog.findViewById(R.id.current_theme_file);
-                currentThemeFile.setText(new File(mThemeFile).getName());
+                currentThemeFile.setText(new File(themeFile).getName());
 
                 break;
 
-            case REQUEST_CODE_PICK_KML_FILE:
-                try {
-                    InputStream kmlStream = new FileInputStream(new File(fileList.get(0).getPath()));
-                    kmlLayer = new KmlLayer(mMap, kmlStream, this);
-                    kmlLayer.addLayerToMap();
-                } catch (Exception e) {
-                    Log.d(TAG, e.toString());
+            case REQUEST_CODE_PICK_GPX_FILE:
+                for (NormalFile fileData : fileList) {
+                    File file = new File(fileData.getPath());
+                    String suffix = FilenameUtils.getExtension(file.getName());
+                    if (suffix.equals(SUFFIX_GPX)) {
+                        mGpxManager.addGpxFile(file, mMapsManager);
+                    } else {
+                        mGpxManager.addKmlFile(file, mMapsManager);
+                    }
+                    mGpxManager.refreshDialog();
                 }
                 break;
+//
+//            case REQUEST_CODE_PICK_KML_FILE:
+//                try {
+//                    InputStream kmlStream = new FileInputStream(new File(fileList.get(0).getPath()));
+//                    kmlLayer = new KmlLayer(mMap, kmlStream, this);
+//                    kmlLayer.addLayerToMap();
+//                } catch (Exception e) {
+//                    Log.d(TAG, e.toString());
+//                }
+//                break;
 
             case REQUEST_CODE_PICK_POI_FILE:
                 poiFile = fileList.get(0).getPath();
@@ -470,7 +479,7 @@ public class MapsActivity extends AppCompatActivity implements
 
             // 閱讀模式
 //            case R.id.action_read:
-                // TODO 目前先將閱讀模式停用
+            // TODO 目前先將閱讀模式停用
 //                if (CheckedMenuItem != null && item.getItemId() != CheckedMenuItem.getItemId())
 //                    onOptionsItemSelected(CheckedMenuItem);
 //
@@ -535,7 +544,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
         editor.putString("poiFile", poiFile);
         editor.putString("mapFile", mapFile);
-        editor.putString("themeFile", mThemeFile);
+        editor.putString("themeFile", themeFile);
         editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
         editor.putInt("coorSetting", CoorSysList.coorSetting);
         editor.apply(); //important, otherwise it wouldn't save.
@@ -729,7 +738,7 @@ public class MapsActivity extends AppCompatActivity implements
                 GpxUtils.polyline2Xml(getBaseContext(), trkName, mMyTrkpts);
 
                 // 將航跡加入GpxManager
-                mGpxManager.add(GpxUtils.locs2TreeNode(trkName, mMyTrkpts), mMapsManager);
+                mGpxManager.addGpxFile(GpxUtils.locs2TreeNode(trkName, mMyTrkpts), mMapsManager);
             }
         });
 
