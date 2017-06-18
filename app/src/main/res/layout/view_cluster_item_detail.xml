@@ -32,9 +32,14 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/wgs84"
+        android:id="@+id/wgs84_d"
         style="@style/projection_detail"
-        tools:text="wgs84座標" />
+        tools:text="wgs84座標(度)" />
+
+    <TextView
+        android:id="@+id/wgs84_dms"
+        style="@style/projection_detail"
+        tools:text="wgs84座標度(度分秒)" />
 
     <LinearLayout
         style="@style/projection_detail"
