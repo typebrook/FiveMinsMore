@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -163,7 +164,7 @@ public class TileUtils {
         // 目前使用的*.map檔案
         final TextView currentPoiFile = (TextView) pickOfflineMapView
                 .findViewById(R.id.current_offline_map_file);
-        currentPoiFile.setText(mMapFile != null ? mMapFile : "");
+        currentPoiFile.setText(mMapFile != null ? new File(mMapFile).getName() : "");
 
         // 選擇*.map檔案
         final Button pickMapFile = (Button) pickOfflineMapView
@@ -254,13 +255,20 @@ public class TileUtils {
                 REQUEST_CODE_PICK_MAPSFORGE_FILE);
     }
 
-    public static void setMapFile(MapsActivity context){
-        MapsForgeTilesProvider p = new MapsForgeTilesProvider(
-                context.getApplication(), new File(mMapFile));
+    public static void setMapFile(MapsActivity context) {
+        MapsForgeTilesProvider provider;
+        try {
+             provider = new MapsForgeTilesProvider(context.getApplication(), new File(mMapFile));
+        } catch (Exception e) {
+            mMapFile = null;
+            e.printStackTrace();
+            Toast.makeText(context, "無法開啟檔案", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         MapsManager manager = context.getMapsManager();
-        manager.setCurrentMapTile(
-                manager.getCurrentMap().addTileOverlay(new TileOverlayOptions().tileProvider(p)));
+        manager.setCurrentMapTile(manager.getCurrentMap().addTileOverlay(
+                new TileOverlayOptions().tileProvider(provider)));
         manager.getCurrentMapTile().setZIndex(ZINDEX_BASEMAP);
         manager.getCurrentMap().setMapType(GoogleMap.MAP_TYPE_NONE);
     }

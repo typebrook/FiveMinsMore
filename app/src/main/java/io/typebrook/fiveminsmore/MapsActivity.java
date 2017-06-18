@@ -265,8 +265,10 @@ public class MapsActivity extends AppCompatActivity implements
         }
 
         // 開啟離線底圖(如果有的話)
-        if (mMapFile != null)
+        if (mMapFile != null && new File(mMapFile).exists())
             setMapFile(this);
+        else
+            mMapFile = null;
 
         // TODO add blue dot beam to indicate user direction
     }
