@@ -41,10 +41,10 @@
         android:title="@string/double_maps_menu_item"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_read"
-        android:icon="@drawable/ic_clock_white_24dp"
-        android:orderInCategory="2"
-        android:title="@string/read_menu_item"
-        app:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/action_read"-->
+        <!--android:icon="@drawable/ic_clock_white_24dp"-->
+        <!--android:orderInCategory="2"-->
+        <!--android:title="@string/read_menu_item"-->
+        <!--app:showAsAction="always" />-->
 </menu>

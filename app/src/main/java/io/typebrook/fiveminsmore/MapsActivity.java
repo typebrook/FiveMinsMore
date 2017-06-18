@@ -448,8 +448,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             // 閱讀模式
-            case R.id.action_read:
-                // TODO 先將閱讀模式停用
+//            case R.id.action_read:
+                // TODO 目前先將閱讀模式停用
 //                if (CheckedMenuItem != null && item.getItemId() != CheckedMenuItem.getItemId())
 //                    onOptionsItemSelected(CheckedMenuItem);
 //
@@ -463,7 +463,7 @@ public class MapsActivity extends AppCompatActivity implements
 //                } else {
 //                    removeReadFragment();
 //                }
-                break;
+//                break;
 
             case R.id.gps:
                 Intent GpsConfigIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
