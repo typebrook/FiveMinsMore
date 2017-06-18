@@ -48,9 +48,9 @@ public class DetailDialog extends DialogFragment implements View.OnClickListener
         ((TextView) detailView.findViewById(R.id.title)).setText(mTitle);
         String coor_wgs84 = ProjFuncs.latLng2DString(mLatLng, false);
         ((TextView) detailView.findViewById(R.id.wgs84)).setText(coor_wgs84);
-        String coor_twd97 = ProjFuncs.twd2String(ProjFuncs.latlon2twd97(mLatLng));
+        String coor_twd97 = ProjFuncs.twd2String(ProjFuncs.latlon2twd97(mLatLng), "");
         ((TextView) detailView.findViewById(R.id.twd97)).setText(coor_twd97);
-        String coor_twd67 = ProjFuncs.twd2String(ProjFuncs.latlon2twd67(mLatLng));
+        String coor_twd67 = ProjFuncs.twd2String(ProjFuncs.latlon2twd67(mLatLng), "");
         ((TextView) detailView.findViewById(R.id.twd67)).setText(coor_twd67);
 
         detailView.findViewById(R.id.download_trk_file).setOnClickListener(this);

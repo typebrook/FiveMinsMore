@@ -63,14 +63,14 @@ public class ProjFuncs {
         return p2;
     }
 
-    public static String twd2String(ProjCoordinate coor) {
+    public static String twd2String(ProjCoordinate coor, String prefix) {
         String x = (int) coor.x + "";
         x = x.substring(0, x.length() - 3) + "-" + x.substring(x.length() - 3);
 
         String y = (int) coor.y + "";
         y = y.substring(0, y.length() - 3) + "-" + y.substring(x.length() - 3);
 
-        return x + ", " + y;
+        return prefix + x + ", " + y;
     }
 
     public static String latLng2DString(LatLng latLng, Boolean newLine) {
@@ -121,10 +121,10 @@ public class ProjFuncs {
                 return latLng2DmsString(latLng, newLine);
 
             case COOR_TWD97:
-                return twd2String(latlon2twd97(latLng));
+                return twd2String(latlon2twd97(latLng), "TWD97: ");
 
             case COOR_TWD67:
-                return twd2String(latlon2twd67(latLng));
+                return twd2String(latlon2twd67(latLng), "TWD67: ");
 
             default:
                 return latLng2DString(latLng, newLine);
