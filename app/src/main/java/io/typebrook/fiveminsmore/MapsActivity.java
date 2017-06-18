@@ -35,6 +35,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -82,6 +83,7 @@ import static io.typebrook.fiveminsmore.Constant.COOR_WGS84_D;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_GPX_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_KML_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_FILE;
+import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE;
 import static io.typebrook.fiveminsmore.Constant.REQUEST_CODE_PICK_POI_FILE;
 import static io.typebrook.fiveminsmore.Constant.STARTING_ZOOM;
 import static io.typebrook.fiveminsmore.Constant.TAIWAN_CENTER;
@@ -155,10 +157,13 @@ public class MapsActivity extends AppCompatActivity implements
 
     CameraPosition lastCameraPosition;
 
+    // Current Dialog
+    public static AlertDialog currentDialog;
     // File stores POIs
-    public static String mPoiFile;
+    public static String poiFile;
     // File of Mapsforge
-    public static String mMapFile;
+    public static String mapFile;
+    public static String mThemeFile;
     // GPX files we opened
     private Set<String> mGpxFileList = new TreeSet<>();
 
@@ -217,10 +222,10 @@ public class MapsActivity extends AppCompatActivity implements
         lastCameraPosition = new CameraPosition(lastTarget, lastZoom, 0, 0);
 
         // 取得POI檔案
-        mPoiFile = prefs.getString("poiFile", null);
+        poiFile = prefs.getString("poiFile", null);
 
         // 取得離線地圖檔案
-        mMapFile = prefs.getString("mapFile", null);
+        mapFile = prefs.getString("mapFile", null);
 
         // 取得已開啟的GPX檔案
         mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
@@ -265,10 +270,11 @@ public class MapsActivity extends AppCompatActivity implements
         }
 
         // 開啟離線底圖(如果有的話)
-        if (mMapFile != null && new File(mMapFile).exists())
+        if (mapFile != null && new File(mapFile).exists()
+                && mThemeFile != null && new File(mThemeFile).exists())
             setMapFile(this);
         else
-            mMapFile = null;
+            mapFile = null;
 
         // TODO add blue dot beam to indicate user direction
     }
@@ -362,10 +368,10 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case R.id.btn_search:
-                if (mPoiFile == null)
+                if (poiFile == null)
                     PoiSearchTask.suggestToPickPoiFile(this);
                 else
-                    PoiSearchTask.searchInterface(this, mMapsManager, mPoiFile);
+                    PoiSearchTask.searchInterface(this, mMapsManager, poiFile);
                 break;
 
             case R.id.tvCoord:
@@ -393,8 +399,21 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case REQUEST_CODE_PICK_MAPSFORGE_FILE:
-                mMapFile = fileList.get(0).getPath();
-                setMapFile(this);
+                mapFile = fileList.get(0).getPath();
+
+                final TextView currentMapFile =
+                        (TextView) currentDialog.findViewById(R.id.current_map_file);
+                currentMapFile.setText(new File(mapFile).getName());
+
+                break;
+
+            case REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE:
+                mThemeFile = fileList.get(0).getPath();
+
+                final TextView currentThemeFile =
+                        (TextView) currentDialog.findViewById(R.id.current_theme_file);
+                currentThemeFile.setText(new File(mThemeFile).getName());
+
                 break;
 
             case REQUEST_CODE_PICK_KML_FILE:
@@ -408,8 +427,8 @@ public class MapsActivity extends AppCompatActivity implements
                 break;
 
             case REQUEST_CODE_PICK_POI_FILE:
-                mPoiFile = fileList.get(0).getPath();
-                if (mPoiFile == null)
+                poiFile = fileList.get(0).getPath();
+                if (poiFile == null)
                     Toast.makeText(this, "無法開啟檔案", Toast.LENGTH_SHORT).show();
                 else
                     onClick(mPoiSearchBtn);
@@ -514,8 +533,9 @@ public class MapsActivity extends AppCompatActivity implements
             editor.putFloat("cameraLon", (float) cameraPosition.target.longitude);
             editor.putFloat("cameraZoom", cameraPosition.zoom);
         }
-        editor.putString("poiFile", mPoiFile);
-        editor.putString("mapFile", mMapFile);
+        editor.putString("poiFile", poiFile);
+        editor.putString("mapFile", mapFile);
+        editor.putString("themeFile", mThemeFile);
         editor.putStringSet("gpxFiles", mGpxManager.getGpxList());
         editor.putInt("coorSetting", CoorSysList.coorSetting);
         editor.apply(); //important, otherwise it wouldn't save.

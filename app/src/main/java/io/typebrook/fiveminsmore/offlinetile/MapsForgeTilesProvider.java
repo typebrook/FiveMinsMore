@@ -2,6 +2,7 @@ package io.typebrook.fiveminsmore.offlinetile;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
@@ -20,8 +21,8 @@ public class MapsForgeTilesProvider implements TileProvider {
 
     private MapsforgeTileSource source;
 
-    public MapsForgeTilesProvider(Application app, File file) {
-        source = MapsforgeTileSource.createFromFiles(app, file);
+    public MapsForgeTilesProvider(Application app, File mapFile, File themeFile) {
+        source = MapsforgeTileSource.createFromFiles(app, mapFile, themeFile);
     }
 
     @Override

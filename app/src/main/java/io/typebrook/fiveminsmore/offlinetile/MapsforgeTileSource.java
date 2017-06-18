@@ -80,16 +80,15 @@ public class MapsforgeTileSource {
      * database. If they cannot be obtained from the DB, the default values as
      * defined by this class are used, which is zoom = 3-20
      *
-     * @param file
      * @return the tile source
      */
-    public static MapsforgeTileSource createFromFiles(Application app, File file) {
+    public static MapsforgeTileSource createFromFiles(Application app, File mapFile, File themeFile) {
         Log.d(TAG, "createFromFiles");
 
         ExternalRenderTheme renderTheme;
 
         try {
-            renderTheme = new ExternalRenderTheme(Constant.DEFAULT_THEME_PATH);
+            renderTheme = new ExternalRenderTheme(themeFile);
             Log.d(TAG, "find themeFuture file");
             if (renderTheme.getRelativePathPrefix() != null)
                 Log.d(TAG, renderTheme.getRelativePathPrefix());
@@ -98,7 +97,7 @@ public class MapsforgeTileSource {
             renderTheme = null;
         }
 
-        return new MapsforgeTileSource(app, file, renderTheme, MultiMapDataStore.DataPolicy.RETURN_FIRST);
+        return new MapsforgeTileSource(app, mapFile, renderTheme, MultiMapDataStore.DataPolicy.RETURN_FIRST);
     }
 
     //The synchronized here is VERY important.  If missing, the mapDatabase read gets corrupted by multiple threads reading the file at once.

@@ -46,8 +46,9 @@ public class Constant {
     // Code for filepicker package
     public static final int REQUEST_CODE_PICK_GPX_FILE = 0x500;
     public static final int REQUEST_CODE_PICK_MAPSFORGE_FILE = 0x600;
-    public static final int REQUEST_CODE_PICK_KML_FILE = 0x700;
-    public static final int REQUEST_CODE_PICK_POI_FILE = 0x800;
+    public static final int REQUEST_CODE_PICK_MAPSFORGE_THEME_FILE = 0x700;
+    public static final int REQUEST_CODE_PICK_KML_FILE = 0x800;
+    public static final int REQUEST_CODE_PICK_POI_FILE = 0x900;
 
     // TODO need to delete
     public static final String DEFAULT_THEME_PATH =
