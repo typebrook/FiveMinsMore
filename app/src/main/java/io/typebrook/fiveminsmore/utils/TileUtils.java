@@ -261,6 +261,10 @@ public class TileUtils {
             return;
         }
 
+        TileOverlay lastTile = context.getMapsManager().getCurrentMapTile();
+        if (lastTile != null)
+            lastTile.remove();
+
         MapsManager manager = context.getMapsManager();
         manager.setCurrentMapTile(manager.getCurrentMap().addTileOverlay(
                 new TileOverlayOptions().tileProvider(provider)));
