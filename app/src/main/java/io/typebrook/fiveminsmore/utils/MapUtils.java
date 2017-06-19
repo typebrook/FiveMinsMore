@@ -30,7 +30,6 @@ public class MapUtils {
         map.setMinZoomPreference(TAIWAN_ZOOM_MIN);
         map.setMaxZoomPreference(TAIWAN_ZOOM_MAX);
         map.setLatLngBoundsForCameraTarget(TAIWAN_BOUNDARY);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(TAIWAN_CENTER, STARTING_ZOOM));
     }
 
     public static void zoomToPolyline(GoogleMap map, Polyline p) {

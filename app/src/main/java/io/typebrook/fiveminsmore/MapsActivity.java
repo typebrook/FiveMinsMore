@@ -54,7 +54,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.maps.android.data.Feature;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.filter.entity.NormalFile;
@@ -62,8 +61,6 @@ import com.vincent.filepicker.filter.entity.NormalFile;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -109,9 +106,13 @@ public class MapsActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         ResultCallback<LocationSettingsResult> {
 
+    // Tag for log
     private final String TAG = "MapsActivity";
 
+    // Code to get the Permissions for accessing location
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3857;
+
+    // Preference including last camera position/file used
     private final String PREFS_NAME = "PREFS_5MinsMore";
 
     // 地圖元件
@@ -155,20 +156,18 @@ public class MapsActivity extends AppCompatActivity implements
     private int mFragmentsNumber = 0;
     private MenuItem CheckedMenuItem;
 
-    // TODO need to addGpxFile corresponding functions
-    KmlLayer kmlLayer;
-
-    CameraPosition lastCameraPosition;
-
     // Current Dialog
     public static AlertDialog currentDialog;
+
+    // 取得Preference 內的相機位置
+    CameraPosition lastCameraPosition;
+    // GPX files opened
+    private Set<String> mGpxFileList = new TreeSet<>();
     // File stores POIs
     public static String poiFile;
     // File of Mapsforge
     public static String mapFile;
     public static String themeFile;
-    // GPX files we opened
-    private Set<String> mGpxFileList = new TreeSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,15 +223,15 @@ public class MapsActivity extends AppCompatActivity implements
         Float lastZoom = prefs.getFloat("cameraZoom", STARTING_ZOOM);
         lastCameraPosition = new CameraPosition(lastTarget, lastZoom, 0, 0);
 
+        // 取得已開啟的GPX檔案
+        mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
+
         // 取得POI檔案
         poiFile = prefs.getString("poiFile", null);
 
         // 取得離線地圖檔案
         mapFile = prefs.getString("mapFile", null);
         themeFile = prefs.getString("themeFile", null);
-
-        // 取得已開啟的GPX檔案
-        mGpxFileList = prefs.getStringSet("gpxFiles", mGpxFileList);
 
         // 還原座標表示設定
         CoorSysList.coorSetting = prefs.getInt("coorSetting", COOR_WGS84_D);
@@ -254,7 +253,7 @@ public class MapsActivity extends AppCompatActivity implements
         else
             askPermission();
 
-        // Set the boundaries of Taiwan, and set other view by using onCameraMove().
+        // Set the boundaries of Taiwan
         MapUtils.setTaiwanBoundaries(map);
 
         // 設定相機位置
@@ -277,10 +276,8 @@ public class MapsActivity extends AppCompatActivity implements
         if (mapFile != null && new File(mapFile).exists()
                 && themeFile != null && new File(themeFile).exists())
             setMapFile(this);
-        else
-            mapFile = null;
 
-        // TODO addGpxFile blue dot beam to indicate user direction
+        // TODO blue dot beam to indicate user direction
     }
 
     // Button functions on map
@@ -424,16 +421,6 @@ public class MapsActivity extends AppCompatActivity implements
                     mGpxManager.refreshDialog();
                 }
                 break;
-//
-//            case REQUEST_CODE_PICK_KML_FILE:
-//                try {
-//                    InputStream kmlStream = new FileInputStream(new File(fileList.get(0).getPath()));
-//                    kmlLayer = new KmlLayer(mMap, kmlStream, this);
-//                    kmlLayer.addLayerToMap();
-//                } catch (Exception e) {
-//                    Log.d(TAG, e.toString());
-//                }
-//                break;
 
             case REQUEST_CODE_PICK_POI_FILE:
                 poiFile = fileList.get(0).getPath();
