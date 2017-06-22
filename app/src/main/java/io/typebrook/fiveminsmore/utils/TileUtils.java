@@ -100,6 +100,7 @@ public class TileUtils {
     private static final CharSequence[] URL_ADDITIONAL_TILES = {
             URL_FORMAT_HAPPYMAN,
             null,
+            null,
             URL_FORMAT_NLSC_TOWN,
             null};
 
