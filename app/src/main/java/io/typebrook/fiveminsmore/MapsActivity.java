@@ -272,11 +272,6 @@ public class MapsActivity extends AppCompatActivity implements
             mGpxManager.refreshDialog();
         }
 
-        // 開啟離線底圖(如果有的話)
-        if (mapFile != null && new File(mapFile).exists()
-                && themeFile != null && new File(themeFile).exists())
-            setMapFile(this);
-
         // TODO blue dot beam to indicate user direction
     }
 

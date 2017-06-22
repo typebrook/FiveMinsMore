@@ -64,16 +64,6 @@ public class TileUtils {
             "疊加圖層"
     };
 
-//    public static final CharSequence[] ONLINE_TILES = {
-//            "Google衛星街道混合圖",
-//            "經建三版地形圖",
-//            "OpenStreetMap",
-//            "正射影像圖",
-//            "離線地圖",
-//            "HappyMan",
-//            "clear",
-//            "Tile Grid"};
-
     private static final CharSequence[] ONLINE_TILES = {
             "Google衛星街道混合圖",
             "Google道路地圖",
